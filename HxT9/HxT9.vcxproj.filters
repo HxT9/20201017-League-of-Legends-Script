@@ -1,0 +1,322 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\D3D9">
+      <UniqueIdentifier>{d26eb9d3-8f7a-43ee-91ce-f53df87c3851}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IMGui">
+      <UniqueIdentifier>{f9a1e3ab-a102-4e57-8379-044c0f065a9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IMGui">
+      <UniqueIdentifier>{9c8a3926-4227-4085-afcd-630ecc262068}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{aa9fc90a-34d4-4f44-b5a7-c405d5537411}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities">
+      <UniqueIdentifier>{a7e888c6-9f08-400a-8e93-faf2a91aea38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameObjects">
+      <UniqueIdentifier>{69632bb1-3214-4a4d-9968-59a9c2128d8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameObjects">
+      <UniqueIdentifier>{18822718-6497-4fae-a79f-d9730f1a332c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Global">
+      <UniqueIdentifier>{4ae13fee-63db-4ff1-8392-65fbd795dfcd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Global">
+      <UniqueIdentifier>{ffe57306-eaca-4d3d-a1e5-9bf0c5fbbf30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameObjects\Spell">
+      <UniqueIdentifier>{22c6780d-cf5b-4e17-9545-46f42933ec09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameObjects\Buff">
+      <UniqueIdentifier>{1d334030-0186-4fe5-95ef-1bd9d2c43727}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameObjects\Spell">
+      <UniqueIdentifier>{5f168c55-6a7f-4202-8d19-b0ec7aa6bfa1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameObjects\Buff">
+      <UniqueIdentifier>{4b55d01c-b6b4-4590-ac8b-71a48712fe48}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="d3dx9tex.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9xof.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d9.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9anim.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9core.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9effect.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9math.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9mesh.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9shader.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9shape.h">
+      <Filter>Header Files\D3D9</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_internal.h">
+      <Filter>Header Files\IMGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_rectpack.h">
+      <Filter>Header Files\IMGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_textedit.h">
+      <Filter>Header Files\IMGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_truetype.h">
+      <Filter>Header Files\IMGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imconfig.h">
+      <Filter>Header Files\IMGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui.h">
+      <Filter>Header Files\IMGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_dx9.h">
+      <Filter>Header Files\IMGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_win32.h">
+      <Filter>Header Files\IMGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Detour.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveSpell.h">
+      <Filter>Header Files\GameObjects\Spell</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseUlt.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="BuffEntry.h">
+      <Filter>Header Files\GameObjects\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BuffInfo.h">
+      <Filter>Header Files\GameObjects\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BuffManager.h">
+      <Filter>Header Files\GameObjects\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="CastingStruct.h">
+      <Filter>Header Files\GameObjects\Spell</Filter>
+    </ClInclude>
+    <ClInclude Include="ChampionScript.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="CObject.h">
+      <Filter>Header Files\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawer.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="EntitiesContainer.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="Enums.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Equation.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="functionDefinitions.h">
+      <Filter>Header Files\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFunctions.h">
+      <Filter>Header Files\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="globalVars.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI_Manager.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="LocalPlayer.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillShot.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillShotDrawer.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="SpellBook.h">
+      <Filter>Header Files\GameObjects\Spell</Filter>
+    </ClInclude>
+    <ClInclude Include="SpellData.h">
+      <Filter>Header Files\GameObjects\Spell</Filter>
+    </ClInclude>
+    <ClInclude Include="SpellInfo.h">
+      <Filter>Header Files\GameObjects\Spell</Filter>
+    </ClInclude>
+    <ClInclude Include="SpellSlot.h">
+      <Filter>Header Files\GameObjects\Spell</Filter>
+    </ClInclude>
+    <ClInclude Include="Structs.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="TargetSelector.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="UtilityFunctions.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbWalker.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="d3d9.lib">
+      <Filter>Header Files\D3D9</Filter>
+    </Library>
+    <Library Include="d3dx9.lib">
+      <Filter>Header Files\D3D9</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="d3dx9math.inl">
+      <Filter>Header Files\D3D9</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="imgui_impl_win32.cpp">
+      <Filter>Source Files\IMGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_widgets.cpp">
+      <Filter>Source Files\IMGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui.cpp">
+      <Filter>Source Files\IMGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_draw.cpp">
+      <Filter>Source Files\IMGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_dx9.cpp">
+      <Filter>Source Files\IMGui</Filter>
+    </ClCompile>
+    <ClCompile Include="HxT9.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Detour.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="ActiveSpell.cpp">
+      <Filter>Source Files\GameObjects\Spell</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseUlt.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="BuffInfo.cpp">
+      <Filter>Source Files\GameObjects\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BuffManager.cpp">
+      <Filter>Source Files\GameObjects\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="CastingStruct.cpp">
+      <Filter>Source Files\GameObjects\Spell</Filter>
+    </ClCompile>
+    <ClCompile Include="ChampionScript.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="CObject.cpp">
+      <Filter>Source Files\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawer.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="EntitiesContainer.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="Equation.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFunctions.cpp">
+      <Filter>Source Files\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="globalVars.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI_Manager.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="LocalPlayer.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SkillShot.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="SkillShotDrawer.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="SpellBook.cpp">
+      <Filter>Source Files\GameObjects\Spell</Filter>
+    </ClCompile>
+    <ClCompile Include="SpellData.cpp">
+      <Filter>Source Files\GameObjects\Spell</Filter>
+    </ClCompile>
+    <ClCompile Include="SpellInfo.cpp">
+      <Filter>Source Files\GameObjects\Spell</Filter>
+    </ClCompile>
+    <ClCompile Include="SpellSlot.cpp">
+      <Filter>Source Files\GameObjects\Spell</Filter>
+    </ClCompile>
+    <ClCompile Include="TargetSelector.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="utilities.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="UtilityFunctions.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbWalker.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
