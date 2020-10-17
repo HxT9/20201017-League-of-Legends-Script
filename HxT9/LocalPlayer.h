@@ -13,7 +13,10 @@ public:
 	float AADelay; //Delay between autoattacks
 
 	float NextAATime;
-	float LastAATime;
+	float LastAAEndTime;
+	float LastAABeginTime;
+	float AACheckDelay;
+	float lastAACheck;
 	float nextActionTime;
 	float nextSpellTime;
 	Behaviour behaviour;

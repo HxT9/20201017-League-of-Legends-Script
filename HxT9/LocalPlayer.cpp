@@ -116,12 +116,15 @@ void LocalPlayer::init() {
 	AAMissileSpeed = 2000;
 	AACastTime = 0.5;
 	NextAATime = 0; 
-	LastAATime = 0; //Settato a quando l'AA finisce il cast
+	LastAAEndTime = 0; //Settato a quando l'AA finisce il cast
+	LastAABeginTime = 0; //Settato a quando l'AA inizia il cast
 	nextActionTime = 0;
 	nextSpellTime = 0;
 	behaviour = Behaviour::Nothing;
 	delay = 0.1;
 	spellDelay = 0.1;
+	AACheckDelay = 0.1;
+	lastAACheck = 0;
 	LPObject = 0;
 	useSpell = true;
 	curPathIndex = 0;
@@ -132,17 +135,21 @@ void LocalPlayer::init() {
 	chargingEndTime = 0;
 }
 void LocalPlayer::tick() {
-	AACastTime = GH.getAttackCastDelay(LPObject);
-	AADelay = GH.getAttackDelay(LPObject);
-
 	if (LPObject->GetActiveSpell() != NULL && gameTime > NextAATime &&
 		std::string(LPObject->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetMissileName()).find("Attack") != std::string::npos) {
 
 		AAMissileSpeed = LPObject->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetSpellSpeed();
-		if (gameTime > LastAATime) {
-			LastAATime = gameTime + AACastTime;
-			NextAATime = gameTime + AADelay;
+		if (gameTime > LastAAEndTime) {
+			LastAABeginTime = gameTime;
+			LastAAEndTime = LastAABeginTime + GH.getAttackCastDelay(LPObject);
+			NextAATime = LastAABeginTime + GH.getAttackDelay(LPObject);
 			afterAACalled = false;
+		}
+	}
+	else {
+		if (gameTime > lastAACheck) {
+			NextAATime = LastAABeginTime + GH.getAttackDelay(LPObject);
+			lastAACheck = gameTime + AACheckDelay;
 		}
 	}
 
@@ -156,7 +163,7 @@ void LocalPlayer::AutoAttack(CObject* target){
 			myIssueOrder(this->LPObject, 3, &(target->GetPos()), target, false, GH.isMinion(target), true);
 			nextActionTime = gameTime + delay + Humanize();
 		}
-		else if (gameTime >= LastAATime) {
+		else if (gameTime >= LastAAEndTime) {
 			if (!afterAACalled) {
 				afterAACalled = true;
 			}
