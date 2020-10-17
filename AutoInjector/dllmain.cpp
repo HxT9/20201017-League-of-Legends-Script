@@ -16,7 +16,7 @@ void do_things() {
 	bool injected = false;
 
 	// path to our dll
-	LPCSTR DllPath = "E:\\alber\\source\\repos\\20200112 LOL Hack\\Release\\Blitz.dll";
+	LPCSTR DllPath = "E:\\alber\\source\\repos\\20201017-League-of-Legends-Script\\Release\\Blitz.dll";
 	LPWSTR ProcessName = (LPWSTR)L"League of Legends.exe";
 
 	PROCESSENTRY32 entry;
