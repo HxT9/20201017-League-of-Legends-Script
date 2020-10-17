@@ -15,7 +15,6 @@ public:
 	void drawDebug();
 	void* __cdecl get_peb();
 	CObject* getMissileSourceEntity(CObject* missile);
-	CObject* getMissileTargetEntity(CObject* missile);
 	bool isCollision(Vector3 start, Vector3 end, float width, Vector3 center, float radius);
 	int minionsColliding(Vector3 start, Vector3 end, float width);
 	int heroesColliding(Vector3 start, Vector3 end, float width);

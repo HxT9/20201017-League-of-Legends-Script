@@ -8,7 +8,7 @@ CObject* TargetSelector::getBestMinion(bool onlyLastHit, float dmg, float range,
 	CObject* randomMinion = NULL;
 	CObject* temp;
 	for (int i = 0; i < entities.minions.size(); i++) {
-		temp = entities.minions[entities.vMinions[i]];
+		temp = entities.minions[i];
 		if (temp->GetTeam() == myHero.LPObject->GetTeam()
 			|| temp->GetPos().distTo(myHero.LPObject->GetPos()) >= (range + myHero.LPObject->GetBoundingRadius())
 			|| !GH.isTargetable(temp) || !GH.isAlive(temp) || temp->GetMaxHealth() < 10)
@@ -18,11 +18,11 @@ CObject* TargetSelector::getBestMinion(bool onlyLastHit, float dmg, float range,
 
 		dmgIncoming = 0;
 		for (int j = 0; j < entities.missiles.size(); j++) {
-			if (entities.missiles[entities.vMissiles[j]]->GetMissileTargetIndex() != temp->GetIndex())
+			if (entities.missiles[j]->GetMissileTargetIndex() != temp->GetIndex())
 				continue;
 
-			if (entities.missiles[entities.vMissiles[j]]->GetPos().distTo(temp->GetPos()) / 500 < AATimeNeeded)
-				dmgIncoming += utils.getMissileSourceEntity(entities.missiles[entities.vMissiles[j]])->GetTotalAttackDamage();
+			if (entities.missiles[j]->GetPos().distTo(temp->GetPos()) / 500 < AATimeNeeded)
+				dmgIncoming += utils.getMissileSourceEntity(entities.missiles[j])->GetTotalAttackDamage();
 		}
 
 		if (dmg > temp->GetHealth()) {
@@ -45,7 +45,7 @@ CObject* TargetSelector::getBestChampion() {
 	CObject* bestHero = NULL;
 	CObject* temp;
 	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[entities.vHeroes[i]];
+		temp = entities.heroes[i];
 		if (utils.isValidTarget(temp) && 
 			temp->GetTeam() != myHero.LPObject->GetTeam() &&
 			temp->GetPos().distTo(myHero.LPObject->GetPos()) < (myHero.LPObject->GetAttackRange() + myHero.LPObject->GetBoundingRadius() + temp->GetBoundingRadius()) &&
@@ -64,7 +64,7 @@ CObject* TargetSelector::getBestChampion(float range) {
 	CObject* bestHero = NULL;
 	CObject* temp;
 	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[entities.vHeroes[i]];
+		temp = entities.heroes[i];
 		if (utils.isValidTarget(temp) && 
 			temp->GetTeam() != myHero.LPObject->GetTeam() &&
 			GH.isAlive(temp) &&
@@ -82,7 +82,7 @@ CObject* TargetSelector::getBestChampion(float range) {
 CObject* TargetSelector::getTurret() {
 	CObject* temp;
 	for (int i = 0; i < entities.turrets.size(); i++) {
-		temp = entities.turrets[entities.vTurrets[i]];
+		temp = entities.turrets[i];
 		if (utils.isValidTarget(temp) &&
 			temp->GetTeam() != myHero.LPObject->GetTeam() &&
 			temp->GetPos().distTo(myHero.LPObject->GetPos()) < (myHero.LPObject->GetAttackRange() + myHero.LPObject->GetBoundingRadius() + temp->GetBoundingRadius()))

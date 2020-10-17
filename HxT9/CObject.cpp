@@ -198,7 +198,7 @@ int CObject::getCloseEnemyMinions(float range) {
 	int ret = 0;
 	CObject* temp;
 	for (int i = 0; i < entities.minions.size(); i++) {
-		temp = entities.minions[entities.vMinions[i]];
+		temp = entities.minions[i];
 		if (utils.isValidTarget(temp) && temp->GetTeam() != GetTeam() && temp->GetPos().distTo(GetPos()) < range) {
 			ret++;
 		}

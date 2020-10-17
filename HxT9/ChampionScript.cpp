@@ -111,7 +111,7 @@ void ChampionScript::tick() {
 		case Behaviour::LastHit:
 			if (myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellLvl() == 5) {
 				for (int i = 0; i < entities.minions.size(); i++) {
-					temp = entities.minions[entities.vMinions[i]];
+					temp = entities.minions[i];
 					if (utils.isValidTarget(temp) && temp->GetPos().distTo(myHero.LPObject->GetPos()) <= 1100) {
 						if (getKalistaSpearDamage(temp) > temp->GetHealth()) {
 							if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
@@ -125,7 +125,7 @@ void ChampionScript::tick() {
 		case Behaviour::Push:
 			if (myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellLvl() == 5) {
 				for (int i = 0; i < entities.minions.size(); i++) {
-					temp = entities.minions[entities.vMinions[i]];
+					temp = entities.minions[i];
 					if (utils.isValidTarget(temp) && temp->GetPos().distTo(myHero.LPObject->GetPos()) <= 1100) {
 						if (getKalistaSpearDamage(temp) > temp->GetHealth()) {
 							if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
@@ -138,7 +138,7 @@ void ChampionScript::tick() {
 			break;
 		case Behaviour::Combo:
 			for (int i = 0; i < entities.heroes.size(); i++) {
-				temp = entities.heroes[entities.vHeroes[i]];
+				temp = entities.heroes[i];
 				if (utils.isValidTarget(temp) && temp->GetPos().distTo(myHero.LPObject->GetPos()) <= 1100) {
 					if (getKalistaSpearDamage(temp) > temp->GetHealth()) {
 						if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {

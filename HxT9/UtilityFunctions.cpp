@@ -24,7 +24,7 @@ void UtilityFunctions::drawEntitiesRange() {
 	float r;
 	CObject* temp;
 	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[entities.vHeroes[i]];
+		temp = entities.heroes[i];
 		if (isValidTarget(temp)) {
 			r = temp->GetAttackRange() + temp->GetBoundingRadius();
 			if (temp->GetTeam() != myHero.LPObject->GetTeam()) {
@@ -35,7 +35,7 @@ void UtilityFunctions::drawEntitiesRange() {
 		}
 	}
 	for (int i = 0; i < entities.turrets.size(); i++) {
-		temp = entities.turrets[entities.vTurrets[i]];
+		temp = entities.turrets[i];
 		if (temp->GetTeam() != myHero.LPObject->GetTeam() && temp->IsVisible() && temp->GetHealth() > 1) {
 			drawer.drawCircumference(temp->GetPos(), 850, 30, 0xffff0000, 3);
 		}
@@ -50,7 +50,7 @@ void UtilityFunctions::drawLastHittableMinions() {
 	float dmgIncoming, AATimeNeeded;
 	CObject *temp, *missile;
 	for (int i = 0; i < entities.minions.size(); i++) {
-		temp = entities.minions[entities.vMinions[i]];
+		temp = entities.minions[i];
 		if (!isValidTarget(temp)
 			|| temp->GetTeam() == myHero.LPObject->GetTeam()
 			|| temp->GetPos().distTo(myHero.LPObject->GetPos()) > 1500
@@ -60,7 +60,7 @@ void UtilityFunctions::drawLastHittableMinions() {
 		AATimeNeeded = (temp->GetPos().distTo(myHero.LPObject->GetPos()) / myHero.AAMissileSpeed) + myHero.AACastTime;
 		dmgIncoming = 0;
 		for (int j = 0; j < entities.missiles.size(); j++) {
-			missile = entities.missiles[entities.vMissiles[j]];
+			missile = entities.missiles[j];
 			if (missile->GetMissileTargetIndex() != temp->GetIndex())
 				continue;
 
@@ -101,7 +101,7 @@ __declspec(naked) void* __cdecl UtilityFunctions::get_peb()
 void UtilityFunctions::drawPredictedPos() {
 	CObject* temp;
 	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[entities.vHeroes[i]];
+		temp = entities.heroes[i];
 		if (isValidTarget(temp) && temp->GetTeam() != myHero.LPObject->GetTeam()) {
 			drawer.drawCircumference(getPredictedPos(temp, 1), 40, 15, 0xff00ffff, 2);
 		}
@@ -109,31 +109,19 @@ void UtilityFunctions::drawPredictedPos() {
 }
 
 CObject* UtilityFunctions::getMissileSourceEntity(CObject* missile) {
-	int id = missile->GetMissileSourceIndex();
+	short id = missile->GetMissileSourceIndex();
 
-	if (entities.minions.find(id) != entities.minions.end())
-		return entities.minions[id];
+	for (int i = 0; i < entities.minions.size(); i++)
+		if (entities.minions[i]->GetIndex() == id)
+			return entities.minions[i];
 
-	if (entities.heroes.find(id) != entities.heroes.end())
-		return entities.heroes[id];
+	for (int i = 0; i < entities.heroes.size(); i++)
+		if (entities.heroes[i]->GetIndex() == id)
+			return entities.heroes[i];
 
-	if (entities.turrets.find(id) != entities.turrets.end())
-		return entities.turrets[id];
-
-	return NULL;
-}
-
-CObject* UtilityFunctions::getMissileTargetEntity(CObject* missile) {
-	int id = missile->GetMissileTargetIndex();
-
-	if (entities.minions.find(id) != entities.minions.end())
-		return entities.minions[id];
-
-	if (entities.heroes.find(id) != entities.heroes.end())
-		return entities.heroes[id];
-
-	if (entities.turrets.find(id) != entities.turrets.end())
-		return entities.turrets[id];
+	for (int i = 0; i < entities.turrets.size(); i++)
+		if (entities.turrets[i]->GetIndex() == id)
+			return entities.turrets[i];
 
 	return NULL;
 }
@@ -215,7 +203,7 @@ int UtilityFunctions::minionsColliding(Vector3 start, Vector3 end, float width) 
 	CObject* temp;
 	int collision = 0;
 	for (int i = 0; i < entities.minions.size(); i++) {
-		temp = entities.minions[entities.vMinions[i]];
+		temp = entities.minions[i];
 		if (!isValidTarget(temp) || temp->GetTeam() == myHero.LPObject->GetTeam() || start.distTo(temp->GetPos()) > start.distTo(end))
 			continue;
 
@@ -230,7 +218,7 @@ int UtilityFunctions::heroesColliding(Vector3 start, Vector3 end, float width) {
 	int collision = 0;
 	CObject* temp;
 	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[entities.vHeroes[i]];
+		temp = entities.heroes[i];
 		if (!isValidTarget(temp) || temp->GetTeam() == myHero.LPObject->GetTeam() || start.distTo(temp->GetPos()) > start.distTo(end))
 			continue;
 
@@ -332,7 +320,7 @@ void drawCircular(Vector3 vCenter, float radius) {
 void UtilityFunctions::drawActiveSpells() {
 	CObject* temp;
 	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[entities.vHeroes[i]];
+		temp = entities.heroes[i];
 		if (temp != NULL && temp->GetActiveSpell() != NULL && temp->GetTeam() != myHero.LPObject->GetTeam() && temp->GetActiveSpell()->GetTargetIndex() == NULL) {
 			char* spellName = temp->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetMissileName();
 			Vector3 vEnd = temp->GetActiveSpell()->GetEndPos();
@@ -1626,7 +1614,7 @@ void UtilityFunctions::drawActiveSpells() {
 void UtilityFunctions::drawMissiles() {
 	CObject* temp;
 	for (int i = 0; i < entities.missiles.size(); i++) {
-		temp = entities.missiles[entities.vMissiles[i]];
+		temp = entities.missiles[i];
 		if (temp != NULL &&
 				getMissileSourceEntity(temp) != NULL &&
 				GH.isHero(getMissileSourceEntity(temp)) &&

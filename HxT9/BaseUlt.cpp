@@ -40,7 +40,7 @@ void BaseUlt::tick()
 
 	//Controllo che non abbia stoppato il recall
 	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[entities.vHeroes[i]];
+		temp = entities.heroes[i];
 		if (temp != NULL &&
 			temp->GetIndex() == targetIndex &&
 			temp->IsVisible()){
@@ -101,7 +101,7 @@ void BaseUlt::tick()
 		}
 
 		for (int i = 0; i < entities.heroes.size(); i++) {
-			temp = entities.heroes[entities.vHeroes[i]];
+			temp = entities.heroes[i];
 			if (temp != NULL && temp->GetActiveSpell() != NULL && strcmp(temp->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetSpellName(), "Recall") == 0) {
 				//Calcolo danno AD/AP
 				if (strcmp(myHero.championName, "Ashe") == 0 || strcmp(myHero.championName, "Ezreal") == 0) {

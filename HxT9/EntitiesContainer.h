@@ -8,17 +8,11 @@ class EntitiesContainer
 public:
 	DWORD ObjManager;
 
-	std::vector<int> vHeroes;
-	std::vector<int> vMinions;
-	std::vector<int> vTurrets;
-	std::vector<int> vTroys;
-	std::vector<int> vMissiles;
-
-	std::map<short, CObject*> heroes;
-	std::map<short, CObject*> minions;
-	std::map<short, CObject*> turrets;
-	std::map<short, CObject*> troys;
-	std::map<short, CObject*> missiles;
+	std::vector<CObject*> heroes;
+	std::vector<CObject*> minions;
+	std::vector<CObject*> turrets;
+	std::vector<CObject*> troys;
+	std::vector<CObject*> missiles;
 
 	EntitiesContainer();
 	void resetEntities();

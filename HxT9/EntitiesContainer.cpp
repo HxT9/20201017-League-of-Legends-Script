@@ -8,19 +8,10 @@ EntitiesContainer::EntitiesContainer() {
 }
 void EntitiesContainer::resetEntities() {
 	heroes.clear();
-	vHeroes.clear();
-
 	minions.clear();
-	vMinions.clear();
-
 	turrets.clear();
-	vTurrets.clear();
-
 	troys.clear();
-	vTroys.clear();
-
 	missiles.clear();
-	vMissiles.clear();
 
 	ObjManager = *(DWORD*)(baseAddress + oObjectsManager);
 }
@@ -88,28 +79,23 @@ void EntitiesContainer::tick() {
 		NextObj = GH.getNextCObject((void*)ObjManager, NextObj);
 
 		if (GH.isHero(CurrentObj)) {
-			heroes[CurrentObj->GetIndex()] = CurrentObj;
-			vHeroes.insert(vHeroes.end(), CurrentObj->GetIndex());
+			heroes.insert(heroes.end(), CurrentObj);
 			continue;
 		}
 		if (GH.isMinion(CurrentObj)) {
-			minions[CurrentObj->GetIndex()] = CurrentObj;
-			vMinions.insert(vMinions.end(), CurrentObj->GetIndex());
+			minions.insert(minions.end(), CurrentObj);
 			continue;
 		}
 		if (GH.isTurret(CurrentObj)) {
-			turrets[CurrentObj->GetIndex()] = CurrentObj;
-			vTurrets.insert(vTurrets.end(), CurrentObj->GetIndex());
+			turrets.insert(turrets.end(), CurrentObj);
 			continue;
 		}
 		if (GH.isMissile(CurrentObj)) {
-			missiles[CurrentObj->GetIndex()] = CurrentObj;
-			vMissiles.insert(vMissiles.end(), CurrentObj->GetIndex());
+			missiles.insert(missiles.end(), CurrentObj);
 			continue;
 		}
 		if (GH.isTroy(CurrentObj)) {
-			troys[CurrentObj->GetIndex()] = CurrentObj;
-			vTroys.insert(vTroys.end(), CurrentObj->GetIndex());
+			troys.insert(troys.end(), CurrentObj);
 			continue;
 		}
 	}

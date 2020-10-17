@@ -132,11 +132,11 @@ void LocalPlayer::init() {
 	chargingEndTime = 0;
 }
 void LocalPlayer::tick() {
-	AADelay = GH.getAttackDelay(LPObject);
 	AACastTime = GH.getAttackCastDelay(LPObject);
+	AADelay = GH.getAttackDelay(LPObject);
 
 	if (LPObject->GetActiveSpell() != NULL && gameTime > NextAATime &&
-		(strstr(LPObject->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetMissileName(), "Attack"))) {
+		std::string(LPObject->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetMissileName()).find("Attack") != std::string::npos) {
 
 		AAMissileSpeed = LPObject->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetSpellSpeed();
 		if (gameTime > LastAATime) {
