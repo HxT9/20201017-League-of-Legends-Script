@@ -25,10 +25,17 @@ CObject* TargetSelector::getBestMinion(bool onlyLastHit, float dmg, float range,
 				dmgIncoming += utils.getMissileSourceEntity(entities.missiles[j])->GetTotalAttackDamage();
 		}
 
-		if (dmg > temp->GetHealth()) {
-			return temp;
+		/*for (int j = 0; j < entities.iMinions; j++) {
+			if (std::string(entities.minions[j]->GetMinionName()).find("melee") != std::string::npos|| entities.minions[j]->GetActiveSpell() == NULL || entities.minions[j]->GetActiveSpell()->GetTargetIndex() != entities.minions[i]->GetIndex())
+				continue;
+			if ((entities.minions[j]->GetActiveSpell()->GetCastingTime() + entities.minions[j]->GetActiveSpell()->GetCastTime() - gameTime + entities.minions[j]->GetPos().distTo(entities.minions[i]->GetPos()) / 500) < AATimeNeeded)
+				dmgIncoming += entities.minions[j]->GetTotalAttackDamage();
+		}*/ //Questo serve per prendere anche quelli che stanno castando l'AA
+
+		if ((entities.minions[i]->GetHealth() - (dmgIncoming * 0.8) > 0) && dmg > entities.minions[i]->GetHealth() - (dmgIncoming * 0.8)) {
+			return entities.minions[i];
 		}
-		else if (temp->GetHealth() < dmg + 150 && gameTime < 900 && temp->getCloseEnemyMinions(550) > 2) {
+		else if (entities.minions[i]->GetHealth() - (dmgIncoming) < dmg + 150 && gameTime < 900 && entities.minions[i]->getCloseEnemyMinions(550) > 2) {
 			dyingMinions++;
 		}
 		else {

@@ -121,9 +121,9 @@ void LocalPlayer::init() {
 	nextActionTime = 0;
 	nextSpellTime = 0;
 	behaviour = Behaviour::Nothing;
-	delay = 0.1;
-	spellDelay = 0.1;
-	AACheckDelay = 0.1;
+	delay = 0.08;
+	spellDelay = 0.08;
+	AACheckDelay = 0.08;
 	lastAACheck = 0;
 	LPObject = 0;
 	useSpell = true;
