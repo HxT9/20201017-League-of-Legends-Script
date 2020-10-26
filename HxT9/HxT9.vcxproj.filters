@@ -204,6 +204,9 @@
     <ClInclude Include="OrbWalker.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
+    <ClInclude Include="offsets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="d3d9.lib">

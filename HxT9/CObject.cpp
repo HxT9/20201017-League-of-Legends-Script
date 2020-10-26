@@ -210,6 +210,11 @@ BuffManager* CObject::getBuffManager() {
 	return (BuffManager*)((DWORD)this + oObjBuffMgr);
 }
 
+bool CObject::isWindingUp() {
+	typedef void* (__thiscall* OriginalFn)(PVOID);
+	return CallVirtual<OriginalFn>(this, 231)(this);
+}
+
 bool CObject::isObjType(int type)
 {
 	unsigned __int8* v2; // edi

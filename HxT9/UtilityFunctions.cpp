@@ -29,8 +29,13 @@ void UtilityFunctions::drawEntitiesRange() {
 			r = temp->GetAttackRange() + temp->GetBoundingRadius();
 			if (temp->GetTeam() != myHero.LPObject->GetTeam()) {
 				drawer.drawCircumference(temp->GetPos(), r, 50, 0x7fff0000, 3);
+
 				if (temp->GetPos().distTo(myHero.LPObject->GetPos()) > 800 && temp->GetPos().distTo(myHero.LPObject->GetPos()) < 2500)
 					drawer.drawLine(temp->GetPos(), myHero.LPObject->GetPos(), 0xffff0000, 3);
+
+				if (temp == myHero.selectedTarget) {
+					drawer.drawCircumference(temp->GetPos(), temp->GetBoundingRadius(), 50, 0x7fffff00, 4);
+				}
 			}
 		}
 	}
@@ -64,7 +69,7 @@ void UtilityFunctions::drawLastHittableMinions() {
 			if (missile->GetMissileTargetIndex() != temp->GetIndex())
 				continue;
 
-			if (missile->GetPos().distTo(temp->GetPos()) / 500 < AATimeNeeded)
+			if (missile->GetPos().distTo(temp->GetPos()) / 300 < AATimeNeeded)
 				dmgIncoming += getMissileSourceEntity(missile)->GetTotalAttackDamage();
 		}
 
@@ -103,7 +108,7 @@ void UtilityFunctions::drawPredictedPos() {
 	for (int i = 0; i < entities.heroes.size(); i++) {
 		temp = entities.heroes[i];
 		if (isValidTarget(temp) && temp->GetTeam() != myHero.LPObject->GetTeam()) {
-			drawer.drawCircumference(getPredictedPos(temp, 1), 40, 15, 0xff00ffff, 2);
+			drawer.drawCircumference(getPredictedPos(temp, 1, 0, myHero.LPObject), 40, 15, 0xff00ffff, 2);
 		}
 	}
 }
@@ -228,7 +233,7 @@ int UtilityFunctions::heroesColliding(Vector3 start, Vector3 end, float width) {
 	return collision;
 }
 
-Vector3 UtilityFunctions::getPredictedPos(CObject* hero, float seconds) {
+Vector3 UtilityFunctions::getPredictedPos(CObject* hero, float seconds, float width, CObject* sender) {
 	int firstPoint = 0;
 	float distance = hero->GetMovementSpeed() * seconds;
 	Path path = hero->GetPath();
@@ -261,6 +266,7 @@ Vector3 UtilityFunctions::getPredictedPos(CObject* hero, float seconds) {
 			distance = 0;
 			break;
 		}
+
 		distance -= path.pathPoints[i].distTo(path.pathPoints[i + 1]);
 	}
 	if (distance > 0) {
@@ -268,6 +274,25 @@ Vector3 UtilityFunctions::getPredictedPos(CObject* hero, float seconds) {
 	}
 
 	return result;
+}
+
+void UtilityFunctions::ChampionCustomDraw() {
+	float dmg;
+	int spellLvl;
+	Vector3 screenPos;
+	CObject* temp;
+	if (strcmp(myHero.championName, "Xerath") == 0) {
+		spellLvl = myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
+		dmg = (2 + spellLvl) * (150 + 50 * spellLvl + myHero.LPObject->GetAP() * 0.45);
+
+		for (int i = 0; i < entities.heroes.size(); i++) {
+			temp = entities.heroes[i];
+			if (isValidTarget(temp) && temp->IsEnemyTo(myHero.LPObject) && temp->GetHealth() < calcEffectiveDamage(dmg, temp->GetMagicResist())) {
+				GH.worldToScreen(&temp->GetPos(), &screenPos);
+				drawer.drawText(screenPos, "!!! KILLABLE WITH ULT !!!", 0xffffff00);
+			}
+		}
+	}
 }
 
 std::string vformat(const char* fmt, va_list ap)
@@ -444,7 +469,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			//Azir
 			if (strcmp(spellName, "AzirQ") == 0) {
-				vEnd = vEnd.setRelativeMagnitude(vStart, min(740, vEnd.distTo(vStart) < 740));
+				vEnd = vEnd.setRelativeMagnitude(vStart, min(740, vEnd.distTo(vStart)));
 				drawCircular(vEnd, 370);
 				return;
 			}
@@ -622,7 +647,7 @@ void UtilityFunctions::drawActiveSpells() {
 				return;
 			}
 			if (strcmp(spellName, "EzrealE") == 0) {
-				vEnd = vEnd.setRelativeMagnitude(vStart, min(475, vEnd.distTo(vStart) < 475));
+				vEnd = vEnd.setRelativeMagnitude(vStart, min(475, vEnd.distTo(vStart)));
 				drawCircular(vEnd, 20);
 				return;
 			}
@@ -639,7 +664,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			//Fizz
 			if (strcmp(spellName, "FizzR") == 0) {
-				vEnd = vEnd.setRelativeMagnitude(vStart, min(1300, vEnd.distTo(vStart) < 1300));
+				vEnd = vEnd.setRelativeMagnitude(vStart, min(1300, vEnd.distTo(vStart)));
 				drawRectangle(vStart, vEnd, 150);
 				drawCircular(vEnd.setRelativeMagnitude(vStart, 1300), 150);
 				return;
@@ -1379,8 +1404,8 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			//Thresh
 			if (strcmp(spellName, "ThreshQMissile") == 0 || strcmp(spellName, "ThreshQInternal") == 0) {
-				vEnd = vEnd.setRelativeMagnitude(vStart, 1100);
-				drawRectangle(vStart, vEnd, 70);
+				//vEnd = vEnd.setRelativeMagnitude(vStart, 1100);
+				//drawRectangle(vStart, vEnd, 70);
 				return;
 			}
 			if (strcmp(spellName, "ThreshEFlay") == 0) {
@@ -1551,17 +1576,17 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			//Ziggs
 			if (strcmp(spellName, "ZiggsQ") == 0) {
-				vEnd = vEnd.setRelativeMagnitude(vStart, min(850, vEnd.distTo(vStart) < 850));
+				vEnd = vEnd.setRelativeMagnitude(vStart, min(850, vEnd.distTo(vStart)));
 				drawCircular(vEnd, 75);
 				return;
 			}
 			if (strcmp(spellName, "ZiggsW") == 0) {
-				vEnd = vEnd.setRelativeMagnitude(vStart, min(1000, vEnd.distTo(vStart) < 1000));
+				vEnd = vEnd.setRelativeMagnitude(vStart, min(1000, vEnd.distTo(vStart)));
 				drawCircular(vEnd, 325);
 				return;
 			}
 			if (strcmp(spellName, "ZiggsE") == 0) {
-				vEnd = vEnd.setRelativeMagnitude(vStart, min(900, vEnd.distTo(vStart) < 900));
+				vEnd = vEnd.setRelativeMagnitude(vStart, min(900, vEnd.distTo(vStart)));
 				drawCircular(vEnd, 325);
 				return;
 			}
@@ -1768,7 +1793,7 @@ void UtilityFunctions::drawMissiles() {
 			}
 			//Fizz
 			if (strcmp(spellName, "FizzRMissile") == 0) {
-				vEnd = vEnd.setRelativeMagnitude(vStart, min(1300, vEnd.distTo(vStart) < 1300));
+				vEnd = vEnd.setRelativeMagnitude(vStart, min(1300, vEnd.distTo(vStart)));
 				drawRectangle(vStart, vEnd, 150);
 				drawCircular(vEnd.setRelativeMagnitude(vStart, 1300), 150);
 				return;

@@ -29,6 +29,8 @@ public:
 	float chargingStartTime;
 	float chargingEndTime;
 
+	CObject* selectedTarget;
+
 	bool useSpell;
 
 	Path curPath;

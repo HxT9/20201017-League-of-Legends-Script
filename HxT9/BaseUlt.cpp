@@ -18,7 +18,7 @@ void BaseUlt::init() {
 		castTime = 0.5;
 	}
 	if (strcmp(myHero.championName, "Jinx") == 0) {
-		speed = 1534 + 166 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
+		speed = 1700; //to fix
 		castTime = 0.6;
 		width = 280;
 	}
@@ -34,7 +34,7 @@ void BaseUlt::init() {
 
 void BaseUlt::tick()
 {
-	float dmg;
+	float dmg, baseDmg;
 	float time;
 	CObject* temp;
 
@@ -48,22 +48,33 @@ void BaseUlt::tick()
 				if (strcmp(temp->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetSpellName(), "Recall") != 0) {
 					targetIndex = 0;
 
-					gui.print(utils.stringf("BASEULT CANCELLED"));
+					//gui.print(utils.stringf("BASEULT CANCELLED"));
 				}
 			}
 			else{
 				targetIndex = 0;
 
-				gui.print(utils.stringf("BASEULT CANCELLED"));
+				//gui.print(utils.stringf("BASEULT CANCELLED"));
 			}
 		}
 	}
 
 	time = castTime + spawnPoint.distTo(myHero.LPObject->GetPos()) / speed;
 
+	if (strcmp(myHero.championName, "Jinx") == 0) {
+		time = castTime;
+		if (spawnPoint.distTo(myHero.LPObject->GetPos()) > 1350) {
+			time += 1350 / 1700;
+			time += (spawnPoint.distTo(myHero.LPObject->GetPos()) - 1350) / 2200;
+		}
+		else {
+			time += spawnPoint.distTo(myHero.LPObject->GetPos()) / 1700;
+		}
+	}
+
 	if (targetIndex != 0) {
 		if (abs(calculatedBaseUlt - gameTime - time) < 0.2) {
-			gui.print(utils.stringf("BASEULT CAST"));
+			//gui.print(utils.stringf("BASEULT CAST"));
 			if (strcmp(myHero.championName, "Ezreal") == 0) {
 				myHero.nextActionTime = 0;
 				myHero.nextSpellTime = 0;
@@ -83,21 +94,21 @@ void BaseUlt::tick()
 
 	if (targetIndex == 0){
 		if (strcmp(myHero.championName, "Ashe") == 0) {
-			dmg = 200 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
-			dmg += myHero.LPObject->GetAP();
+			baseDmg = 200 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
+			baseDmg += myHero.LPObject->GetAP();
 		}
 		if (strcmp(myHero.championName, "Ezreal") == 0) {
-			dmg = 200 + 150 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
-			dmg += myHero.LPObject->GetAP() * 0.9;
-			dmg += myHero.LPObject->GetTotalAttackDamage();
+			baseDmg = 200 + 150 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
+			baseDmg += myHero.LPObject->GetAP() * 0.9;
+			baseDmg += myHero.LPObject->GetTotalAttackDamage();
 		}
 		if (strcmp(myHero.championName, "Draven") == 0) {
-			dmg = 75 + 100 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
-			dmg += myHero.LPObject->GetBonusAttackDamage() * (0.9 + 0.2 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl());
+			baseDmg = 75 + 100 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
+			baseDmg += myHero.LPObject->GetBonusAttackDamage() * (0.9 + 0.2 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl());
 		}
 		if (strcmp(myHero.championName, "Jinx") == 0) {
-			dmg = 150 + 100 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
-			dmg += myHero.LPObject->GetBonusAttackDamage() * 1.5;
+			baseDmg = 150 + 100 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
+			baseDmg += myHero.LPObject->GetBonusAttackDamage() * 1.5;
 		}
 
 		for (int i = 0; i < entities.heroes.size(); i++) {
@@ -105,17 +116,20 @@ void BaseUlt::tick()
 			if (temp != NULL && temp->GetActiveSpell() != NULL && strcmp(temp->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetSpellName(), "Recall") == 0) {
 				//Calcolo danno AD/AP
 				if (strcmp(myHero.championName, "Ashe") == 0 || strcmp(myHero.championName, "Ezreal") == 0) {
-					dmg = utils.calcEffectiveDamage(dmg, temp->GetMagicResist());
+					dmg = utils.calcEffectiveDamage(baseDmg, temp->GetMagicResist());
 				}
 				else {
-					dmg = utils.calcEffectiveDamage(dmg, temp->GetArmor());
+					if (strcmp(myHero.championName, "Jinx") == 0) {
+						dmg += (0.2 + 0.5 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl()) * (temp->GetMaxHealth() - temp->GetHealth());
+					}
+					dmg = utils.calcEffectiveDamage(baseDmg, temp->GetArmor());
 				}
 
 				//Controllo sulla vita e sul recall
 				if (dmg > temp->GetHealth()) {
 					calculatedBaseUlt = temp->GetActiveSpell()->GetCastingTime() + temp->GetActiveSpell()->GetChannelingTime();
 					targetIndex = temp->GetIndex();
-					gui.print(utils.stringf("BASEULT START GameTime: %f, CalculatedTime: %f", gameTime, calculatedBaseUlt));
+					//gui.print(utils.stringf("BASEULT START GameTime: %f, CalculatedTime: %f", gameTime, calculatedBaseUlt));
 				}
 			}
 		}

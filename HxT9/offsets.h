@@ -7,6 +7,7 @@
 #define oChatClientPtr	0x1c65854 
 #define oGameTime		0x34fca04 
 #define oHudInstance	0x1c67e14
+#define oUnderMouseObj	0x1c072c0
 
 #define oGetFirstCObject	0x2a58f0
 #define oGetNextCObject		0x2a6e30

@@ -18,7 +18,8 @@ public:
 	bool isCollision(Vector3 start, Vector3 end, float width, Vector3 center, float radius);
 	int minionsColliding(Vector3 start, Vector3 end, float width);
 	int heroesColliding(Vector3 start, Vector3 end, float width);
-	Vector3 getPredictedPos(CObject* hero, float seconds);
+	Vector3 getPredictedPos(CObject* hero, float seconds, float width, CObject* sender);
+	void ChampionCustomDraw();
 	void drawPredictedPos();
 	std::string stringf(const char* fmt, ...);
 };

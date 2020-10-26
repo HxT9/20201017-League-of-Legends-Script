@@ -54,5 +54,6 @@ public:
 	float GetMovementSpeed();
 	int getCloseEnemyMinions(float range);
 	BuffManager* getBuffManager();
+	bool isWindingUp();
 	bool isObjType(int type);
 };

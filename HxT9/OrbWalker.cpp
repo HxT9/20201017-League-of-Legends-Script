@@ -32,7 +32,7 @@ void OrbWalker::tick() {
 }
 
 void OrbWalker::ComboLogic() {
-	myHero.AutoAttack(targetSelector.getBestChampion());
+	myHero.AutoAttack(targetSelector.getBestChampion(myHero.LPObject->GetAttackRange(), true));
 }
 void OrbWalker::PushLogic() {
 	CObject* target = targetSelector.getBestMinion(false, dmg, myHero.LPObject->GetAttackRange(), myHero.AAMissileSpeed, myHero.AACastTime, false);

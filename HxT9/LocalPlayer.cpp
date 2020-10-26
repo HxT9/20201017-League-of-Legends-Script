@@ -133,6 +133,7 @@ void LocalPlayer::init() {
 	chargingSpell = false;
 	chargingStartTime = 0;
 	chargingEndTime = 0;
+	selectedTarget = NULL;
 }
 void LocalPlayer::tick() {
 	if (LPObject->GetActiveSpell() != NULL && gameTime > NextAATime &&
@@ -156,6 +157,9 @@ void LocalPlayer::tick() {
 	if (chargingStartTime >= chargingEndTime) {
 		chargingSpell = false; chargingStartTime = 0; chargingEndTime = 0;
 	}
+
+	if (selectedTarget != NULL && !selectedTarget->GetHealth() > 1.f)
+		selectedTarget = NULL;
 }
 void LocalPlayer::AutoAttack(CObject* target){
 	if (gameTime >= nextActionTime) {

@@ -5,6 +5,8 @@
 #include <string>
 #include "imgui.h"
 
+bool firstTickMouseDown = false;
+
 void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 	gameTime = *(float*)(baseAddress + oGameTime);
 	if (gameTime < 1) {
@@ -25,6 +27,7 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 		utils.drawActiveSpells();
 		utils.drawMissiles();
 		utils.drawPredictedPos();
+		utils.ChampionCustomDraw();
 
 		//utils.drawDebug();
 
@@ -49,9 +52,19 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 		if (myHero.useSpell)
 			drawer.drawText({ 100,200, 0 }, "Using spell", 0xff00ff00);
 
-		int zero;
-		if (GetKeyState('i') & 0x8000 || GetKeyState('I') & 0x8000)
-			gui.print(utils.stringf("Spellstate Q: %d                     ", GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::Q, &zero)));
+		if (GetKeyState(VK_LBUTTON) & 0x8000 && !firstTickMouseDown) {
+			leftButtonDown = true;
+			firstTickMouseDown = true;
+		}
+		else {
+			leftButtonDown = false;
+			if(!(GetKeyState(VK_LBUTTON) & 0x8000))
+				firstTickMouseDown = false;
+		}
+
+		if (leftButtonDown) {
+			myHero.selectedTarget = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 150);
+		}
 	}
 	catch (int e) {
 
@@ -91,7 +104,7 @@ void ScriptManager::init(LPDIRECT3DDEVICE9 pDevice) {
 			strcmp(myHero.LPObject->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetMissileName(), test) == 0) {
 
 			myHero.AAMissileSpeed = myHero.LPObject->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetSpellSpeed();
-			GH.printChat("Found AA missile speed: " + std::to_string(myHero.AAMissileSpeed));
+			gui.print("Found AA missile speed: " + std::to_string(myHero.AAMissileSpeed));
 			initAAMissileSpeed = true;
 		}
 	}
@@ -100,7 +113,6 @@ void ScriptManager::init(LPDIRECT3DDEVICE9 pDevice) {
 //KeyManager
 
 WNDPROC wndProc;
-bool justfocused = true;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
 
@@ -111,11 +123,11 @@ LRESULT WINAPI WndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param) {
 	switch (u_msg) {
 	case WM_SETFOCUS:
 		orbWalker.focused = true;
-		justfocused = true;
+		break;
+
 	case WM_KILLFOCUS:
-		if (!justfocused)
-			orbWalker.focused = false;
-		justfocused = false;
+		orbWalker.focused = false;
+		break;
 	}
 
 	return CallWindowProcA(wndProc, hwnd, u_msg, w_param, l_param);

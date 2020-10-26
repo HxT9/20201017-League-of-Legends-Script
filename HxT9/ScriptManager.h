@@ -12,6 +12,9 @@ class ScriptManager
 	bool initWnd = false;
 
 public:
+	bool leftButtonDown = false;
+
+public:
 	void tick(LPDIRECT3DDEVICE9 pDevice);
 	void init(LPDIRECT3DDEVICE9 pDevice);
 	void initWndProc();
