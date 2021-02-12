@@ -14,6 +14,7 @@ public:
 	void tick(LPDIRECT3DDEVICE9 pDevice);
 	void destroy();
 	void print(const char* in);
+	void print(const char* fmt, ...);
 	void print(std::string in);
 	void resetConsole();
 };

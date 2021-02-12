@@ -4,6 +4,7 @@
 #include "imgui_impl_win32.h"
 #include <Windows.h>
 #include "globalVars.h"
+#include "UtilityFunctions.h"
 
 LRESULT WINAPI WndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
 
@@ -47,6 +48,14 @@ void IMGUI_Manager::print(const char* in) {
 		text[i] = text[i + 1];
 	}
 	text[9] = in;
+}
+void IMGUI_Manager::print(const char* fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	std::string buf = utils.vformat(fmt, ap);
+	va_end(ap);
+	print(buf);
 }
 void IMGUI_Manager::print(std::string in) {
 	for (int i = 0; i < 9; i++) {

@@ -72,7 +72,7 @@ float CObject::GetBoundingRadius() { //oGetBoundingRadius 0x12fc50
 
 void* CObject::GetAIManager() { //oGetAIManager 0x132170
 	typedef void* (__thiscall* OriginalFn)(PVOID);
-	return CallVirtual<OriginalFn>(this, 151)(this);
+	return CallVirtual<OriginalFn>(this, 148)(this);
 	//return ((fnGetAIManager)(baseAddress + oGetAIManager))(this);
 }
 

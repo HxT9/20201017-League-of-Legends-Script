@@ -295,7 +295,7 @@ void UtilityFunctions::ChampionCustomDraw() {
 	}
 }
 
-std::string vformat(const char* fmt, va_list ap)
+std::string UtilityFunctions::vformat(const char* fmt, va_list ap)
 {
 	// Allocate a buffer on the stack that's big enough for us almost
 	// all the time.
@@ -346,7 +346,9 @@ void UtilityFunctions::drawActiveSpells() {
 	CObject* temp;
 	for (int i = 0; i < entities.heroes.size(); i++) {
 		temp = entities.heroes[i];
-		if (temp != NULL && temp->GetActiveSpell() != NULL && temp->GetTeam() != myHero.LPObject->GetTeam() && temp->GetActiveSpell()->GetTargetIndex() == NULL) {
+		if (temp != NULL && temp->GetActiveSpell() != NULL && 
+			temp->GetTeam() != myHero.LPObject->GetTeam() && 
+			temp->GetActiveSpell()->GetTargetIndex() == NULL) {
 			char* spellName = temp->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetMissileName();
 			Vector3 vEnd = temp->GetActiveSpell()->GetEndPos();
 			Vector3 vStart = temp->GetActiveSpell()->GetStartPos();

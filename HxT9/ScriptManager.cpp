@@ -20,7 +20,7 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 		gui.tick(pDevice);
 
 		entities.tick(); //Aggiornamento delle entità
-
+		
 		utils.drawBoundingBox();
 		utils.drawEntitiesRange();
 		utils.drawLastHittableMinions();
@@ -31,19 +31,17 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 
 		//utils.drawDebug();
 
-		/*bool detected = *reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(utils.get_peb()) + 0xA00);
-		/gui.print(detected ? "true":"false");
-		bool detected2 = *(bool*)(__readfsdword(0x18) + 0x900);
-		bool detected = *(bool*)(__readfsdword(0x18) + 0xA00);
-		gui.print(utils.stringf("1) %d, 2) %d", detected, detected2));*/
+		//bool detected = *reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(utils.get_peb()) + 0xA00);
+		//gui.print(detected ? "true":"false");
+		//bool detected2 = *(bool*)(__readfsdword(0x18) + 0x900);
+		//bool detected = *(bool*)(__readfsdword(0x18) + 0xA00);
+		//gui.print(utils.stringf("1) %d, 2) %d", detected, detected2));
 
 		
 		myHero.tick();
 		championScript.tick();
 		orbWalker.tick();
 		baseUlt.tick();
-
-		/*DA SPOSTARE*/
 		
 		if (GetKeyState(VK_NUMPAD1) & 0x8000)
 			myHero.useSpell = true;
@@ -97,7 +95,7 @@ void ScriptManager::init(LPDIRECT3DDEVICE9 pDevice) {
 			return;
 		}
 	}
-	if (!initAAMissileSpeed) {
+	 if (!initAAMissileSpeed) {
 		std::string temp = myHero.LPObject->GetChampionName() + std::string("BasicAttack");
 		const char* test = temp.c_str();
 		if (myHero.LPObject->GetActiveSpell() != NULL &&

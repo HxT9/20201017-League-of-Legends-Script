@@ -63,6 +63,7 @@ int main()
 						pDllPath = VirtualAllocEx(hProcess, 0, strlen(DllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
 						if (pDllPath) {
 							if (WriteProcessMemory(hProcess, pDllPath, (LPVOID)DllPath, strlen(DllPath) + 1, 0)) {
+								Sleep(1000);
 								hLoadThread = CreateRemoteThread(hProcess, 0, 0,
 									(LPTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandleA("Kernel32.dll"),
 										"LoadLibraryA"), pDllPath, 0, 0);
@@ -71,9 +72,9 @@ int main()
 									std::cout << "Dll path allocated at: " << std::hex << pDllPath << std::endl;
 									VirtualFreeEx(hProcess, pDllPath, strlen(DllPath) + 1, MEM_RELEASE);
 									injected = true;
-									Sleep(5000);
+									Sleep(2000);
 
-									SendMessageA(FindWindowW(NULL, L"Blitz"), WM_CLOSE, NULL, NULL);
+									//SendMessageA(FindWindowW(NULL, L"Blitz"), WM_CLOSE, NULL, NULL);
 									break;
 								}
 							}

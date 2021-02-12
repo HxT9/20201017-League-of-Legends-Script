@@ -95,7 +95,7 @@ void myOldCastSpell(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, Vector3*
 	return;
 }
 void myCastSpell(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, CastingStruct* pSpellTargetingClient, DWORD networkID) {
-	StackSpoofForThiscall<int*>((baseAddress + oCastSpell), 5, thisPtr, (baseAddress + oSpoof), slot, slotID, pSpellTargetingClient, networkID);
+	//StackSpoofForThiscall<int*>((baseAddress + oCastSpell), 5, thisPtr, (baseAddress + oSpoof), slot, slotID, pSpellTargetingClient, networkID);
 
 	return;
 }

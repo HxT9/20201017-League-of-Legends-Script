@@ -74,7 +74,6 @@ void EntitiesContainer::tick() {
 	CObject *CurrentObj, *NextObj = GH.getFirstCObject((void*)ObjManager);
 
 	while (NextObj) {
-
 		CurrentObj = NextObj;
 		NextObj = GH.getNextCObject((void*)ObjManager, NextObj);
 

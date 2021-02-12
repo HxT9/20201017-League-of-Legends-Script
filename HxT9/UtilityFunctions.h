@@ -21,6 +21,7 @@ public:
 	Vector3 getPredictedPos(CObject* hero, float seconds, float width, CObject* sender);
 	void ChampionCustomDraw();
 	void drawPredictedPos();
+	std::string vformat(const char* fmt, va_list ap);
 	std::string stringf(const char* fmt, ...);
 };
 
