@@ -47,6 +47,6 @@ public:
 	Vector3 sameDirectionAs(Vector3 vOther);
 	Equation lineEquation(Vector3 vOther);
 	Vector3 rotatePoint(Vector3 pivot, float angle);
-	float distTo2d(Vector3 pv);
+	Vector3 setWorldY();
 };
 

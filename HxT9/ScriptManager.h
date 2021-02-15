@@ -10,6 +10,7 @@ class ScriptManager
 	bool initAAMissileSpeed = false;
 	bool initHelpers = false;
 	bool initWnd = false;
+	bool initStream = false;
 
 public:
 	bool leftButtonDown = false;

@@ -52,6 +52,9 @@ void UtilityFunctions::drawEntitiesRange() {
 
 void UtilityFunctions::drawLastHittableMinions() {
 	float myDamage = myHero.LPObject->GetTotalAttackDamage();
+	if (strcmp(myHero.championName, "kalista") == 0) {
+		myDamage *= 0.9;
+	}
 	float dmgIncoming, AATimeNeeded;
 	CObject *temp, *missile;
 	for (int i = 0; i < entities.minions.size(); i++) {
@@ -2302,10 +2305,17 @@ void UtilityFunctions::drawMissiles() {
 				return;
 			}
 
-			std::fstream ActiveSpells;
+			/*std::fstream ActiveSpells;
 			ActiveSpells.open("E:\\Downloads\\Cheats\\Lol\\Missiles.txt", std::ofstream::app);
 			ActiveSpells << spellName << std::endl;
-			ActiveSpells.close();
+			ActiveSpells.close();*/
 		}
 	}
+}
+
+void UtilityFunctions::dbgStream(std::string msg) {
+	std::fstream DebugStream;
+	DebugStream.open("E:\\Downloads\\Cheats\\Lol\\Debug.txt", std::ofstream::app);
+	DebugStream << msg << std::endl;
+	DebugStream.close();
 }

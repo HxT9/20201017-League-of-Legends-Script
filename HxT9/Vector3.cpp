@@ -77,3 +77,6 @@ Vector3 Vector3::rotatePoint(Vector3 pivot, float radAngle) {
 
 	return Vector3(x2 + pivot.x, pivot.y, z2 + pivot.z);
 }
+Vector3 Vector3::setWorldY() {
+	return Vector3(x, 60, z);
+}

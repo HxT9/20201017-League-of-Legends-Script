@@ -12,6 +12,7 @@ public:
 	void drawLastHittableMinions();
 	void drawActiveSpells();
 	void drawMissiles();
+	void dbgStream(std::string msg);
 	void drawDebug();
 	void* __cdecl get_peb();
 	CObject* getMissileSourceEntity(CObject* missile);

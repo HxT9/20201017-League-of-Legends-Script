@@ -4,7 +4,8 @@
 
 #define oObjectsManager	0x16b2a74 
 #define oLocalPlayer	0x2f4f764 
-#define oChatClientPtr	0x22ff400 
+#define oChatClientPtr	0x22ff400
+#define oChatClientBox	0x2F4F818
 #define oGameTime		0x2f4759c 
 #define oHudInstance	0x16b2aac
 #define oUnderMouseObj	0x16840a0
@@ -23,7 +24,7 @@
 
 #define oOldCastSpell		0x4d5960 
 //#define oCastSpell			0x50ee20
-#define oUpdateChargeableSpell 0x24bc00
+#define oUpdateChargeableSpell 0x4d88a0
 #define oGetSpellState		0x4c5e70 
 #define oIssueOrder			0x15c5d0
 #define oGetAttackCastDelay	0x2846c0 
@@ -33,7 +34,8 @@
 #define oW2S		0x91ba50 
 
 //Chat offsets
-#define oChatClientChatOpened 0x7C
+#define oChatClientChatOpened	0x7C
+#define oChatBoxChatOpened	0x62C
 
 //HeroOffsets
 #define oObjIndex 0x20

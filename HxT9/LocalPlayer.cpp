@@ -49,6 +49,47 @@ __declspec(naked) ReturnType __stdcall StackSpoofForThiscall(DWORD FuncAddr, uns
 	}
 }
 
+typedef struct {
+	Vector3 Pos;
+	int Key;
+}SPELLIN, *PSPELLIN;
+DWORD WINAPI CastSpell(LPVOID Par) {
+	PSPELLIN PSpellin = (PSPELLIN)Par;
+	POINT oldMousePos;
+	GetCursorPos(&oldMousePos);
+
+	INPUT ip;
+	ip.type = INPUT_KEYBOARD;
+	ip.ki.wScan = MapVirtualKey(PSpellin->Key, MAPVK_VK_TO_VSC);
+	ip.ki.time = 0;
+	ip.ki.dwExtraInfo = 0;
+	ip.ki.dwFlags = 0;
+
+	ip.ki.wVk = PSpellin->Key;
+	SetCursorPos(PSpellin->Pos.x, PSpellin->Pos.y);
+	SendInput(1, &ip, sizeof(INPUT));
+	Sleep(10);
+	ip.ki.dwFlags = KEYEVENTF_KEYUP;
+	SendInput(1, &ip, sizeof(INPUT));
+	Sleep(10);
+	SetCursorPos(oldMousePos.x, oldMousePos.y);
+
+	return 0;
+}
+
+DWORD WINAPI RClick(LPVOID Par) {
+	POINT oldMousePos;
+	Vector3* Pos = (Vector3*)Par;
+	GetCursorPos(&oldMousePos);
+	SetCursorPos(Pos->x, Pos->y);
+	mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+	Sleep(15);
+	mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+	SetCursorPos(oldMousePos.x, oldMousePos.y);
+	
+	return 0;
+}
+
 typedef void (*GenericFunction)();
 void myIssueOrder(void* thisPtr, int Order, Vector3* Loc, CObject* Target, bool IsAttackMove, bool IsMinion, DWORD Unknown) {
 	/*static DWORD retnAddr = baseAddress + oRetnAddr;
@@ -67,10 +108,20 @@ void myIssueOrder(void* thisPtr, int Order, Vector3* Loc, CObject* Target, bool 
 		retnHere :
 	}*/
 
-	/*typedef int(__thiscall* fnIssueOrder)(void* thisPtr, int Order, Vector3* Loc, CObject* Target, bool IsAttackMove, bool IsMinion, DWORD Unknown);
-	fnIssueOrder fn = (fnIssueOrder)(baseAddress + oIssueOrder); fn(thisPtr, Order, Loc, Target, IsAttackMove, IsMinion, Unknown);*/
+	//StackSpoofForThiscall<int*>((baseAddress + oIssueOrder), 6, thisPtr, (baseAddress + oSpoof), Order, Loc, Target, IsAttackMove, IsMinion, Unknown);
+	Vector3 screenPos;
+	RECT windowPos;
+	GH.worldToScreen(Loc, &screenPos);
 
-	StackSpoofForThiscall<int*>((baseAddress + oIssueOrder), 6, thisPtr, (baseAddress + oSpoof), Order, Loc, Target, IsAttackMove, IsMinion, Unknown);
+	GetWindowRect(GetActiveWindow(), &windowPos);
+	screenPos.x += windowPos.left;
+	screenPos.y += windowPos.top;
+
+	Vector3* Params = (Vector3*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(Vector3));
+	Params->x = screenPos.x;
+	Params->y = screenPos.y;
+
+	CreateThread(NULL, NULL, RClick, Params, NULL, NULL);
 
 	return;
 }
@@ -90,7 +141,51 @@ void myOldCastSpell(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, Vector3*
 		retnHere :
 	}*/
 
-	StackSpoofForThiscall<int*>((baseAddress + oOldCastSpell), 5, thisPtr, (baseAddress + oSpoof), slot, slotID, myPos, pos, networkID);
+	//StackSpoofForThiscall<int*>((baseAddress + oOldCastSpell), 5, thisPtr, (baseAddress + oSpoof), slot, slotID, myPos, pos, networkID);
+	Vector3 screenPos;
+	RECT windowPos;
+	GH.worldToScreen(myPos, &screenPos);
+
+	GetWindowRect(GetActiveWindow(), &windowPos);
+	screenPos.x += windowPos.left;
+	screenPos.y += windowPos.top;
+
+	PSPELLIN Params = (PSPELLIN)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(SPELLIN));
+	Params->Pos = screenPos;
+	switch (slotID) {
+	case Spells::Q:
+		Params->Key = 'Q';
+		break;
+	case Spells::W:
+		Params->Key = 'W';
+		break;
+	case Spells::E:
+		Params->Key = 'E';
+		break;
+	case Spells::R:
+		Params->Key = 'R';
+		break;
+	case Spells::Item1:
+		Params->Key = '1';
+		break;
+	case Spells::Item2:
+		Params->Key = '2';
+		break;
+	case Spells::Item3:
+		Params->Key = '3';
+		break;
+	case Spells::Item4:
+		Params->Key = '4';
+		break;
+	case Spells::Item5:
+		Params->Key = '5';
+		break;
+	case Spells::Item6:
+		Params->Key = '6';
+		break;
+	}
+
+	CreateThread(NULL, NULL, CastSpell, Params, NULL, NULL);
 
 	return;
 }
@@ -126,7 +221,7 @@ void LocalPlayer::init() {
 	AACheckDelay = 0.08;
 	lastAACheck = 0;
 	LPObject = 0;
-	useSpell = true;
+	useSpell = false;
 	curPathIndex = 0;
 	curPath.nPathPoints = 1;
 	curPath.pathPoints;
@@ -204,7 +299,8 @@ bool LocalPlayer::CastSpellAtPos(Spells spell, Vector3 position){
 	return castSpellMaster(LPObject->GetSpellBook(), LPObject->GetSpellBook()->GetSpellSlot(spell), spell, &position, &Vector3(0,0,0), 0);
 }
 bool LocalPlayer::CastSpellAtTarget(Spells spell, CObject* target){
-	return castSpellMaster(LPObject->GetSpellBook(), LPObject->GetSpellBook()->GetSpellSlot(spell), spell, &(LPObject->GetPos()), &(target->GetPos()), target->GetNetworkID());
+	// MODIFICA PER SendInput return castSpellMaster(LPObject->GetSpellBook(), LPObject->GetSpellBook()->GetSpellSlot(spell), spell, &(LPObject->GetPos()), &(target->GetPos()), target->GetNetworkID());
+	return castSpellMaster(LPObject->GetSpellBook(), LPObject->GetSpellBook()->GetSpellSlot(spell), spell, &(target->GetPos()), &(LPObject->GetPos()), target->GetNetworkID());
 }
 bool LocalPlayer::CastSpellSelf(Spells spell){
 	return castSpellMaster(LPObject->GetSpellBook(), LPObject->GetSpellBook()->GetSpellSlot(spell), spell, &(LPObject->GetPos()), &(LPObject->GetPos()), 0);

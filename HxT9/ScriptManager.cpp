@@ -13,20 +13,32 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 		return;
 	}
 	try {
-		if (!(initHelpers && initLP && initAAMissileSpeed && initWnd))
+		if (!(initHelpers && initLP && initAAMissileSpeed && initWnd && initStream)) {
+			utils.dbgStream("Init");
 			init(pDevice);
+		}
 
+		utils.dbgStream("drawer.tick");
 		drawer.tick(pDevice); //Aggiornamento del pDevice
+		utils.dbgStream("gui.tick");
 		gui.tick(pDevice);
 
+		utils.dbgStream("entities.tick");
 		entities.tick(); //Aggiornamento delle entità
-		
+
+		utils.dbgStream("drawBoundingBox");
 		utils.drawBoundingBox();
+		utils.dbgStream("drawEntitiesRange");
 		utils.drawEntitiesRange();
+		utils.dbgStream("drawLastHittableMinions");
 		utils.drawLastHittableMinions();
+		utils.dbgStream("drawActiveSpells");
 		utils.drawActiveSpells();
+		utils.dbgStream("drawMissiles");
 		utils.drawMissiles();
+		utils.dbgStream("drawPredictedPos");
 		utils.drawPredictedPos();
+		utils.dbgStream("ChampionCustomDraw");
 		utils.ChampionCustomDraw();
 
 		//utils.drawDebug();
@@ -37,11 +49,14 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 		//bool detected = *(bool*)(__readfsdword(0x18) + 0xA00);
 		//gui.print(utils.stringf("1) %d, 2) %d", detected, detected2));
 
-		
+
+		utils.dbgStream("myHero.tick");
 		myHero.tick();
+		utils.dbgStream("championScript.tick");
 		championScript.tick();
+		utils.dbgStream("OrbWalker.tick");
 		orbWalker.tick();
-		baseUlt.tick();
+		//baseUlt.tick();
 		
 		if (GetKeyState(VK_NUMPAD1) & 0x8000)
 			myHero.useSpell = true;

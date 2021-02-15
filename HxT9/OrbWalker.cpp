@@ -4,7 +4,8 @@
 #include "globalVars.h"
 
 void OrbWalker::tick() {
-	bool chatOpened = *(bool*)(*(DWORD*)(baseAddress + oChatClientPtr) + oChatClientChatOpened);
+	bool chatOpened = *(bool*)(*(DWORD*)(baseAddress + oChatClientBox) + oChatBoxChatOpened);
+
 	dmg = myHero.LPObject->GetTotalAttackDamage();
 	if (strcmp(myHero.championName, "kalista") == 0) {
 		dmg *= 0.9;
