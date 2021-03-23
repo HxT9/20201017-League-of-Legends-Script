@@ -13,6 +13,8 @@
 #include "TargetSelector.h"
 #include "ChampionScript.h"
 #include "BaseUlt.h"
+#include "InputManager.h"
+#include "Minimap.h"
 
 #pragma region helpers
 extern GameFunctions GH;
@@ -25,6 +27,8 @@ extern OrbWalker orbWalker;
 extern TargetSelector targetSelector;
 extern ChampionScript championScript;
 extern BaseUlt baseUlt;
+extern InputManager inputManager;
+extern Minimap miniMap;
 #pragma endregion
 
 #pragma region baseVars

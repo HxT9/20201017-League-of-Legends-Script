@@ -321,6 +321,96 @@ void ChampionScript::tick() {
 			}
 		}
 	}
+
+	//URF
+	/*
+	if (strcmp(myHero.championName, "Ryze") == 0) {
+		switch (myHero.behaviour) {
+		case Behaviour::Combo:
+			if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
+				target = targetSelector.getBestChampion(550);
+				if (target != NULL)
+					myHero.CastSpellAtTarget(Spells::W, target);
+			}
+			if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
+				target = targetSelector.getBestChampion(550);
+				if (target != NULL)
+					myHero.CastSpellAtTarget(Spells::E, target);
+			}
+			if (!myHero.chargingSpell && GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
+				target = targetSelector.getBestChampion(1000);
+				if (target != NULL) {
+					predictedPos = utils.getPredictedPos(target, 0.25 + myHero.LPObject->GetPos().distTo(target->GetPos()) / 1700, 110, myHero.LPObject);
+					if (predictedPos.distTo(myHero.LPObject->GetPos()) <= 1000)
+						myHero.CastSpellAtPos(Spells::Q, predictedPos);
+				}
+			}
+			break;
+		}
+	}
+	
+	if (strcmp(myHero.championName, "Karthus") == 0) {
+		switch (myHero.behaviour) {
+		case Behaviour::Combo:
+			if (!myHero.chargingSpell && GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
+				target = targetSelector.getBestChampion(875);
+				if (target != NULL) {
+					predictedPos = utils.getPredictedPos(target, 0.75, 160, myHero.LPObject);
+					if (predictedPos.distTo(myHero.LPObject->GetPos()) <= 875)
+						myHero.CastSpellAtPos(Spells::Q, predictedPos);
+				}
+			}
+			break;
+		}
+	}
+	if (strcmp(myHero.championName, "Kayle") == 0) {
+		switch (myHero.behaviour) {
+		case Behaviour::Combo:
+			if (targetSelector.getBestChampion(700) && GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
+				myHero.CastSpellSelf(Spells::E);
+			}
+			if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
+				myHero.CastSpellSelf(Spells::W);
+			}
+			break;
+		}
+	}
+	if (strcmp(myHero.championName, "Lucian") == 0) {
+		switch (myHero.behaviour) {
+		case Behaviour::Combo:
+			if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
+				target = targetSelector.getBestChampion(500);
+				if (target != NULL)
+					myHero.CastSpellAtTarget(Spells::Q, target);
+			}
+			if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready && targetSelector.getBestChampion(600) != NULL) {
+				myHero.CastSpellAtPos(Spells::E, GH.getMouseWorldPosition());
+			}
+			break;
+		}
+	}
+	if (strcmp(myHero.championName, "Vayne") == 0) {
+		switch (myHero.behaviour) {
+		case Behaviour::Combo:
+			if (myHero.afterAA && GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready && targetSelector.getBestChampion(600) != NULL) {
+				myHero.CastSpellAtPos(Spells::Q, GH.getMouseWorldPosition());
+			}
+			break;
+		}
+	}
+	if (strcmp(myHero.championName, "Draven") == 0) {
+		switch (myHero.behaviour) {
+		case Behaviour::Combo:
+			if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
+				myHero.CastSpellSelf(Spells::W);
+			}
+			if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
+				myHero.CastSpellSelf(Spells::Q);
+			}
+			break;
+		}
+	}
+	*/
 }
 
 

@@ -51,43 +51,194 @@ __declspec(naked) ReturnType __stdcall StackSpoofForThiscall(DWORD FuncAddr, uns
 
 typedef struct {
 	Vector3 Pos;
-	int Key;
+	WORD Key;
 }SPELLIN, *PSPELLIN;
-DWORD WINAPI CastSpell(LPVOID Par) {
-	PSPELLIN PSpellin = (PSPELLIN)Par;
+void CastSpell(PSPELLIN PSpellin) {
 	POINT oldMousePos;
 	GetCursorPos(&oldMousePos);
 
-	INPUT ip;
-	ip.type = INPUT_KEYBOARD;
-	ip.ki.wScan = MapVirtualKey(PSpellin->Key, MAPVK_VK_TO_VSC);
-	ip.ki.time = 0;
-	ip.ki.dwExtraInfo = 0;
-	ip.ki.dwFlags = 0;
+	INPUT in;
+	MOUSEINPUT mi;
+	KEYBDINPUT ki;
 
-	ip.ki.wVk = PSpellin->Key;
-	SetCursorPos(PSpellin->Pos.x, PSpellin->Pos.y);
-	SendInput(1, &ip, sizeof(INPUT));
-	Sleep(10);
-	ip.ki.dwFlags = KEYEVENTF_KEYUP;
-	SendInput(1, &ip, sizeof(INPUT));
-	Sleep(10);
-	SetCursorPos(oldMousePos.x, oldMousePos.y);
+	mi.time = ki.time = 0;
 
-	return 0;
+	mi.dwFlags = MOUSEEVENTF_MOVE;
+	mi.dx = PSpellin->Pos.x - oldMousePos.x;
+	mi.dy = PSpellin->Pos.y - oldMousePos.y;
+	in.type = 0;
+	in.mi = mi;
+	inputManager.addInput(in);
+
+	ki.wVk = PSpellin->Key;
+	ki.wScan = MapVirtualKey(PSpellin->Key, 0);
+	in.type = 1;
+	in.ki = ki;
+	inputManager.addInput(in);
+
+	ki.dwFlags = KEYEVENTF_KEYUP;
+	in.ki = ki;
+	inputManager.addInput(in);
+
+	mi.dx = oldMousePos.x - PSpellin->Pos.x;
+	mi.dy = oldMousePos.y - PSpellin->Pos.y;
+	in.type = 0;
+	in.mi = mi;
+	inputManager.addInput(in);
 }
 
-DWORD WINAPI RClick(LPVOID Par) {
+void myStartChargingSpell(Spells slotID) {
+	INPUT in;
+	KEYBDINPUT ki;
+	WORD Key;
+
+	switch (slotID) {
+	case Spells::Q:
+		Key = 'Q';
+		break;
+	case Spells::W:
+		Key = 'W';
+		break;
+	case Spells::E:
+		Key = 'E';
+		break;
+	case Spells::R:
+		Key = 'R';
+		break;
+	case Spells::Item1:
+		Key = '1';
+		break;
+	case Spells::Item2:
+		Key = '2';
+		break;
+	case Spells::Item3:
+		Key = '3';
+		break;
+	case Spells::Item4:
+		Key = '4';
+		break;
+	case Spells::Item5:
+		Key = '5';
+		break;
+	case Spells::Item6:
+		Key = '6';
+		break;
+	}
+
+	ki.time = 0;
+
+	ki.wVk = Key;
+	ki.wScan = MapVirtualKey(Key, 0);
+	in.type = 1;
+	in.ki = ki;
+	inputManager.addInput(in);
+}
+
+void ReleaseChargeableSpell(PSPELLIN PSpellin) {
 	POINT oldMousePos;
-	Vector3* Pos = (Vector3*)Par;
 	GetCursorPos(&oldMousePos);
-	SetCursorPos(Pos->x, Pos->y);
-	mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
-	Sleep(15);
-	mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
-	SetCursorPos(oldMousePos.x, oldMousePos.y);
-	
-	return 0;
+
+	INPUT in;
+	MOUSEINPUT mi;
+	KEYBDINPUT ki;
+
+	mi.time = ki.time = 0;
+
+	mi.dwFlags = MOUSEEVENTF_MOVE;
+	mi.dx = PSpellin->Pos.x - oldMousePos.x;
+	mi.dy = PSpellin->Pos.y - oldMousePos.y;
+	in.type = 0;
+	in.mi = mi;
+	inputManager.addInput(in);
+
+	ki.wVk = PSpellin->Key;
+	ki.wScan = MapVirtualKey(PSpellin->Key, 0);
+	in.type = 1;
+	ki.dwFlags = KEYEVENTF_KEYUP;
+	in.ki = ki;
+	inputManager.addInput(in);
+
+	mi.dx = oldMousePos.x - PSpellin->Pos.x;
+	mi.dy = oldMousePos.y - PSpellin->Pos.y;
+	in.type = 0;
+	in.mi = mi;
+	inputManager.addInput(in);
+}
+
+void RClickSpace(Vector3* Par) { //Al posto di spazio uso 'M' come attack champion only
+	INPUT in;
+	MOUSEINPUT mi;
+	KEYBDINPUT ki;
+	POINT oldMousePos;
+
+	mi.time = ki.time = 0;
+
+	ki.wScan = MapVirtualKey('M', 0);
+	ki.wVk = 'M';
+	ki.dwFlags = KEYEVENTF_SCANCODE;
+	in.type = 1;
+	in.ki = ki;
+
+	//inputManager.addInput(in);
+
+	if (Par != NULL) {
+		GetCursorPos(&oldMousePos);
+		mi.dwFlags = MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_MOVE;
+		mi.dx = Par->x - oldMousePos.x;
+		mi.dy = Par->y - oldMousePos.y;
+	}
+	else {
+		mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+	}
+	in.type = 0;
+	in.mi = mi;
+	inputManager.addInput(in, true);
+
+	mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+	in.mi = mi;
+	inputManager.addInput(in);
+
+	ki.dwFlags = KEYEVENTF_KEYUP;
+	in.type = 1;
+	in.ki = ki;
+	inputManager.addInput(in);
+
+	if (Par != NULL) {
+		mi.dwFlags = MOUSEEVENTF_MOVE;
+		mi.dx = oldMousePos.x - Par->x;
+		mi.dy = oldMousePos.y - Par->y;
+		in.type = 0;
+		in.mi = mi;
+		inputManager.addInput(in);
+	}
+}
+
+void RClickAttack(Vector3* Par) {
+	INPUT in;
+	MOUSEINPUT mi;
+	POINT oldMousePos;
+
+	mi.time = 0;
+
+	GetCursorPos(&oldMousePos);
+	mi.dwFlags = MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_MOVE;
+	mi.dx = Par->x - oldMousePos.x;
+	mi.dy = Par->y - oldMousePos.y;
+
+	in.type = 0;
+	in.mi = mi;
+	inputManager.addInput(in);
+
+	mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+	in.mi = mi;
+	inputManager.addInput(in);
+
+	mi.dwFlags = MOUSEEVENTF_MOVE;
+	mi.dx = oldMousePos.x - Par->x;
+	mi.dy = oldMousePos.y - Par->y;
+	in.type = 0;
+	in.mi = mi;
+	inputManager.addInput(in);
 }
 
 typedef void (*GenericFunction)();
@@ -108,20 +259,39 @@ void myIssueOrder(void* thisPtr, int Order, Vector3* Loc, CObject* Target, bool 
 		retnHere :
 	}*/
 
+	//2 - Move, 3 - Auto Attack
+
 	//StackSpoofForThiscall<int*>((baseAddress + oIssueOrder), 6, thisPtr, (baseAddress + oSpoof), Order, Loc, Target, IsAttackMove, IsMinion, Unknown);
 	Vector3 screenPos;
 	RECT windowPos;
-	GH.worldToScreen(Loc, &screenPos);
+	Vector3* Params = NULL;
 
-	GetWindowRect(GetActiveWindow(), &windowPos);
-	screenPos.x += windowPos.left;
-	screenPos.y += windowPos.top;
+	switch (Order) {
+	case 2:
+		RClickSpace(NULL);
+		break;
+	case 3:
+		GH.worldToScreen(Loc, &screenPos);
+		GetWindowRect(GetActiveWindow(), &windowPos);
+		screenPos.x += windowPos.left;
+		screenPos.y += windowPos.top;
 
-	Vector3* Params = (Vector3*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(Vector3));
-	Params->x = screenPos.x;
-	Params->y = screenPos.y;
+		Params = new Vector3();
+		if (Params) {
+			Params->x = screenPos.x;
+			Params->y = screenPos.y - 25;
+		}
 
-	CreateThread(NULL, NULL, RClick, Params, NULL, NULL);
+		if (GH.isHero(Target)) {
+			RClickSpace(Params);
+		}
+		else {
+			RClickAttack(Params);
+		}
+		break;
+	default:
+		break;
+	}
 
 	return;
 }
@@ -150,42 +320,44 @@ void myOldCastSpell(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, Vector3*
 	screenPos.x += windowPos.left;
 	screenPos.y += windowPos.top;
 
-	PSPELLIN Params = (PSPELLIN)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(SPELLIN));
-	Params->Pos = screenPos;
-	switch (slotID) {
-	case Spells::Q:
-		Params->Key = 'Q';
-		break;
-	case Spells::W:
-		Params->Key = 'W';
-		break;
-	case Spells::E:
-		Params->Key = 'E';
-		break;
-	case Spells::R:
-		Params->Key = 'R';
-		break;
-	case Spells::Item1:
-		Params->Key = '1';
-		break;
-	case Spells::Item2:
-		Params->Key = '2';
-		break;
-	case Spells::Item3:
-		Params->Key = '3';
-		break;
-	case Spells::Item4:
-		Params->Key = '4';
-		break;
-	case Spells::Item5:
-		Params->Key = '5';
-		break;
-	case Spells::Item6:
-		Params->Key = '6';
-		break;
+	PSPELLIN Params = new SPELLIN();
+	if (Params) {
+		Params->Pos = screenPos;
+		switch (slotID) {
+		case Spells::Q:
+			Params->Key = 'Q';
+			break;
+		case Spells::W:
+			Params->Key = 'W';
+			break;
+		case Spells::E:
+			Params->Key = 'E';
+			break;
+		case Spells::R:
+			Params->Key = 'R';
+			break;
+		case Spells::Item1:
+			Params->Key = '1';
+			break;
+		case Spells::Item2:
+			Params->Key = '2';
+			break;
+		case Spells::Item3:
+			Params->Key = '3';
+			break;
+		case Spells::Item4:
+			Params->Key = '4';
+			break;
+		case Spells::Item5:
+			Params->Key = '5';
+			break;
+		case Spells::Item6:
+			Params->Key = '6';
+			break;
+		}
 	}
 
-	CreateThread(NULL, NULL, CastSpell, Params, NULL, NULL);
+	CastSpell(Params);
 
 	return;
 }
@@ -195,9 +367,80 @@ void myCastSpell(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, CastingStru
 	return;
 }
 void myCastChargeableSpell(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, Vector3* pos, bool release) {
-	StackSpoofForThiscall<int*>((baseAddress + oUpdateChargeableSpell), 4, thisPtr, (baseAddress + oSpoof), slot, slotID, pos, release);
+	//StackSpoofForThiscall<int*>((baseAddress + oUpdateChargeableSpell), 4, thisPtr, (baseAddress + oSpoof), slot, slotID, pos, release);
+	Vector3 screenPos;
+	RECT windowPos;
+	GH.worldToScreen(pos, &screenPos);
+
+	GetWindowRect(GetActiveWindow(), &windowPos);
+	screenPos.x += windowPos.left;
+	screenPos.y += windowPos.top;
+
+	PSPELLIN Params = new SPELLIN();
+	if (Params) {
+		Params->Pos = screenPos;
+		switch (slotID) {
+		case Spells::Q:
+			Params->Key = 'Q';
+			break;
+		case Spells::W:
+			Params->Key = 'W';
+			break;
+		case Spells::E:
+			Params->Key = 'E';
+			break;
+		case Spells::R:
+			Params->Key = 'R';
+			break;
+		case Spells::Item1:
+			Params->Key = '1';
+			break;
+		case Spells::Item2:
+			Params->Key = '2';
+			break;
+		case Spells::Item3:
+			Params->Key = '3';
+			break;
+		case Spells::Item4:
+			Params->Key = '4';
+			break;
+		case Spells::Item5:
+			Params->Key = '5';
+			break;
+		case Spells::Item6:
+			Params->Key = '6';
+			break;
+		}
+	}
+
+	ReleaseChargeableSpell(Params);
 
 	return;
+}
+void LocalPlayer::castBaseUlt() {
+	Vector3 targetPos;
+	RECT windowPos;
+	GetWindowRect(GetActiveWindow(), &windowPos);
+
+	targetPos.x = miniMap.getMinimapPos().x;
+	targetPos.y = miniMap.getMinimapPos().y;
+
+	if (this->LPObject->GetTeam() == 100) {
+		targetPos.x += miniMap.getMinimapSize().x * 0.9655;
+		targetPos.y += miniMap.getMinimapSize().y * 0.0345;
+	}
+	else {
+		targetPos.x += miniMap.getMinimapSize().x * 0.0275;
+		targetPos.y += miniMap.getMinimapSize().y * 0.9700;
+	}
+	targetPos.x += windowPos.left;
+	targetPos.y += windowPos.top;
+
+	PSPELLIN Params = new SPELLIN();
+	Params->Key = 'R';
+	Params->Pos = targetPos;
+
+	CastSpell(Params);
 }
 
 LocalPlayer::LocalPlayer() {
@@ -216,12 +459,12 @@ void LocalPlayer::init() {
 	nextActionTime = 0;
 	nextSpellTime = 0;
 	behaviour = Behaviour::Nothing;
-	delay = 0.08;
-	spellDelay = 0.08;
+	delay = 0.1;
+	spellDelay = 0.1;
 	AACheckDelay = 0.08;
 	lastAACheck = 0;
 	LPObject = 0;
-	useSpell = false;
+	useSpell = true;
 	curPathIndex = 0;
 	curPath.nPathPoints = 1;
 	curPath.pathPoints;
@@ -239,7 +482,7 @@ void LocalPlayer::tick() {
 			LastAABeginTime = gameTime;
 			LastAAEndTime = LastAABeginTime + GH.getAttackCastDelay(LPObject);
 			NextAATime = LastAABeginTime + GH.getAttackDelay(LPObject);
-			afterAACalled = false;
+			afterAA = false;
 		}
 	}
 	else {
@@ -263,8 +506,11 @@ void LocalPlayer::AutoAttack(CObject* target){
 			nextActionTime = gameTime + delay + Humanize();
 		}
 		else if (gameTime >= LastAAEndTime) {
-			if (!afterAACalled) {
-				afterAACalled = true;
+			if (gameTime < NextAATime) {
+				afterAA = true;
+			}
+			else {
+				afterAA = false;
 			}
 			MoveTo(GH.getMouseWorldPosition());
 		}
@@ -306,11 +552,16 @@ bool LocalPlayer::CastSpellSelf(Spells spell){
 	return castSpellMaster(LPObject->GetSpellBook(), LPObject->GetSpellBook()->GetSpellSlot(spell), spell, &(LPObject->GetPos()), &(LPObject->GetPos()), 0);
 }
 void LocalPlayer::StartChargingSpell(Spells spell, float maxDuration) {
-	if (CastSpellSelf(spell)) {
+	/*if (CastSpellSelf(spell)) {
+
 		chargingSpell = true;
 		chargingStartTime = gameTime;
 		chargingEndTime = gameTime + maxDuration;
-	}
+	}*/
+	myStartChargingSpell(spell);
+	chargingSpell = true;
+	chargingStartTime = gameTime;
+	chargingEndTime = gameTime + maxDuration;
 }
 void LocalPlayer::ReleaseChargeableSpell(Spells spell, Vector3 position) {
 	if (chargingSpell && gameTime >= nextActionTime) {

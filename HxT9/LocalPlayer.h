@@ -20,7 +20,7 @@ public:
 	float nextActionTime;
 	float nextSpellTime;
 	Behaviour behaviour;
-	bool afterAACalled;
+	bool afterAA;
 	float delay;
 	float spellDelay;
 	char* championName;
@@ -48,6 +48,7 @@ public:
 	void StartChargingSpell(Spells spell, float maxDuration);
 	void ReleaseChargeableSpell(Spells spell, Vector3 position);
 	bool CastSpellSelf(Spells spell);
+	void castBaseUlt();
 	float Humanize();
 };
 

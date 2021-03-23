@@ -1,47 +1,46 @@
 ﻿#pragma once
-#define oRetnAddr		0xe40939
-#define oSpoof			0xe4091b
+#define oSpoof			0xe6ee6b
 
-#define oObjectsManager	0x16b2a74 
-#define oLocalPlayer	0x2f4f764 
-#define oChatClientPtr	0x22ff400
-#define oChatClientBox	0x2F4F818
-#define oGameTime		0x2f4759c 
-#define oHudInstance	0x16b2aac
-#define oUnderMouseObj	0x16840a0
+#define oObjectsManager	0x16f8678 
+#define oLocalPlayer	0x2f9512c 
+#define oChatClientBox	0x2f951f8
+#define oGameTime		0x2f8d1dc 
+#define oMinimapObj		0x2f94b0c
+#define oHudInstance	0x16f86b0
 
-#define oGetFirstCObject	0x26ca90
-#define oGetNextCObject		0x26e8d0
+#define oGetFirstCObject	0x27f470
+#define oGetNextCObject		0x2809f0
 
 //Functions
-#define oIsHero			0x195370
-#define oIsMinion		0x1953b0
-#define oIsTroy			0x1956d0     
-#define oIsTurret		0x1955e0 
-#define oIsMissile		0x1953d0
-#define oIsAlive		0x186a10 
-#define oIsTargetable	0x1bd200 
+#define oIsHero			0x19c4d0
+#define oIsMinion		0x19c510
+#define oIsTurret		0x19c740 
+#define oIsMissile		0x19c530
+#define oIsAlive		0x18c350 
+#define oIsTargetable	0x1c50f0 
 
-#define oOldCastSpell		0x4d5960 
-//#define oCastSpell			0x50ee20
-#define oUpdateChargeableSpell 0x4d88a0
-#define oGetSpellState		0x4c5e70 
-#define oIssueOrder			0x15c5d0
-#define oGetAttackCastDelay	0x2846c0 
-#define oGetAttackDelay		0x2847c0
+#define oOldCastSpell		0x4ec8e0 
+#define oUpdateChargeableSpell 0x240dd0
+#define oGetSpellState		0x4e3110 
+#define oIssueOrder			0x15f070
+#define oGetAttackCastDelay	0x27bd40 
+#define oGetAttackDelay		0x27be40
 
-#define oPrintChat	0x546f30 
-#define oW2S		0x91ba50 
+#define oW2S		0x960a30 
 
 //Chat offsets
-#define oChatClientChatOpened	0x7C
-#define oChatBoxChatOpened	0x62C
+#define oChatBoxChatOpened	0x650
+
+//MMap offsets
+#define oMinimapObjectHud	0x88
+#define oMinimapPosition	0x60
+#define oMinimapSize		0x68
 
 //HeroOffsets
 #define oObjIndex 0x20
 #define oObjTeam 0x4C
 #define oObjName 0x6C
-#define oObjNetworkID 0xCC
+#define oObjNetworkID 0xCC //4000001D
 #define oObjPos 0x1D8
 #define oObjVisibility 0x270
 #define oObjMana 0x298 
@@ -50,15 +49,15 @@
 #define oObjMaxHealth 0xda8
 #define oObjBonusAtk 0x11F0
 #define oObjAP 0x1200
-#define oObjBaseAtk 0x1270
-#define oObjArmor 0x1298
-#define oObjMagicResist 0x12A0
-#define oObjMoveSpeed 0x12B0
-#define oObjAtkRange 0x12B8
-#define oObjBuffMgr 0x2160
-#define oObjSpellBook 0x2708
-#define oObjChampionName 0x3134 
-#define oObjLevel 0x36BC
+#define oObjBaseAtk 0x1274
+#define oObjArmor 0x129C
+#define oObjMagicResist 0x12A4
+#define oObjMoveSpeed 0x12B4
+#define oObjAtkRange 0x12BC
+#define oObjBuffMgr 0x2178
+#define oObjSpellBook 0x2720
+#define oObjChampionName 0x314C
+#define oObjLevel 0x36D4
 
 #define oSpellBookActiveSpell 0x20 //ObjSpellBook + oObjCastingSpell //MissileObject being created
 #define oActiveSpellSpellInfoPtr 0x8 //Dopo questa si va a +0x38 su spelldata
@@ -119,3 +118,12 @@
 #define oBuffIntCount 0x74
 #define oBuffCountAlt 0x24
 #define oBuffCountAlt2 0x20
+
+
+
+
+#define oRetnAddr		0xe40939
+#define oIsTroy		0x1956d0 
+#define oPrintChat	0x546f30   
+#define oChatClientPtr	0x22ff400  
+#define oChatClientChatOpened	0x7C

@@ -1,8 +1,6 @@
 #pragma once
 #include "d3d9.h"
-#pragma comment(lib, "d3d9.lib")
 #include "d3dx9.h"
-#pragma comment(lib, "d3dx9.lib")
 
 #include "Vector3.h"
 
@@ -12,7 +10,8 @@ public:
 	LPDIRECT3DDEVICE9 pDevice;
 	LPD3DXLINE m_Line;
 	D3DXVECTOR2 screenPoints[2];
-	LPD3DXFONT m_Font;
+	LPD3DXFONT m_FontSmall;
+	LPD3DXFONT m_FontMedium;
 	RECT m_Rect;
 
 	Drawer();
@@ -23,7 +22,8 @@ public:
 	void drawRectangle(Vector3 vStart, Vector3 vEnd, float radius, int d3dcolor, float lineWidth); //Radius is half height
 	void drawCircumference(Vector3 center, float radius, int precision, int d3dcolor, float lineWidth);
 	void drawConic(Vector3 center, Vector3 vEnd, int angle, int precision, int d3dcolor, float lineWidth);
-	void drawText(Vector3 screenPosition, const char* text, int d3dcolor);
+	void drawTextSmall(Vector3 screenPosition, const char* text, int d3dcolor);
+	void drawTextMedium(Vector3 screenPosition, const char* text, int d3dcolor);
 	Vector3* getRectanglePoints(Vector3 vStart, Vector3 vEnd, float radius, int d3dcolor, float lineWidth);
 	Vector3* getCircumferencePoints(Vector3 center, float radius, int precision, int d3dcolor, float lineWidth);
 	Vector3* getConicPoints(Vector3 center, Vector3 vEnd, int angle, int precision, int d3dcolor, float lineWidth);

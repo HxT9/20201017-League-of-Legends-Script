@@ -78,13 +78,15 @@ void BaseUlt::tick()
 			if (strcmp(myHero.championName, "Ezreal") == 0) {
 				myHero.nextActionTime = 0;
 				myHero.nextSpellTime = 0;
-				myHero.CastSpellAtPos(Spells::R, spawnPoint);
+				//myHero.CastSpellAtPos(Spells::R, spawnPoint);
+				myHero.castBaseUlt();
 			}
 			else {
 				if (utils.heroesColliding(myHero.LPObject->GetPos(), spawnPoint, width) == 0) {
 					myHero.nextActionTime = 0;
 					myHero.nextSpellTime = 0;
-					myHero.CastSpellAtPos(Spells::R, spawnPoint);
+					//myHero.CastSpellAtPos(Spells::R, spawnPoint);
+					myHero.castBaseUlt();
 				}
 			}
 		}

@@ -14,31 +14,21 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 	}
 	try {
 		if (!(initHelpers && initLP && initAAMissileSpeed && initWnd && initStream)) {
-			utils.dbgStream("Init");
 			init(pDevice);
 		}
 
-		utils.dbgStream("drawer.tick");
 		drawer.tick(pDevice); //Aggiornamento del pDevice
-		utils.dbgStream("gui.tick");
 		gui.tick(pDevice);
 
-		utils.dbgStream("entities.tick");
 		entities.tick(); //Aggiornamento delle entità
 
-		utils.dbgStream("drawBoundingBox");
 		utils.drawBoundingBox();
-		utils.dbgStream("drawEntitiesRange");
-		utils.drawEntitiesRange();
-		utils.dbgStream("drawLastHittableMinions");
+		utils.drawEntities();
 		utils.drawLastHittableMinions();
-		utils.dbgStream("drawActiveSpells");
 		utils.drawActiveSpells();
-		utils.dbgStream("drawMissiles");
 		utils.drawMissiles();
-		utils.dbgStream("drawPredictedPos");
-		utils.drawPredictedPos();
-		utils.dbgStream("ChampionCustomDraw");
+		//utils.drawPredictedPos(); //CRASH (Dont know why)
+		utils.drawSpellCD();
 		utils.ChampionCustomDraw();
 
 		//utils.drawDebug();
@@ -49,21 +39,20 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 		//bool detected = *(bool*)(__readfsdword(0x18) + 0xA00);
 		//gui.print(utils.stringf("1) %d, 2) %d", detected, detected2));
 
-
-		utils.dbgStream("myHero.tick");
 		myHero.tick();
-		utils.dbgStream("championScript.tick");
 		championScript.tick();
-		utils.dbgStream("OrbWalker.tick");
 		orbWalker.tick();
-		//baseUlt.tick();
+		baseUlt.tick();
+
+		inputManager.tick();
+
 		
 		if (GetKeyState(VK_NUMPAD1) & 0x8000)
 			myHero.useSpell = true;
 		if (GetKeyState(VK_NUMPAD2) & 0x8000)
 			myHero.useSpell = false;
 		if (myHero.useSpell)
-			drawer.drawText({ 100,200, 0 }, "Using spell", 0xff00ff00);
+			drawer.drawTextSmall({ 100,200, 0 }, "Using spell", 0xff00ff00);
 
 		if (GetKeyState(VK_LBUTTON) & 0x8000 && !firstTickMouseDown) {
 			leftButtonDown = true;
@@ -94,6 +83,7 @@ void ScriptManager::init(LPDIRECT3DDEVICE9 pDevice) {
 		initHelpers = true;
 
 		gui.init(pDevice);
+		inputManager.resetInputs();
 	}
 	if (!initLP) {
 		if (*(DWORD*)(baseAddress + oLocalPlayer) != NULL) {

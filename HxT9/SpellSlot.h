@@ -7,6 +7,7 @@ public:
 
 	int GetSpellLvl();
 	bool IsSpellReady();
+	float GetSpellReady();
 	SpellInfo* GetSpellInfo();
 	CastingStruct* GetCastingStruct();
 };

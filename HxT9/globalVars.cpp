@@ -11,6 +11,8 @@ OrbWalker orbWalker;
 TargetSelector targetSelector;
 ChampionScript championScript;
 BaseUlt baseUlt;
+InputManager inputManager;
+Minimap miniMap;
 #pragma endregion
 
 #pragma region baseVars

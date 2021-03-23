@@ -1,9 +1,7 @@
 #pragma once
 #include "d3d9.h"
-#pragma comment(lib, "d3d9.lib")
 #include "d3dx9.h"
 #include <string>
-#pragma comment(lib, "d3dx9.lib")
 
 class IMGUI_Manager
 {

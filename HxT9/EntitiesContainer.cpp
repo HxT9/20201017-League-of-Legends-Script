@@ -93,9 +93,9 @@ void EntitiesContainer::tick() {
 			missiles.insert(missiles.end(), CurrentObj);
 			continue;
 		}
-		if (GH.isTroy(CurrentObj)) {
+		/*if (GH.isTroy(CurrentObj)) {
 			troys.insert(troys.end(), CurrentObj);
 			continue;
-		}
+		}*/
 	}
 }

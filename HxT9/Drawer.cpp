@@ -9,15 +9,18 @@ Drawer::Drawer() {
 Drawer::Drawer(LPDIRECT3DDEVICE9 pDev) {
 	pDevice = pDev;
 	D3DXCreateLine(pDevice, &m_Line);
-	D3DXCreateFont(pDevice, 14, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"), &m_Font);
+	D3DXCreateFont(pDevice, 14, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"), &m_FontSmall);
+	D3DXCreateFont(pDevice, 18, 7, FW_BOLD, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"), &m_FontMedium);
 }
 
 void Drawer::tick(LPDIRECT3DDEVICE9 pDev) {
 	pDevice = pDev;
 	if (m_Line == NULL)
 		D3DXCreateLine(pDevice, &m_Line);
-	if (m_Font == NULL)
-		D3DXCreateFont(pDevice, 14, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_Font);
+	if (m_FontSmall == NULL)
+		D3DXCreateFontW(pDevice, 14, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_FontSmall);
+	if (m_FontMedium == NULL)
+		D3DXCreateFontW(pDevice, 18, 7, FW_BOLD, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_FontMedium);
 }
 
 void Drawer::drawPolygon(Vector3 vectors[], int n, int d3dcolor, float lineWidth) {
@@ -135,9 +138,13 @@ void Drawer::drawConic(Vector3 center, Vector3 vEnd, int angle, int precision, i
 
 	drawPolygon(points, precision + 1, d3dcolor, lineWidth);
 }
-void Drawer::drawText(Vector3 screenPosition, const char* text, int d3dcolor) {
+void Drawer::drawTextSmall(Vector3 screenPosition, const char* text, int d3dcolor) {
 	SetRect(&m_Rect, screenPosition.x, screenPosition.y, 1920, 1080);
-	m_Font->DrawTextA(NULL, text, -1, &m_Rect, 0, d3dcolor);
+	m_FontSmall->DrawTextA(NULL, text, -1, &m_Rect, 0, d3dcolor);
+}
+void Drawer::drawTextMedium(Vector3 screenPosition, const char* text, int d3dcolor) {
+	SetRect(&m_Rect, screenPosition.x, screenPosition.y, 1920, 1080);
+	m_FontMedium->DrawTextA(NULL, text, -1, &m_Rect, 0, d3dcolor);
 }
 
 Vector3* Drawer::getRectanglePoints(Vector3 vStart, Vector3 vEnd, float radius, int d3dcolor, float lineWidth) {

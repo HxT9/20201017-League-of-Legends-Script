@@ -8,7 +8,7 @@
 
 void UtilityFunctions::drawBoundingBox() {
 	if (myHero.LPObject != NULL) {
-		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.LPObject->GetBoundingRadius(), 15, 0xff00ff00, 3);
+		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.LPObject->GetBoundingRadius(), 15, 0xff00ff00, 2);
 	}
 }
 
@@ -20,7 +20,7 @@ bool UtilityFunctions::isValidTarget(CObject* target) {
 	return target != NULL && target->GetHealth() >= 1.f && target->IsVisible() && GH.isTargetable(target) && GH.isAlive(target);
 }
 
-void UtilityFunctions::drawEntitiesRange() {
+void UtilityFunctions::drawEntities() {
 	float r;
 	CObject* temp;
 	for (int i = 0; i < entities.heroes.size(); i++) {
@@ -28,10 +28,10 @@ void UtilityFunctions::drawEntitiesRange() {
 		if (isValidTarget(temp)) {
 			r = temp->GetAttackRange() + temp->GetBoundingRadius();
 			if (temp->GetTeam() != myHero.LPObject->GetTeam()) {
-				drawer.drawCircumference(temp->GetPos(), r, 50, 0x7fff0000, 3);
+				drawer.drawCircumference(temp->GetPos(), r, 50, 0x7fff0000, 2);
 
 				if (temp->GetPos().distTo(myHero.LPObject->GetPos()) > 800 && temp->GetPos().distTo(myHero.LPObject->GetPos()) < 2500)
-					drawer.drawLine(temp->GetPos(), myHero.LPObject->GetPos(), 0xffff0000, 3);
+					drawer.drawLine(temp->GetPos(), myHero.LPObject->GetPos(), 0xffff0000, 2);
 
 				if (temp == myHero.selectedTarget) {
 					drawer.drawCircumference(temp->GetPos(), temp->GetBoundingRadius(), 50, 0x7fffff00, 4);
@@ -42,19 +42,21 @@ void UtilityFunctions::drawEntitiesRange() {
 	for (int i = 0; i < entities.turrets.size(); i++) {
 		temp = entities.turrets[i];
 		if (temp->GetTeam() != myHero.LPObject->GetTeam() && temp->IsVisible() && temp->GetHealth() > 1) {
-			drawer.drawCircumference(temp->GetPos(), 850, 30, 0xffff0000, 3);
+			drawer.drawCircumference(temp->GetPos(), 850, 30, 0xffff0000, 2);
 		}
 	}
 
 	if(myHero.LPObject != NULL)
-		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.LPObject->GetAttackRange() + myHero.LPObject->GetBoundingRadius(), 50, 0x7f00ff00, 3);
+		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.LPObject->GetAttackRange() + myHero.LPObject->GetBoundingRadius(), 50, 0x7f00ff00, 2);
 }
 
 void UtilityFunctions::drawLastHittableMinions() {
 	float myDamage = myHero.LPObject->GetTotalAttackDamage();
+	float effDamage;
 	if (strcmp(myHero.championName, "kalista") == 0) {
 		myDamage *= 0.9;
 	}
+
 	float dmgIncoming, AATimeNeeded;
 	CObject *temp, *missile;
 	for (int i = 0; i < entities.minions.size(); i++) {
@@ -65,6 +67,7 @@ void UtilityFunctions::drawLastHittableMinions() {
 			|| temp->GetMaxHealth() < 10)
 			continue;
 
+		effDamage = calcEffectiveDamage(myDamage, temp->GetArmor());
 		AATimeNeeded = (temp->GetPos().distTo(myHero.LPObject->GetPos()) / myHero.AAMissileSpeed) + myHero.AACastTime;
 		dmgIncoming = 0;
 		for (int j = 0; j < entities.missiles.size(); j++) {
@@ -76,8 +79,11 @@ void UtilityFunctions::drawLastHittableMinions() {
 				dmgIncoming += getMissileSourceEntity(missile)->GetTotalAttackDamage();
 		}
 
-		if (myDamage > temp->GetHealth() - (dmgIncoming * 0.8)) {
+		if (effDamage > temp->GetHealth()) {
 			drawer.drawCircumference(temp->GetPos(), 50, 15, 0x7f00ff00, 2);
+		}
+		else if (effDamage > temp->GetHealth() - (dmgIncoming)) {
+			drawer.drawCircumference(temp->GetPos(), 50, 15, 0x7fffff00, 2);
 		}
 		else {
 			drawer.drawCircumference(temp->GetPos(), 50, 15, 0x7fff0000, 2);
@@ -292,8 +298,93 @@ void UtilityFunctions::ChampionCustomDraw() {
 			temp = entities.heroes[i];
 			if (isValidTarget(temp) && temp->IsEnemyTo(myHero.LPObject) && temp->GetHealth() < calcEffectiveDamage(dmg, temp->GetMagicResist())) {
 				GH.worldToScreen(&temp->GetPos(), &screenPos);
-				drawer.drawText(screenPos, "!!! KILLABLE WITH ULT !!!", 0xffffff00);
+				drawer.drawTextSmall(screenPos, "!!! KILLABLE WITH ULT !!!", 0xffffff00);
 			}
+		}
+	}
+	else if (strcmp(myHero.championName, "Kalista") == 0) {
+		for (int i = 0; i < entities.heroes.size(); i++) {
+			temp = entities.heroes[i];
+			dmg = championScript.getKalistaSpearDamage(entities.heroes[i]);
+			if (dmg > 0) {
+				if (isValidTarget(temp) && temp->IsEnemyTo(myHero.LPObject) && temp->GetHealth() > 0) {
+					GH.worldToScreen(&temp->GetPos(), &screenPos);
+					drawer.drawTextMedium(screenPos, stringf("%d%", (int)(dmg * 100 / temp->GetHealth())).c_str(), 0xffffff00);
+				}
+			}
+		}
+	}
+}
+
+void UtilityFunctions::drawSpellCD() {
+	CObject* temp;
+	Vector3 screenPos;
+	float cdQ, cdW, cdE, cdR, cdS1, cdS2;
+	std::string text;
+	for (int i = 0; i < entities.heroes.size(); i++) {
+		temp = entities.heroes[i];
+		if (temp != myHero.LPObject && temp->IsVisible() && GH.isAlive(temp)) {
+			GH.worldToScreen(&temp->GetPos(), &screenPos);
+			screenPos.y += 100;
+
+			text = "";
+
+			if (temp->GetSpellBook()->GetSpellSlot(Spells::Q)->GetSpellLvl() > 0) {
+				cdQ = temp->GetSpellBook()->GetSpellSlot(Spells::Q)->GetSpellReady() - gameTime;
+				if (cdQ < 0) cdQ = 0;
+			}
+			else
+				cdQ = -1;
+
+			if (temp->GetSpellBook()->GetSpellSlot(Spells::W)->GetSpellLvl() > 0) {
+				cdW = temp->GetSpellBook()->GetSpellSlot(Spells::W)->GetSpellReady() - gameTime;
+				if (cdW < 0) cdW = 0;
+			}
+			else
+				cdW = -1;
+
+			if (temp->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellLvl() > 0) {
+				cdE = temp->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellReady() - gameTime;
+				if (cdE < 0) cdE = 0;
+			}
+			else
+				cdE = -1;
+
+			if (temp->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl() > 0) {
+				cdR = temp->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellReady() - gameTime;
+				if (cdR < 0) cdR = 0;
+			}
+			else
+				cdR = -1;
+
+			cdS1 = temp->GetSpellBook()->GetSpellSlot(Spells::Summoner1)->GetSpellReady() - gameTime;
+			if (cdS1 < 0) cdS1 = 0;
+			cdS2 = temp->GetSpellBook()->GetSpellSlot(Spells::Summoner2)->GetSpellReady() - gameTime;
+			if (cdS2 < 0) cdS2 = 0;
+
+			text = stringf("[%d]", (int)ceilf(cdQ));
+			screenPos.x += 25;
+			drawer.drawTextMedium(screenPos, text.c_str(), cdQ == 0 ? 0xff00ff00 : 0xffff0000);
+
+			text = stringf("[%d]", (int)ceilf(cdW));
+			screenPos.x += 35;
+			drawer.drawTextMedium(screenPos, text.c_str(), cdW == 0 ? 0xff00ff00 : 0xffff0000);
+
+			text = stringf("[%d]", (int)ceilf(cdE));
+			screenPos.x += 35;
+			drawer.drawTextMedium(screenPos, text.c_str(), cdE == 0 ? 0xff00ff00 : 0xffff0000);
+
+			text = stringf("[%d]", (int)ceilf(cdR));
+			screenPos.x += 35;
+			drawer.drawTextMedium(screenPos, text.c_str(), cdR == 0 ? 0xff00ff00 : 0xffff0000);
+
+			text = stringf("[%d]", (int)ceilf(cdS1));
+			screenPos.x += 35;
+			drawer.drawTextMedium(screenPos, text.c_str(), cdS1 == 0 ? 0xff00ffff : 0xffffff00);
+
+			text = stringf("[%d]", (int)ceilf(cdS2));
+			screenPos.x += 35;
+			drawer.drawTextMedium(screenPos, text.c_str(), cdS2 == 0 ? 0xff00ffff : 0xffffff00);
 		}
 	}
 }
@@ -338,11 +429,15 @@ std::string UtilityFunctions::stringf(const char* fmt, ...)
 }
 
 void drawRectangle(Vector3 vStart, Vector3 vEnd, float radius) {
-	drawer.drawRectangle(vStart, vEnd, radius, 0xffff0000, 4);
+	drawer.drawRectangle(vStart, vEnd, radius, 0xffffffff, 2);
 }
 
 void drawCircular(Vector3 vCenter, float radius) {
-	drawer.drawCircumference(vCenter, radius, 20, 0xffff0000, 4);
+	drawer.drawCircumference(vCenter, radius, 20, 0xffffffff, 2);
+}
+
+void drawConic(Vector3 vCenter, Vector3 vEnd, int angle) {
+	drawer.drawConic(vCenter, vEnd, angle, 20, 0xffffffff, 2);
 }
 
 void UtilityFunctions::drawActiveSpells() {
@@ -385,7 +480,7 @@ void UtilityFunctions::drawActiveSpells() {
 			//Akali
 			if (strcmp(spellName, "AkaliQ") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 550);
-				drawer.drawConic(vStart, vEnd, 50, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 50);
 				return;
 			}
 			if (strcmp(spellName, "AkaliE") == 0) {
@@ -427,7 +522,7 @@ void UtilityFunctions::drawActiveSpells() {
 			//Annie
 			if (strcmp(spellName, "AnnieW") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 600);
-				drawer.drawConic(vStart, vEnd, 60, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 60);
 				return;
 			}
 			if (strcmp(spellName, "AnnieR") == 0) {
@@ -442,7 +537,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			if (strcmp(spellName, "ApheliosInfernumQ") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 850);
-				drawer.drawConic(vStart, vEnd, 50, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 50);
 				return;
 			}
 			if (strcmp(spellName, "ApheliosR") == 0) {
@@ -453,7 +548,7 @@ void UtilityFunctions::drawActiveSpells() {
 			//Ashe
 			if (strcmp(spellName, "Volley") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 1200);
-				drawer.drawConic(vStart, vEnd, 45, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 45);
 				return;
 			}
 			if (strcmp(spellName, "EnchantedCrystalArrow") == 0) {
@@ -557,7 +652,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			if (strcmp(spellName, "CassiopeiaR") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 825);
-				drawer.drawConic(vStart, vEnd, 85, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 85);
 				return;
 			}
 			//Chogath
@@ -567,7 +662,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			if (strcmp(spellName, "FeralScream") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 650);
-				drawer.drawConic(vStart, vEnd, 60, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 60);
 				return;
 			}
 			//Corki
@@ -588,7 +683,7 @@ void UtilityFunctions::drawActiveSpells() {
 			//Darius
 			if (strcmp(spellName, "DariusAxeGrabCone") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 535);
-				drawer.drawConic(vStart, vEnd, 50, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 50);
 				return;
 			}
 			//Diana
@@ -637,7 +732,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			if (strcmp(spellName, "EvelynnR") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 450);
-				drawer.drawConic(vStart, vEnd, 180, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 180);
 				return;
 			}
 			//Ezreal
@@ -866,7 +961,7 @@ void UtilityFunctions::drawActiveSpells() {
 			//Kassadin
 			if (strcmp(spellName, "ForcePulse") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 600);
-				drawer.drawConic(vStart, vEnd, 85, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 85);
 				return;
 			}
 			if (strcmp(spellName, "RiftWalk") == 0) {
@@ -911,7 +1006,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			if (strcmp(spellName, "KledRiderQ") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 700);
-				drawer.drawConic(vStart, vEnd, 30, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 30);
 				return;
 			}
 			if (strcmp(spellName, "KledEDash") == 0) {
@@ -1027,7 +1122,7 @@ void UtilityFunctions::drawActiveSpells() {
 			//MissFortune
 			if (strcmp(spellName, "MissFortuneBulletTime") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 1400);
-				drawer.drawConic(vStart, vEnd, 40, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 40);
 				return;
 			}
 			//Mordekaiser
@@ -1085,7 +1180,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			if (strcmp(spellName, "Swipe") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 350);
-				drawer.drawConic(vStart, vEnd, 180, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 180);
 				return;
 			}
 			//Nocturne
@@ -1226,7 +1321,7 @@ void UtilityFunctions::drawActiveSpells() {
 			//Riven
 			if (strcmp(spellName, "RivenIzunaBlade") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 900);
-				drawer.drawConic(vStart, vEnd, 80, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 80);
 				return;
 			}
 			//Rumble
@@ -1328,7 +1423,7 @@ void UtilityFunctions::drawActiveSpells() {
 			//Swain
 			if (strcmp(spellName, "SwainQ") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 725);
-				drawer.drawConic(vStart, vEnd, 65, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 65);
 				return;
 			}
 			if (strcmp(spellName, "SwainW") == 0) {
@@ -1362,7 +1457,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			if (strcmp(spellName, "SyndraE") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 700);
-				drawer.drawConic(vStart, vEnd, 45, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 45);
 				return;
 			}
 			if (strcmp(spellName, "SyndraESphereMissile") == 0) {
@@ -1388,7 +1483,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			if (strcmp(spellName, "TaliyahE") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 800);
-				drawer.drawConic(vStart, vEnd, 85, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 85);
 				return;
 			}
 			if (strcmp(spellName, "TaliyahR") == 0) {
@@ -1399,12 +1494,12 @@ void UtilityFunctions::drawActiveSpells() {
 			//Talon
 			if (strcmp(spellName, "TalonW") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 650);
-				drawer.drawConic(vStart, vEnd, 30, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 30);
 				return;
 			}
 			if (strcmp(spellName, "TalonW") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 650);
-				drawer.drawConic(vStart, vEnd, 30, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 30);
 				return;
 			}
 			//Thresh
@@ -1528,7 +1623,7 @@ void UtilityFunctions::drawActiveSpells() {
 			}
 			if (strcmp(spellName, "YoneW") == 0) {
 				vEnd = vEnd.setRelativeMagnitude(vStart, 600);
-				drawer.drawConic(vStart, vEnd, 80, 20, 0xffff0000, 4);
+				drawConic(vStart, vEnd, 80);
 				return;
 			}
 			if (strcmp(spellName, "YoneR") == 0) {
@@ -1633,10 +1728,10 @@ void UtilityFunctions::drawActiveSpells() {
 				return;
 			}
 
-			/*std::fstream ActiveSpells;
+			std::fstream ActiveSpells;
 			ActiveSpells.open("E:\\Downloads\\Cheats\\Lol\\ActiveSpells.txt", std::ofstream::app);
 			ActiveSpells << spellName << std::endl;
-			ActiveSpells.close();*/
+			ActiveSpells.close();
 		}
 	}
 }
@@ -2305,10 +2400,10 @@ void UtilityFunctions::drawMissiles() {
 				return;
 			}
 
-			/*std::fstream ActiveSpells;
+			std::fstream ActiveSpells;
 			ActiveSpells.open("E:\\Downloads\\Cheats\\Lol\\Missiles.txt", std::ofstream::app);
 			ActiveSpells << spellName << std::endl;
-			ActiveSpells.close();*/
+			ActiveSpells.close();
 		}
 	}
 }

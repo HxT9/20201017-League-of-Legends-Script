@@ -8,9 +8,10 @@ public:
 	void drawBoundingBox();
 	float calcEffectiveDamage(float damage, float armor);
 	bool isValidTarget(CObject* target);
-	void drawEntitiesRange();
+	void drawEntities();
 	void drawLastHittableMinions();
 	void drawActiveSpells();
+	void drawSpellCD();
 	void drawMissiles();
 	void dbgStream(std::string msg);
 	void drawDebug();

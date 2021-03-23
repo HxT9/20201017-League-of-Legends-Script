@@ -11,6 +11,10 @@ bool SpellSlot::IsSpellReady() {
 	return *(float*)((DWORD)this + oSpellSlotSpellReady) <= gameTime;
 }
 
+float SpellSlot::GetSpellReady() {
+	return *(float*)((DWORD)this + oSpellSlotSpellReady);
+}
+
 SpellInfo* SpellSlot::GetSpellInfo() {
 	return *(SpellInfo**)((DWORD)this + oSpellSlotSpellInfo);
 }
