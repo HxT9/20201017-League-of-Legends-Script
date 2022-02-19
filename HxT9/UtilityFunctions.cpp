@@ -325,7 +325,7 @@ void UtilityFunctions::drawSpellCD() {
 		temp = entities.heroes[i];
 		if (temp != myHero.LPObject && temp->IsVisible() && GH.isAlive(temp)) {
 			GH.worldToScreen(&temp->GetPos(), &screenPos);
-			screenPos.y += 100;
+			screenPos.y -= 100;
 
 			text = "";
 
@@ -1728,10 +1728,10 @@ void UtilityFunctions::drawActiveSpells() {
 				return;
 			}
 
-			std::fstream ActiveSpells;
+			/*std::fstream ActiveSpells;
 			ActiveSpells.open("E:\\Downloads\\Cheats\\Lol\\ActiveSpells.txt", std::ofstream::app);
 			ActiveSpells << spellName << std::endl;
-			ActiveSpells.close();
+			ActiveSpells.close();*/
 		}
 	}
 }
@@ -2400,10 +2400,10 @@ void UtilityFunctions::drawMissiles() {
 				return;
 			}
 
-			std::fstream ActiveSpells;
+			/*std::fstream ActiveSpells;
 			ActiveSpells.open("E:\\Downloads\\Cheats\\Lol\\Missiles.txt", std::ofstream::app);
 			ActiveSpells << spellName << std::endl;
-			ActiveSpells.close();
+			ActiveSpells.close();*/
 		}
 	}
 }

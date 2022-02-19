@@ -4,7 +4,7 @@
 #include "Detour.h"
 #include "utilities.h"
 #include "functionDefinitions.h"
-#include "MinHook.h"
+#include ".\MinHook\MinHook.h"
 
 #pragma comment(lib, "nod3dx9.lib")
 
