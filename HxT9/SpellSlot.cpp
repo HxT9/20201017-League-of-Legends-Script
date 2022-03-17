@@ -18,7 +18,3 @@ float SpellSlot::GetSpellReady() {
 SpellInfo* SpellSlot::GetSpellInfo() {
 	return *(SpellInfo**)((DWORD)this + oSpellSlotSpellInfo);
 }
-
-CastingStruct* SpellSlot::GetCastingStruct() {
-	return *(CastingStruct**)((DWORD)this + oSpellSlotCastingStruct);
-}

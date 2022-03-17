@@ -58,6 +58,9 @@
     <Filter Include="MinHook\hde">
       <UniqueIdentifier>{723b7f70-9bf0-4eb8-a91b-f30c6aa993b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Libs">
+      <UniqueIdentifier>{25b6c644-a59f-4aa5-ba98-d9cb51d3e48d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dx9tex.h">
@@ -134,9 +137,6 @@
     </ClInclude>
     <ClInclude Include="BuffManager.h">
       <Filter>Header Files\GameObjects\Buff</Filter>
-    </ClInclude>
-    <ClInclude Include="CastingStruct.h">
-      <Filter>Header Files\GameObjects\Spell</Filter>
     </ClInclude>
     <ClInclude Include="ChampionScript.h">
       <Filter>Header Files\Global</Filter>
@@ -243,6 +243,15 @@
     <ClInclude Include="MinHook\trampoline.h">
       <Filter>MinHook</Filter>
     </ClInclude>
+    <ClInclude Include="libs\MinHook.h">
+      <Filter>Header Files\Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="libs\detours.h">
+      <Filter>Header Files\Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="d3dx9math.inl">
@@ -282,9 +291,6 @@
     </ClCompile>
     <ClCompile Include="BuffManager.cpp">
       <Filter>Source Files\GameObjects\Buff</Filter>
-    </ClCompile>
-    <ClCompile Include="CastingStruct.cpp">
-      <Filter>Source Files\GameObjects\Spell</Filter>
     </ClCompile>
     <ClCompile Include="ChampionScript.cpp">
       <Filter>Source Files\Global</Filter>

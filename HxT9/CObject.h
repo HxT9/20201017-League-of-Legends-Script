@@ -14,6 +14,7 @@ public:
 	short GetIndex();
 	DWORD GetNetworkID();
 	Vector3 GetPos();
+	bool isTargetable();
 	int GetLevel();
 	float GetHealth();
 	float GetBaseAttackDamage();
@@ -29,7 +30,6 @@ public:
 	char* GetName();
 	char* GetRefName();
 	char* GetChampionName();
-	char* GetMinionName();
 	int GetTeam();
 	float GetFlatArmorReduction();
 	float GetPercArmorReduction();
@@ -37,10 +37,12 @@ public:
 	float GetPercBonusArmorPen();
 	float GetLethality();
 	void* GetAIManager();
+	void* GetAIManager2();
 	float GetAP();
 	ActiveSpell* GetActiveSpell();
 	SpellInfo* GetMissileSpellInfo();
 	short GetMissileSourceIndex();
+	boolean GetMissileHasTarget();
 	short GetMissileTargetIndex();
 	Vector3 GetMissileStartPos();
 	Vector3 GetMissileEndPos();
@@ -48,6 +50,7 @@ public:
 	Vector3 GetDestinationPos();
 	bool isMoving();
 	bool isDashing();
+	int getAIMgrPassedWaypoints();
 	Path GetPath();
 	Vector3 GetCurrentPos();
 	Vector3 GetVelocity();

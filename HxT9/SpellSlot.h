@@ -1,6 +1,5 @@
 #pragma once
 #include "SpellInfo.h"
-#include "CastingStruct.h"
 
 class SpellSlot {
 public:
@@ -9,5 +8,4 @@ public:
 	bool IsSpellReady();
 	float GetSpellReady();
 	SpellInfo* GetSpellInfo();
-	CastingStruct* GetCastingStruct();
 };

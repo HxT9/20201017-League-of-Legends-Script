@@ -4,11 +4,11 @@
 #include <cstdarg>
 #include <fstream>
 
-# define M_PI           3.14159265358979323846
+#define M_PI           3.14159265358979323846
 
 void UtilityFunctions::drawBoundingBox() {
-	if (myHero.LPObject != NULL) {
-		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.LPObject->GetBoundingRadius(), 15, 0xff00ff00, 2);
+	if (myHero.LPObject) {
+		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.boundingRadius, 10, 0xff00ff00, 2);
 	}
 }
 
@@ -17,7 +17,7 @@ float UtilityFunctions::calcEffectiveDamage(float damage, float armor) { //Anche
 }
 
 bool UtilityFunctions::isValidTarget(CObject* target) {
-	return target != NULL && target->GetHealth() >= 1.f && target->IsVisible() && GH.isTargetable(target) && GH.isAlive(target);
+	return target && target->IsVisible() && target->isTargetable() && GH.isAlive(target);
 }
 
 void UtilityFunctions::drawEntities() {
@@ -26,15 +26,16 @@ void UtilityFunctions::drawEntities() {
 	for (int i = 0; i < entities.heroes.size(); i++) {
 		temp = entities.heroes[i];
 		if (isValidTarget(temp)) {
-			r = temp->GetAttackRange() + temp->GetBoundingRadius();
 			if (temp->GetTeam() != myHero.LPObject->GetTeam()) {
-				drawer.drawCircumference(temp->GetPos(), r, 50, 0x7fff0000, 2);
+				r = temp->GetAttackRange() + temp->GetBoundingRadius();
+
+				drawer.drawCircumference(temp->GetPos(), r, 30, 0x7fff0000, 2);
 
 				if (temp->GetPos().distTo(myHero.LPObject->GetPos()) > 800 && temp->GetPos().distTo(myHero.LPObject->GetPos()) < 2500)
 					drawer.drawLine(temp->GetPos(), myHero.LPObject->GetPos(), 0xffff0000, 2);
 
 				if (temp == myHero.selectedTarget) {
-					drawer.drawCircumference(temp->GetPos(), temp->GetBoundingRadius(), 50, 0x7fffff00, 4);
+					drawer.drawCircumference(temp->GetPos(), 75, 50, 0x7fffff00, 4);
 				}
 			}
 		}
@@ -46,8 +47,8 @@ void UtilityFunctions::drawEntities() {
 		}
 	}
 
-	if(myHero.LPObject != NULL)
-		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.LPObject->GetAttackRange() + myHero.LPObject->GetBoundingRadius(), 50, 0x7f00ff00, 2);
+	if(myHero.LPObject)
+		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.LPObject->GetAttackRange() + myHero.boundingRadius, 50, 0x7f00ff00, 2);
 }
 
 void UtilityFunctions::drawLastHittableMinions() {
@@ -67,31 +68,56 @@ void UtilityFunctions::drawLastHittableMinions() {
 			|| temp->GetMaxHealth() < 10)
 			continue;
 
+
 		effDamage = calcEffectiveDamage(myDamage, temp->GetArmor());
-		AATimeNeeded = (temp->GetPos().distTo(myHero.LPObject->GetPos()) / myHero.AAMissileSpeed) + myHero.AACastTime;
+		AATimeNeeded = (temp->GetPos().distTo(myHero.LPObject->GetPos()) / myHero.AAMissileSpeed ? myHero.AAMissileSpeed : 2000) + myHero.AACastTime;
 		dmgIncoming = 0;
 		for (int j = 0; j < entities.missiles.size(); j++) {
 			missile = entities.missiles[j];
-			if (missile->GetMissileTargetIndex() != temp->GetIndex())
-				continue;
+			if (!missile) continue;
+			if (missile->GetMissileTargetIndex() != temp->GetIndex()) continue;
 
-			if (missile->GetPos().distTo(temp->GetPos()) / 300 < AATimeNeeded)
-				dmgIncoming += getMissileSourceEntity(missile)->GetTotalAttackDamage();
+			if (missile->GetPos().distTo(temp->GetPos()) / 300 < AATimeNeeded) {
+				dmgIncoming += entities.GetCObjectFromIndex(missile->GetMissileSourceIndex()) ? entities.GetCObjectFromIndex(missile->GetMissileSourceIndex())->GetTotalAttackDamage() : 0;
+			}
 		}
 
 		if (effDamage > temp->GetHealth()) {
-			drawer.drawCircumference(temp->GetPos(), 50, 15, 0x7f00ff00, 2);
+			drawer.drawCircumference(temp->GetPos(), 50, 10, 0x7f00ff00, 2);
 		}
 		else if (effDamage > temp->GetHealth() - (dmgIncoming)) {
-			drawer.drawCircumference(temp->GetPos(), 50, 15, 0x7fffff00, 2);
+			drawer.drawCircumference(temp->GetPos(), 50, 10, 0x7fffff00, 2);
 		}
 		else {
-			drawer.drawCircumference(temp->GetPos(), 50, 15, 0x7fff0000, 2);
+			drawer.drawCircumference(temp->GetPos(), 50, 10, 0x7fff0000, 2);
 		}
 	}
 }
 
 void UtilityFunctions::drawDebug() {
+	Vector3 pos;
+
+	for (int i = 0; i < 5; i++) {
+		std::vector<CObject*> ent = entities.getEntities(i);
+		for (int j = 0; j < ent.size(); j++) {
+			if (ent[j]) {
+				GH.worldToScreen(&ent[j]->GetPos(), &pos);
+				drawer.drawTextSmall(pos, utils.stringf("%p", ent[j]).c_str(), 0xffff0000);
+
+				pos.y += 30;
+				drawer.drawTextSmall(pos, utils.stringf("%i", ent[j]->GetIndex()).c_str(), 0xffff0000);
+			}
+		}
+	}
+
+	Path p = myHero.LPObject->GetPath();
+	for (int i = 0; i < p.nPathPoints; i++) {
+		drawer.drawCircumference(p.pathPoints[i], 30, 10, 0xffffff00, 2);
+
+		if (i > 0)
+			drawer.drawLine(p.pathPoints[i], p.pathPoints[i - 1], 0xffffffff, 2);
+	}
+
 	/*Path myPath;
 	for (int j = 0; j < entities.iHeroes; j++) {
 		if (entities.heroes[j] != NULL && entities.heroes[j]->IsVisible() && GH.isAlive(entities.heroes[j])) {
@@ -116,14 +142,16 @@ void UtilityFunctions::drawPredictedPos() {
 	CObject* temp;
 	for (int i = 0; i < entities.heroes.size(); i++) {
 		temp = entities.heroes[i];
-		if (isValidTarget(temp) && temp->GetTeam() != myHero.LPObject->GetTeam()) {
+		if (isValidTarget(temp)) {
 			drawer.drawCircumference(getPredictedPos(temp, 1, 0, myHero.LPObject), 40, 15, 0xff00ffff, 2);
 		}
 	}
 }
 
-CObject* UtilityFunctions::getMissileSourceEntity(CObject* missile) {
+/*CObject* UtilityFunctions::getMissileSourceEntity(CObject* missile) {
 	short id = missile->GetMissileSourceIndex();
+
+	
 
 	for (int i = 0; i < entities.minions.size(); i++)
 		if (entities.minions[i]->GetIndex() == id)
@@ -138,7 +166,7 @@ CObject* UtilityFunctions::getMissileSourceEntity(CObject* missile) {
 			return entities.turrets[i];
 
 	return NULL;
-}
+}*/
 
 /*
 bool isColliding(Vector3 start, Vector3 end, float SpellWidth, Vector3 center, float radius) {
@@ -249,25 +277,15 @@ Vector3 UtilityFunctions::getPredictedPos(CObject* hero, float seconds, float wi
 	Vector3 curPos = hero->GetPos();
 	Vector3 result;
 
-	if (seconds == 0) {
+	if (!seconds || !path.nPathPoints) {
 		return hero->GetPos();
 	}
 
-	float minDistance = curPos.distTo(path.pathPoints[0]);
-	for (int i = 1; i < path.nPathPoints - 1; i++) {
-		if (curPos.distTo(path.pathPoints[i]) < minDistance) {
-			minDistance = curPos.distTo(path.pathPoints[i]);
-			firstPoint = i;
-		}
-	}
+	firstPoint = hero->getAIMgrPassedWaypoints() - 1;
+	
+	if (firstPoint < 0 || firstPoint >= path.nPathPoints) return curPos;
 
-	if (firstPoint == 0 || (curPos.distTo(path.pathPoints[firstPoint - 1]) > curPos.distTo(path.pathPoints[firstPoint + 1]))) { //Se ho appena superato il punto
-		path.pathPoints[firstPoint] = curPos;
-	}
-	else {
-		path.pathPoints[firstPoint - 1] = curPos;
-		firstPoint--;
-	}	
+	path.pathPoints[firstPoint] = curPos;
 
 	for (int i = firstPoint; i < path.nPathPoints - 1; i++) {
 		if (distance < path.pathPoints[i].distTo(path.pathPoints[i + 1])) {
@@ -323,34 +341,38 @@ void UtilityFunctions::drawSpellCD() {
 	std::string text;
 	for (int i = 0; i < entities.heroes.size(); i++) {
 		temp = entities.heroes[i];
-		if (temp != myHero.LPObject && temp->IsVisible() && GH.isAlive(temp)) {
+		if (temp != myHero.LPObject && temp->IsVisible() && GH.isAlive(temp) && temp->GetSpellBook()) {
 			GH.worldToScreen(&temp->GetPos(), &screenPos);
 			screenPos.y -= 100;
 
 			text = "";
 
-			if (temp->GetSpellBook()->GetSpellSlot(Spells::Q)->GetSpellLvl() > 0) {
+			if (temp->GetSpellBook()->GetSpellSlot(Spells::Q) &&
+				temp->GetSpellBook()->GetSpellSlot(Spells::Q)->GetSpellLvl() > 0) {
 				cdQ = temp->GetSpellBook()->GetSpellSlot(Spells::Q)->GetSpellReady() - gameTime;
 				if (cdQ < 0) cdQ = 0;
 			}
 			else
 				cdQ = -1;
 
-			if (temp->GetSpellBook()->GetSpellSlot(Spells::W)->GetSpellLvl() > 0) {
+			if (temp->GetSpellBook()->GetSpellSlot(Spells::W) &&
+				temp->GetSpellBook()->GetSpellSlot(Spells::W)->GetSpellLvl() > 0) {
 				cdW = temp->GetSpellBook()->GetSpellSlot(Spells::W)->GetSpellReady() - gameTime;
 				if (cdW < 0) cdW = 0;
 			}
 			else
 				cdW = -1;
 
-			if (temp->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellLvl() > 0) {
+			if (temp->GetSpellBook()->GetSpellSlot(Spells::E) &&
+				temp->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellLvl() > 0) {
 				cdE = temp->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellReady() - gameTime;
 				if (cdE < 0) cdE = 0;
 			}
 			else
 				cdE = -1;
 
-			if (temp->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl() > 0) {
+			if (temp->GetSpellBook()->GetSpellSlot(Spells::R) &&
+				temp->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl() > 0) {
 				cdR = temp->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellReady() - gameTime;
 				if (cdR < 0) cdR = 0;
 			}
@@ -433,11 +455,11 @@ void drawRectangle(Vector3 vStart, Vector3 vEnd, float radius) {
 }
 
 void drawCircular(Vector3 vCenter, float radius) {
-	drawer.drawCircumference(vCenter, radius, 20, 0xffffffff, 2);
+	drawer.drawCircumference(vCenter, radius, 15, 0xffffffff, 2);
 }
 
 void drawConic(Vector3 vCenter, Vector3 vEnd, int angle) {
-	drawer.drawConic(vCenter, vEnd, angle, 20, 0xffffffff, 2);
+	drawer.drawConic(vCenter, vEnd, angle, 15, 0xffffffff, 2);
 }
 
 void UtilityFunctions::drawActiveSpells() {
@@ -445,8 +467,11 @@ void UtilityFunctions::drawActiveSpells() {
 	for (int i = 0; i < entities.heroes.size(); i++) {
 		temp = entities.heroes[i];
 		if (temp != NULL && temp->GetActiveSpell() != NULL && 
-			temp->GetTeam() != myHero.LPObject->GetTeam() && 
-			temp->GetActiveSpell()->GetTargetIndex() == NULL) {
+			temp->GetActiveSpell()->GetTargetIndex() == NULL
+#ifndef _DEBUG
+			&& temp->GetTeam() != myHero.LPObject->GetTeam()
+#endif
+			) {
 			char* spellName = temp->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetMissileName();
 			Vector3 vEnd = temp->GetActiveSpell()->GetEndPos();
 			Vector3 vStart = temp->GetActiveSpell()->GetStartPos();
@@ -1741,10 +1766,13 @@ void UtilityFunctions::drawMissiles() {
 	for (int i = 0; i < entities.missiles.size(); i++) {
 		temp = entities.missiles[i];
 		if (temp != NULL &&
-				getMissileSourceEntity(temp) != NULL &&
-				GH.isHero(getMissileSourceEntity(temp)) &&
-				getMissileSourceEntity(temp)->GetTeam() != myHero.LPObject->GetTeam() &&
-				temp->GetMissileTargetIndex() == NULL) {
+				entities.GetCObjectFromIndex(temp->GetMissileSourceIndex()) != NULL &&
+				GH.isHero(entities.GetCObjectFromIndex(temp->GetMissileSourceIndex())) &&
+				temp->GetMissileTargetIndex() == NULL
+#ifndef _DEBUG
+			&& entities.GetCObjectFromIndex(temp->GetMissileSourceIndex())->GetTeam() != myHero.LPObject->GetTeam()
+#endif
+			) {
 
 			char* spellName = temp->GetMissileSpellInfo()->GetSpellData()->GetMissileName();
 			Vector3 vStart = temp->GetMissileStartPos();
@@ -2411,6 +2439,13 @@ void UtilityFunctions::drawMissiles() {
 void UtilityFunctions::dbgStream(std::string msg) {
 	std::fstream DebugStream;
 	DebugStream.open("E:\\Downloads\\Cheats\\Lol\\Debug.txt", std::ofstream::app);
+	DebugStream << msg << std::endl;
+	DebugStream.close();
+}
+
+void UtilityFunctions::dbgStreamChrono(std::string msg) {
+	std::fstream DebugStream;
+	DebugStream.open("E:\\Downloads\\Cheats\\Lol\\Chrono.txt", std::ofstream::app);
 	DebugStream << msg << std::endl;
 	DebugStream.close();
 }

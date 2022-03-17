@@ -6,8 +6,8 @@ SpellInfo* ActiveSpell::GetSpellInfo() {
 	return *(SpellInfo**)((DWORD)this + oActiveSpellSpellInfoPtr);
 }
 
-float ActiveSpell::GetCastingTime() {
-	return *(float*)((DWORD)this + oActiveSpellCastingStartTime);
+float ActiveSpell::GetCastingStartTime() {
+	return *(float*)((DWORD)this + oActiveSpellCastTime);
 }
 
 Vector3 ActiveSpell::GetStartPos() {
@@ -19,29 +19,27 @@ Vector3 ActiveSpell::GetEndPos() {
 }
 
 short ActiveSpell::GetTargetIndex() {
-	return *(short*)((DWORD)this + oActiveSpellTargetIndex);
+	short* targets = *(short**)((DWORD)this + oActiveSpellTargetArray);
+	int lastTarget;
+	if (targets) {
+		lastTarget = *(int*)((DWORD)this + oActiveSpellTargetArraySize);
+		return targets[lastTarget - 1];
+	}
+	return 0;
 }
 
 float ActiveSpell::GetCastTime() {
 	return *(float*)((DWORD)this + oActiveSpellCastTime);
 }
 
+float ActiveSpell::GetChannelStartTime() {
+	return *(float*)((DWORD)this + oActiveSpellChannelStartTime);
+}
+
+float ActiveSpell::GetChannelEndTime() {
+	return *(float*)((DWORD)this + oActiveSpellChannelEndTime);
+}
+
 float ActiveSpell::GetChannelingTime() {
-	return *(float*)((DWORD)this + oActiveSpellChannelTime);
-}
-
-float ActiveSpell::GetSpellCooldown() {
-	return *(float*)((DWORD)this + oActiveSpellSpellCooldown);
-}
-
-bool ActiveSpell::IsSpell() {
-	return *(bool*)((DWORD)this + oActiveSpellIsSpell);
-}
-
-bool ActiveSpell::IsAutoAttack() {
-	return *(bool*)((DWORD)this + oActiveSpellIsAA);
-}
-
-float ActiveSpell::GetSpellManaCost() {
-	return *(float*)((DWORD)this + oActiveSpellManaCost);
+	return GetChannelEndTime() - GetCastingStartTime();
 }

@@ -36,6 +36,11 @@ public:
 	Path curPath;
 	int curPathIndex;
 
+	float randomCheckDelay;
+	float lastRandomCheck;
+
+	float boundingRadius;
+
 	LocalPlayer();
 	LocalPlayer(CObject* obj);
 	void init();
@@ -48,6 +53,9 @@ public:
 	void StartChargingSpell(Spells spell, float maxDuration);
 	void ReleaseChargeableSpell(Spells spell, Vector3 position);
 	bool CastSpellSelf(Spells spell);
+	void myIssueOrder(void* thisPtr, int Order, Vector3* Loc, CObject* Target, bool IsAttackMove, bool IsMinion, DWORD Unknown);
+	void myCastSpell(Spells spell, Vector3* pos);
+	void myCastSpellScreen(Spells spell, Vector3 screenPos);
 	void castBaseUlt();
 	float Humanize();
 };

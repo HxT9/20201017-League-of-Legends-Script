@@ -22,44 +22,47 @@ typedef bool(__cdecl* fnW2S)(Vector3* world, Vector3* screen);
 typedef float(__cdecl* fnGetAttackCastDelay)(CObject* pObj);
 typedef float(__cdecl* fnGetAttackDelay)(CObject* pObj);
 
+typedef int(__thiscall* fnIssueOrderNew)(DWORD a1, int a2, int a3, bool a4, int a5, int a6, char a7);
+
+typedef void*(__thiscall* fnGetAIManager)(DWORD obj);
+typedef float(__thiscall* fnGetBoundingRadius)(DWORD obj);
+
+void GameFunctions::issueClick(Vector3 screenPos) {
+	fnIssueOrderNew fun = (fnIssueOrderNew)(baseAddress + oIssueClickNew);
+	fun(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x24), 0, 0, true, screenPos.x, screenPos.y, 0);
+	fun(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x24), 1, 0, true, screenPos.x, screenPos.y, 0);
+}
+
+void* GameFunctions::getAIManager(CObject* obj) {
+	fnGetAIManager fun = (fnGetAIManager)(baseAddress + oGetAIManager);
+	return fun((DWORD)obj);
+}
+
+float GameFunctions::getBoundingRadius(CObject* obj) {
+	fnGetBoundingRadius fun = (fnGetBoundingRadius)(baseAddress + oGetBoundingRadius);
+	return fun((DWORD)obj);
+}
+
 bool	GameFunctions::isHero(CObject* obj) {
-	fnIsHero fun = (fnIsHero)(baseAddress + oIsHero); return fun(obj);
+	fnIsHero fun = (fnIsHero)(baseAddress + oIsHero); return obj && fun(obj);
 }
 bool	GameFunctions::isMinion(CObject* obj) {
-	fnIsMinion fun = (fnIsMinion)(baseAddress + oIsMinion); return fun(obj);
+	fnIsMinion fun = (fnIsMinion)(baseAddress + oIsMinion); return obj && fun(obj);
 }
 bool	GameFunctions::isTurret(CObject* obj) {
-	fnIsTurret fun = (fnIsTurret)(baseAddress + oIsTurret); return fun(obj);
+	fnIsTurret fun = (fnIsTurret)(baseAddress + oIsTurret); return obj && fun(obj);
 }
 bool	GameFunctions::isTroy(CObject* obj) {
-	fnIsTroy fun = (fnIsTroy)(baseAddress + oIsTroy); return fun(obj);
+	fnIsTroy fun = (fnIsTroy)(baseAddress + oIsTroy); return obj && fun(obj);
 }
 bool	GameFunctions::isMissile(CObject* obj) {
-	fnIsMissile fun = (fnIsMissile)(baseAddress + oIsMissile); return fun(obj);
+	fnIsMissile fun = (fnIsMissile)(baseAddress + oIsMissile); return obj && fun(obj);
 }
 bool	GameFunctions::isAlive(CObject* obj) {
-	fnIsAlive fun = (fnIsAlive)(baseAddress + oIsAlive); return fun(obj);
-}
-bool	GameFunctions::isTargetable(CObject* obj) {
-	fnIsTargetable fun = (fnIsTargetable)(baseAddress + oIsTargetable); return fun(obj);
+	fnIsAlive fun = (fnIsAlive)(baseAddress + oIsAlive); return obj && fun(obj);
 }
 SpellState		GameFunctions::getSpellState(SpellBook* obj, int slot, void* zero) {
 	fnGetSpellState fun = (fnGetSpellState)(baseAddress + oGetSpellState); return fun(obj, slot, zero);
-}
-void	GameFunctions::printChat(const char* cMessage) {
-	DWORD chatClientPtr = *(unsigned long*)(baseAddress + oChatClientPtr);
-	if (chatClientPtr != NULL) {
-		fnPrintChat fun = (fnPrintChat)(baseAddress + oPrintChat); fun((DWORD*)chatClientPtr, cMessage, 2);
-	}
-}
-void	GameFunctions::printChat(std::string cMessage) {
-	char* out = new char[cMessage.size() + 1];
-	copy(cMessage.begin(), cMessage.end(), out);
-	printChat(out);
-	delete[] out;
-}
-void	GameFunctions::printChat(Vector3 vec) {
-	printChat("x: " + std::to_string(vec.x) + ", y: " + std::to_string(vec.y) + ", z: " + std::to_string(vec.z));
 }
 void	GameFunctions::worldToScreen(Vector3* in, Vector3* out) {
 	fnW2S fun = (fnW2S)(baseAddress + oW2S); fun(in, out);

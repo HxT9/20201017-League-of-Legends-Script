@@ -16,6 +16,8 @@ public:
 
 	EntitiesContainer();
 	void resetEntities();
+	std::vector<CObject*> getEntities(int index);
+	CObject* GetCObjectFromIndex(int index);
 	void tick();
 };
 

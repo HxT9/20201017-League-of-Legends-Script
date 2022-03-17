@@ -9,6 +9,8 @@ class ScriptManager
 	bool initHelpers = false;
 	bool initWnd = false;
 	bool initStream = false;
+	bool initHook = false;
+
 
 public:
 	bool leftButtonDown = false;

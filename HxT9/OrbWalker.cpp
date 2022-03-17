@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include "Vector3.h"
 #include "globalVars.h"
+#include "offsets.h"
 
 void OrbWalker::tick() {
 	bool chatOpened = *(bool*)(*(DWORD*)(baseAddress + oChatClientBox) + oChatBoxChatOpened);

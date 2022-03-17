@@ -8,17 +8,16 @@
 class GameFunctions
 {
 public:
+	void	issueClick(Vector3 screenPos);
+	void*	getAIManager(CObject* obj);
+	float	getBoundingRadius(CObject* obj);
 	bool	isHero(CObject* obj);
 	bool	isMinion(CObject* obj);
 	bool	isTurret(CObject* obj);
 	bool	isTroy(CObject* obj);
 	bool	isMissile(CObject* obj);
 	bool	isAlive(CObject* obj);
-	bool	isTargetable(CObject* obj);
 	SpellState		getSpellState(SpellBook* obj, int slot, void* zero);
-	void	printChat(const char* cMessage);
-	void	printChat(std::string cMessage);
-	void	printChat(Vector3 vec);
 	void	worldToScreen(Vector3* in, Vector3* out);
 	float	getAttackCastDelay(CObject* obj);
 	float	getAttackDelay(CObject* obj);

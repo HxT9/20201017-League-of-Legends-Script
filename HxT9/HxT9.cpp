@@ -4,7 +4,7 @@
 #include "Detour.h"
 #include "utilities.h"
 #include "functionDefinitions.h"
-#include ".\MinHook\MinHook.h"
+#include ".\libs\MinHook.h"
 
 #pragma comment(lib, "nod3dx9.lib")
 
@@ -67,6 +67,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         MH_Initialize();
         MH_CreateHook(pTarget, &myPresent, (LPVOID*)&originalPresent);
         MH_EnableHook(pTarget);
+
         break;
 
     case DLL_PROCESS_DETACH:
@@ -77,6 +78,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 }
 
 HRESULT WINAPI myPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT* pSrcRect, CONST RECT* pDstRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion) {
-    ticker.tick(pDevice);
+    __try{
+        ticker.tick(pDevice);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {}
+    
     return originalPresent(pDevice, pSrcRect, pDstRect, hDestWindow, pDirtyRegion);
 }

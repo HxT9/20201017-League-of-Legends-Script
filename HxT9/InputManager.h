@@ -4,19 +4,30 @@
 #include <Windows.h>
 
 typedef struct {
-	INPUT in;
-	bool championOnly;
+	INPUT in = INPUT();
+	bool championOnly = false;
+	bool isClick = false;
+	Vector3 screenPos = Vector3();
+	bool hookMouse = false;
+	bool hookMouseChange = false;
 }PERS_INPUT;
 
 class InputManager {
 public:
 	float delay;
 	float lastExecution;
+	bool hookingMousePos;
+	Vector3 hookedMousePos;
 	std::queue<PERS_INPUT> Inputs;
-	INPUT ChampionOnlyIn;
+	INPUT ChampionOnlyDown;
+	INPUT ChampionOnlyUp;
 	InputManager();
+	INPUT getInput(char key, bool up);
+	void addKey(char key, bool up);
+	void addInput(PERS_INPUT in);
 	void addInput(INPUT in);
 	void addInput(INPUT in, bool championOnly);
+	void addHookedInput(char key, Vector3 hookedPos, bool onlyUp);
 	void resetInputs();
 	void tick();
 };

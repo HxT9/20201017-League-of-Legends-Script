@@ -12,7 +12,7 @@ CObject* TargetSelector::getBestMinion(bool onlyLastHit, float dmg, float range,
 		temp = entities.minions[i];
 		if (temp->GetTeam() == myHero.LPObject->GetTeam()
 			|| temp->GetPos().distTo(myHero.LPObject->GetPos()) >= (range + myHero.LPObject->GetBoundingRadius() + temp->GetBoundingRadius())
-			|| !GH.isTargetable(temp) || !GH.isAlive(temp) || temp->GetMaxHealth() < 10)
+			|| !temp->isTargetable() || !GH.isAlive(temp) || temp->GetMaxHealth() < 10)
 			continue;
 
 		AATimeNeeded = (temp->GetPos().distTo(myHero.LPObject->GetPos()) / speed) + castTime;

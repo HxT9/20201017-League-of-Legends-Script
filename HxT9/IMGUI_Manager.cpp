@@ -15,6 +15,8 @@ void IMGUI_Manager::init(LPDIRECT3DDEVICE9 pDevice) {
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX9_Init(pDevice);
+
+	resetConsole();
 }
 
 void IMGUI_Manager::tick(LPDIRECT3DDEVICE9 pDevice) {
@@ -26,9 +28,9 @@ void IMGUI_Manager::tick(LPDIRECT3DDEVICE9 pDevice) {
 
 		ImGui::Begin("HxT9");
 		ImGui::SetWindowSize({ 700, 200 });
+
 		for (int i = 0; i < 10; i++) {
-			if (text[i] != NULL)
-				ImGui::Text(text[i]);
+			ImGui::Text(text[i].c_str());
 		}
 		ImGui::End();
 
@@ -40,14 +42,8 @@ void IMGUI_Manager::tick(LPDIRECT3DDEVICE9 pDevice) {
 }
 void IMGUI_Manager::resetConsole() {
 	for (int i = 0; i < 10; i++) {
-		text[i] = "";
+		text[i] = std::string("");
 	}
-}
-void IMGUI_Manager::print(const char* in) {
-	for (int i = 0; i < 9; i++) {
-		text[i] = text[i + 1];
-	}
-	text[9] = in;
 }
 void IMGUI_Manager::print(const char* fmt, ...)
 {
@@ -61,10 +57,7 @@ void IMGUI_Manager::print(std::string in) {
 	for (int i = 0; i < 9; i++) {
 		text[i] = text[i + 1];
 	}
-	char* out = new char[in.size() + 1];
-	copy(in.begin(), in.end(), out);
-	text[9] = out;
-	delete[] out;
+	text[9] = in;
 }
 void IMGUI_Manager::destroy() {
 	ImGui_ImplDX9_Shutdown();

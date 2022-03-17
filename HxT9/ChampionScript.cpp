@@ -18,7 +18,7 @@ void ChampionScript::tick() {
 	Vector3 predictedPos;
 
 	//Ciclo gli item da usare
-	for (int i = 0; i < 6; i++) {
+	/*for (int i = 0; i < 6; i++) {
 		if (myHero.LPObject->GetSpellBook()->GetSpellSlot((Spells)((int)Spells::Item1 + i))->GetSpellInfo()) { //SpellInfo not NULL
 			if (strcmp(myHero.LPObject->GetSpellBook()->GetSpellSlot((Spells)((int)Spells::Item1 + i))->GetSpellInfo()->GetSpellData()->GetSpellName(), "game_item_displayname_3153") == 0 //BOTRK
 				|| strcmp(myHero.LPObject->GetSpellBook()->GetSpellSlot((Spells)((int)Spells::Item1 + i))->GetSpellInfo()->GetSpellData()->GetSpellName(), "game_item_displayname_3144") == 0 //Cutlass
@@ -33,7 +33,7 @@ void ChampionScript::tick() {
 				}
 			}
 		}
-	}
+	}*/
 
 	if (strcmp(myHero.championName, "Cassiopeia") == 0) {
 		switch (myHero.behaviour) {
@@ -156,6 +156,22 @@ void ChampionScript::tick() {
 					predictedPos = utils.getPredictedPos(target, 0.25 + (target->GetPos().distTo(myHero.LPObject->GetPos()) / 2100), 80, myHero.LPObject);
 					if (predictedPos.distTo(myHero.LPObject->GetPos()) < 1150 && utils.minionsColliding(myHero.LPObject->GetPos(), predictedPos, 120) == 0)
 						myHero.CastSpellAtPos(Spells::Q, predictedPos);
+				}
+			}
+			break;
+		}
+		return;
+	}
+
+	if (strcmp(myHero.championName, "Jinx") == 0) {
+		switch (myHero.behaviour) {
+		case Behaviour::Combo:
+			if (GH.getSpellState(myHero.LPObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
+				target = targetSelector.getBestChampion(1400); //1500
+				if (target != NULL) {
+					predictedPos = utils.getPredictedPos(target, 0.5 + (target->GetPos().distTo(myHero.LPObject->GetPos()) / 3300), 120, myHero.LPObject);
+					if (predictedPos.distTo(myHero.LPObject->GetPos()) < 1500 && utils.minionsColliding(myHero.LPObject->GetPos(), predictedPos, 120) == 0)
+						myHero.CastSpellAtPos(Spells::W, predictedPos);
 				}
 			}
 			break;

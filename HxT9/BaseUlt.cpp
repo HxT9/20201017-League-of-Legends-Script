@@ -34,6 +34,7 @@ void BaseUlt::init() {
 
 void BaseUlt::tick()
 {
+	utils.dbgStream("baseult");
 	float dmg, baseDmg;
 	float time;
 	CObject* temp;
@@ -115,21 +116,22 @@ void BaseUlt::tick()
 
 		for (int i = 0; i < entities.heroes.size(); i++) {
 			temp = entities.heroes[i];
-			if (temp != NULL && temp->GetActiveSpell() != NULL && strcmp(temp->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetSpellName(), "Recall") == 0) {
+			if (temp != NULL && temp != myHero.LPObject && temp->GetActiveSpell() != NULL && strcmp(temp->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetSpellName(), "Recall") == 0) {
 				//Calcolo danno AD/AP
 				if (strcmp(myHero.championName, "Ashe") == 0 || strcmp(myHero.championName, "Ezreal") == 0) {
 					dmg = utils.calcEffectiveDamage(baseDmg, temp->GetMagicResist());
 				}
 				else {
 					if (strcmp(myHero.championName, "Jinx") == 0) {
-						dmg += (0.2 + 0.5 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl()) * (temp->GetMaxHealth() - temp->GetHealth());
+						baseDmg += (0.2 + 0.5 * myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl()) * (temp->GetMaxHealth() - temp->GetHealth());
 					}
 					dmg = utils.calcEffectiveDamage(baseDmg, temp->GetArmor());
 				}
 
 				//Controllo sulla vita e sul recall
 				if (dmg > temp->GetHealth()) {
-					calculatedBaseUlt = temp->GetActiveSpell()->GetCastingTime() + temp->GetActiveSpell()->GetChannelingTime();
+					utils.dbgStream("BU6");
+					calculatedBaseUlt = temp->GetActiveSpell()->GetCastingStartTime() + temp->GetActiveSpell()->GetChannelingTime();
 					targetIndex = temp->GetIndex();
 					//gui.print(utils.stringf("BASEULT START GameTime: %f, CalculatedTime: %f", gameTime, calculatedBaseUlt));
 				}

@@ -6,12 +6,11 @@
 class IMGUI_Manager
 {
 public:
-	const char* text[10] = {"","","","","","","","","",""};
+	std::string text[10];
 
 	void init(LPDIRECT3DDEVICE9 Device);
 	void tick(LPDIRECT3DDEVICE9 pDevice);
 	void destroy();
-	void print(const char* in);
 	void print(const char* fmt, ...);
 	void print(std::string in);
 	void resetConsole();

@@ -24,6 +24,10 @@ Vector3 CObject::GetPos() {
 	return *(Vector3*)((DWORD)this + oObjPos);
 }
 
+bool CObject::isTargetable() {
+	return *(bool*)((DWORD)this + oObjTargetable);
+}
+
 int CObject::GetLevel() {
 	return *(int*)((DWORD)this + oObjLevel);
 }
@@ -64,16 +68,18 @@ bool CObject::IsVisible() {
 	return *(bool*)((DWORD)this + oObjVisibility);
 }
 
-float CObject::GetBoundingRadius() { //oGetBoundingRadius 0x12fc50
-	typedef float(__thiscall* OriginalFn)(PVOID);
-	return CallVirtual<OriginalFn>(this, 36)(this);
-	//return ((fnGetBoundingRadius)(baseAddress + oGetBoundingRadius))(this);
+float CObject::GetBoundingRadius() {
+	return GH.getBoundingRadius(this);
 }
 
-void* CObject::GetAIManager() { //oGetAIManager 0x132170
-	typedef void* (__thiscall* OriginalFn)(PVOID);
-	return CallVirtual<OriginalFn>(this, 149)(this);
-	//return ((fnGetAIManager)(baseAddress + oGetAIManager))(this);
+void* CObject::GetAIManager() {
+	return GH.getAIManager(this);
+}
+
+void* CObject::GetAIManager2()
+{
+	typedef void*(__thiscall* OriginalFn)(PVOID);
+	return CallVirtual<OriginalFn>(this, 148)(this);
 }
 
 float CObject::GetAP() {
@@ -99,10 +105,6 @@ char* CObject::GetRefName() {
 }
 
 char* CObject::GetChampionName() {
-	return (char*)((DWORD)this + oObjChampionName);
-}
-
-char* CObject::GetMinionName() {
 	return *(char**)((DWORD)this + oObjChampionName);
 }
 
@@ -142,8 +144,15 @@ short CObject::GetMissileSourceIndex() {
 	return *(short*)((DWORD)this + oMissileSourceIndex);
 }
 
+boolean CObject::GetMissileHasTarget() {
+	return *(bool*)((DWORD)this + oMissileHasTarget);
+}
+
 short CObject::GetMissileTargetIndex() {
-	return *(short*)((DWORD)this + oMissileTargetIndex);
+	if (GetMissileHasTarget())
+		return **(short**)((DWORD)this + oMissileTargetIndex);
+
+	return NULL;
 }
 
 Vector3 CObject::GetMissileStartPos() {
@@ -167,17 +176,24 @@ bool CObject::isMoving() {
 }
 
 bool CObject::isDashing() {
-	return *(bool*)((DWORD)GetAIManager() + oAIMGR_IsDashing);
+	return *(bool*)((DWORD)GetAIManager() + oAIMGR_IsDashing) && isMoving();
+}
+
+int CObject::getAIMgrPassedWaypoints() {
+	return *(int*)((DWORD)GetAIManager() + oAIMGR_PassedWaypoints);
 }
 
 Path CObject::GetPath() {
-	DWORD vNavBegin = *(DWORD*)((DWORD)GetAIManager() + oAIMGR_NavBegin);
-	DWORD vNavEnd = (*(DWORD*)((DWORD)GetAIManager() + oAIMGR_NavEnd) - 0xC);
-
 	Path ret;
 	ret.nPathPoints = 0;
-	for (DWORD i = vNavBegin; i <= vNavEnd; i += 0xc) {
-		ret.pathPoints[ret.nPathPoints++] = *(Vector3*)i;
+
+	if (GetAIManager()) {
+		DWORD vNavBegin = *(DWORD*)((DWORD)GetAIManager() + oAIMGR_NavBegin);
+		DWORD vNavEnd = (*(DWORD*)((DWORD)GetAIManager() + oAIMGR_NavEnd) - 0xC);
+
+		for (DWORD i = vNavBegin; i <= vNavEnd; i += 0xc) {
+			ret.pathPoints[ret.nPathPoints++] = *(Vector3*)i;
+		}
 	}
 	return ret;
 }

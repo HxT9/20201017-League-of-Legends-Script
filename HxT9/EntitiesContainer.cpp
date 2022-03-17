@@ -16,6 +16,43 @@ void EntitiesContainer::resetEntities() {
 	ObjManager = *(DWORD*)(baseAddress + oObjectsManager);
 }
 
+/*
+0 for heroes
+1 for minions
+2 for turrets
+3 for missiles
+4 for troys
+*/
+std::vector<CObject*> EntitiesContainer::getEntities(int index) {
+	switch (index) {
+	case 0:
+		return heroes;
+		break;
+	case 1:
+		return minions;
+		break;
+	case 2:
+		return turrets;
+		break;
+	case 3:
+		return missiles;
+		break;
+	case 4:
+		return troys;
+		break;
+	}
+
+	return std::vector<CObject*>();
+}
+
+CObject* EntitiesContainer::GetCObjectFromIndex(int index) {
+	CObject** objArray = *(CObject***)(ObjManager + 0x14);
+	if (objArray[index]->GetIndex() == index)
+		return objArray[index];
+
+	return NULL;
+}
+
 /*void EntitiesContainer::tick() {
 	resetEntities();
 
@@ -77,25 +114,25 @@ void EntitiesContainer::tick() {
 		CurrentObj = NextObj;
 		NextObj = GH.getNextCObject((void*)ObjManager, NextObj);
 
-		if (GH.isHero(CurrentObj)) {
-			heroes.insert(heroes.end(), CurrentObj);
+		/*if (GH.isTroy(CurrentObj)) {
+			troys.insert(troys.end(), CurrentObj);
 			continue;
-		}
+		}*/
 		if (GH.isMinion(CurrentObj)) {
 			minions.insert(minions.end(), CurrentObj);
-			continue;
-		}
-		if (GH.isTurret(CurrentObj)) {
-			turrets.insert(turrets.end(), CurrentObj);
 			continue;
 		}
 		if (GH.isMissile(CurrentObj)) {
 			missiles.insert(missiles.end(), CurrentObj);
 			continue;
 		}
-		/*if (GH.isTroy(CurrentObj)) {
-			troys.insert(troys.end(), CurrentObj);
+		if (GH.isTurret(CurrentObj)) {
+			turrets.insert(turrets.end(), CurrentObj);
 			continue;
-		}*/
+		}
+		if (GH.isHero(CurrentObj)) {
+			heroes.insert(heroes.end(), CurrentObj);
+			continue;
+		}
 	}
 }

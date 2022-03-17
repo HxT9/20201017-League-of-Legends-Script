@@ -44,3 +44,49 @@ DWORD findPattern(const char* module, const char* pattern) {
 	}
 	return NULL;
 }
+
+template <typename ReturnType>
+__declspec(naked) ReturnType __stdcall StackSpoofForCdecl(DWORD FuncAddr, unsigned int NumberOfParams, DWORD ROPGadget, ...) {
+	__asm {
+		push esi
+		push edi
+		mov edx, esp
+		mov ecx, [edx + 16]
+		mov edi, ecx
+		inc exc
+		LoopStart :
+		mov eax, [edx + ecx * 4 + 16]
+			push eax
+			loop LoopStart
+			mov esi, ReturnHere
+			mov eax, [edx + 12]
+			jmp eax,
+			ReturnHere:
+		imul edi, 4
+			add esp, edi
+			pop edi
+			pop esi
+			ret
+	}
+}
+
+template <typename ReturnType>
+__declspec(naked) ReturnType __stdcall StackSpoofForThiscall(DWORD FuncAddr, unsigned int NumberOfParams, void* thisptr, DWORD ROPGadget, ...) {
+	__asm {
+		push esi
+		mov edx, esp
+		mov ecx, [edx + 12]
+		inc ecx
+		LoopStart :
+		mov eax, [edx + ecx * 4 + 16]
+			push eax
+			loop LoopStart
+			mov esi, ReturnHere
+			mov eax, [edx + 8]
+			mov ecx, [edx + 16]
+			jmp eax
+			ReturnHere :
+		pop esi
+			ret
+	}
+}
