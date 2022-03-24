@@ -1,13 +1,13 @@
 #pragma once
-#include "CObject.h"
+#include "EntityBase.h"
 
 class TargetSelector
 {
 public:
-	CObject* getBestMinion(bool onlyLastHit, float dmg, float range, float speed, float castTime, bool isSpell);
-	CObject* getBestChampion(float range);
-	CObject* getBestChampion(float range, bool aa);
-	CObject* getTurret();
-	CObject* getClickedChampion(Vector3 pos, float maxRange);
+	EntityBase* getBestMinion(bool onlyLastHit, float dmg, float range, float speed, float castTime, bool isSpell);
+	EntityBase* getBestChampion(float range);
+	EntityBase* getBestChampion(float range, bool aa);
+	EntityBase* getTurret();
+	EntityBase* getClickedChampion(Vector3 pos, float maxRange);
 };
 

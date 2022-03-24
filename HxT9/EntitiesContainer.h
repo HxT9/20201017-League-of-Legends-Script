@@ -1,23 +1,30 @@
 #pragma once
-#include "CObject.h"
-#include <map>
+#include <Windows.h>
 #include <vector>
+#include "EntityBase.h"
 
 class EntitiesContainer
 {
 public:
-	DWORD ObjManager;
+	DWORD ObjManager = NULL;
+	DWORD EntityListStartAddress = NULL;
+	DWORD EntityListEndAddress = NULL;
+	DWORD MaxIndex = 0;
 
-	std::vector<CObject*> heroes;
-	std::vector<CObject*> minions;
-	std::vector<CObject*> turrets;
-	std::vector<CObject*> troys;
-	std::vector<CObject*> missiles;
+	std::vector<EntityBase*> entities;
+
+	std::vector<int> heroesIndex;
+	std::vector<int> minionsIndex;
+	std::vector<int> turretsIndex;
+	std::vector<int> missilesIndex;
+	std::vector<int> troysIndex;
 
 	EntitiesContainer();
+	void Init();
 	void resetEntities();
-	std::vector<CObject*> getEntities(int index);
-	CObject* GetCObjectFromIndex(int index);
+	EntityBase* GetEntityFromIndex(int index);
 	void tick();
+	void updateEL();
+	bool isValidObject(DWORD obj);
 };
 

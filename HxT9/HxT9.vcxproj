@@ -41,6 +41,7 @@
     <ClInclude Include="Detour.h" />
     <ClInclude Include="Drawer.h" />
     <ClInclude Include="EntitiesContainer.h" />
+    <ClInclude Include="EntityBase.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="Equation.h" />
     <ClInclude Include="functionDefinitions.h" />
@@ -96,6 +97,7 @@
     <ClCompile Include="Detour.cpp" />
     <ClCompile Include="Drawer.cpp" />
     <ClCompile Include="EntitiesContainer.cpp" />
+    <ClCompile Include="EntityBase.cpp" />
     <ClCompile Include="Equation.cpp" />
     <ClCompile Include="GameFunctions.cpp" />
     <ClCompile Include="globalVars.cpp" />
@@ -201,6 +203,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

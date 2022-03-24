@@ -35,7 +35,9 @@ enum class Spells
 	Item5 = 10,
 	Item6 = 11,
 	Trinket = 12,
-	Recall = 13
+	Recall = 13,
+	ApheliosCrescendum = 45,
+	AA = 46
 };
 
 enum class SkillShotType
@@ -64,4 +66,20 @@ enum class ObjectTypeFlags {
 	Unknown1 = (1 << 16), 
 	Building = (1 << 17), 
 	Unknown2 = (1 << 18), 
+};
+
+enum class EntityType {
+	Undefined = -1,
+	Hero,
+	Minion,
+	Turret,
+	Missile,
+	Troy
+};
+
+enum class Interval {
+	ms	= 1000,
+	cs	= 100,
+	ds	= 10,
+	s	= 1,
 };

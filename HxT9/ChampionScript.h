@@ -1,11 +1,11 @@
 #pragma once
 #include "Enums.h"
-#include "CObject.h"
+#include "EntityBase.h"
 
 class ChampionScript
 {
 public:
 	void tick();
-	float getKalistaSpearDamage(CObject* target);
+	float getKalistaSpearDamage(EntityBase* target);
 };
 

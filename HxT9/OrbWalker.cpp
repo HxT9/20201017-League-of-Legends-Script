@@ -3,12 +3,13 @@
 #include "Vector3.h"
 #include "globalVars.h"
 #include "offsets.h"
+#include "EntityBase.h"
 
 void OrbWalker::tick() {
 	bool chatOpened = *(bool*)(*(DWORD*)(baseAddress + oChatClientBox) + oChatBoxChatOpened);
 
-	dmg = myHero.LPObject->GetTotalAttackDamage();
-	if (strcmp(myHero.championName, "kalista") == 0) {
+	dmg = myHero.GetTotalAttackDamage();
+	if (myHero.ChampionName == "kalista") {
 		dmg *= 0.9;
 	}
 
@@ -34,16 +35,16 @@ void OrbWalker::tick() {
 }
 
 void OrbWalker::ComboLogic() {
-	myHero.AutoAttack(targetSelector.getBestChampion(myHero.LPObject->GetAttackRange(), true));
+	myHero.AutoAttack(targetSelector.getBestChampion(myHero.AttackRange, true));
 }
 void OrbWalker::PushLogic() {
-	CObject* target = targetSelector.getBestMinion(false, dmg, myHero.LPObject->GetAttackRange(), myHero.AAMissileSpeed, myHero.AACastTime, false);
+	EntityBase* target = targetSelector.getBestMinion(false, dmg, myHero.AttackRange, myHero.AAMissileSpeed, myHero.AACastTime, false);
 	if (target == NULL)
 		target = targetSelector.getTurret();
 	myHero.AutoAttack(target);
 }
 void OrbWalker::LastHitLogic() {
-	myHero.AutoAttack(targetSelector.getBestMinion(true, dmg, myHero.LPObject->GetAttackRange(), myHero.AAMissileSpeed, myHero.AACastTime, false));
+	myHero.AutoAttack(targetSelector.getBestMinion(true, dmg, myHero.AttackRange, myHero.AAMissileSpeed, myHero.AACastTime, false));
 }
 void OrbWalker::FleeLogic() {
 	myHero.MoveTo(GH.getMouseWorldPosition());

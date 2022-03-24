@@ -5,6 +5,8 @@
 #include "utilities.h"
 #include "functionDefinitions.h"
 #include ".\libs\MinHook.h"
+#include <iostream>
+#include <fstream>
 
 #pragma comment(lib, "nod3dx9.lib")
 
@@ -77,11 +79,21 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     return TRUE;
 }
 
+static void sendException() {
+    std::fstream DebugStream;
+    DebugStream.open("E:\\Downloads\\Cheats\\Lol\\Debug.txt", std::ofstream::app);
+    DebugStream << "Exception" << std::endl;
+    DebugStream.close();
+}
+
 HRESULT WINAPI myPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT* pSrcRect, CONST RECT* pDstRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion) {
     __try{
         ticker.tick(pDevice);
     }
-    __except (EXCEPTION_EXECUTE_HANDLER) {}
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        gui.print("Exception");
+        sendException();
+    }
     
     return originalPresent(pDevice, pSrcRect, pDstRect, hDestWindow, pDirtyRegion);
 }

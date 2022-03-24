@@ -212,10 +212,10 @@ float CObject::GetMovementSpeed() {
 
 int CObject::getCloseEnemyMinions(float range) {
 	int ret = 0;
-	CObject* temp;
-	for (int i = 0; i < entities.minions.size(); i++) {
-		temp = entities.minions[i];
-		if (utils.isValidTarget(temp) && temp->GetTeam() != GetTeam() && temp->GetPos().distTo(GetPos()) < range) {
+	EntityBase* temp;
+	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
+		if (utils.isValidTarget(temp) && temp->Team != GetTeam() && temp->Pos.distTo(GetPos()) < range) {
 			ret++;
 		}
 	}

@@ -139,10 +139,12 @@ void Drawer::drawConic(Vector3 center, Vector3 vEnd, int angle, int precision, i
 	drawPolygon(points, precision + 1, d3dcolor, lineWidth);
 }
 void Drawer::drawTextSmall(Vector3 screenPosition, const char* text, int d3dcolor) {
+	if (!screenPosition.isDrawable()) return;
 	SetRect(&m_Rect, screenPosition.x, screenPosition.y, 1920, 1080);
 	m_FontSmall->DrawTextA(NULL, text, -1, &m_Rect, 0, d3dcolor);
 }
 void Drawer::drawTextMedium(Vector3 screenPosition, const char* text, int d3dcolor) {
+	if (!screenPosition.isDrawable()) return;
 	SetRect(&m_Rect, screenPosition.x, screenPosition.y, 1920, 1080);
 	m_FontMedium->DrawTextA(NULL, text, -1, &m_Rect, 0, d3dcolor);
 }

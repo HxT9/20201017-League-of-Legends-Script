@@ -29,13 +29,16 @@ void toClipboard(const std::string& s) {
 	GlobalFree(hg);
 }
 
+using namespace std::chrono;
+
 void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
+	std::string chronoDbg = "";
 	gameTime = *(float*)(baseAddress + oGameTime);
 	if (gameTime < 1) {
 		return;
 	}
 	try {
-		if (!(initHelpers && initLP && initAAMissileSpeed && initWnd && initStream && initHook)) {
+		if (!(initLP && initHelpers)) {
 			init(pDevice);
 		}
 
@@ -43,78 +46,79 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 
 		gui.tick(pDevice);
 
-		entities.tick(); //Aggiornamento delle entità
+		auto start = high_resolution_clock::now();
+		entitiesContainer.tick(); //Aggiornamento delle entità
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
 #pragma region Debug
-	//gui.print("Heroes: %i, Minions: %i, Missiles: %i, Turrets: %i", entities.heroes.size(), entities.minions.size(), entities.missiles.size(), entities.turrets.size());
 	/*if (myHero.useSpell) {
-		for (int i = 0; i < entities.missiles.size(); i++)
-			if (entities.missiles[i]->GetMissileSourceIndex() == myHero.LPObject->GetIndex()) {
-				toClipboard(utils.stringf("%p ", entities.missiles[0]).c_str());
-				MessageBoxA(NULL, utils.stringf("pointer: %p pos: %s", entities.missiles[0], entities.missiles[0]->GetPos().toString()).c_str(), "Debug", MB_OK);
+		for (int i = 0; i < entitiesContainer.missiles.size(); i++)
+			if (entitiesContainer.missiles[i]->GetMissileSourceIndex() == myHero.LPCObject->getIndex()) {
+				toClipboard(utils.stringf("%p ", entitiesContainer.missiles[0]).c_str());
+				MessageBoxA(NULL, utils.stringf("pointer: %p pos: %s", entitiesContainer.missiles[0], entitiesContainer.missiles[0]->GetPos().toString()).c_str(), "Debug", MB_OK);
 				myHero.useSpell = false;
 				break;
 			}
-
-
-	}*/
-	/*if (myHero.LPObject && myHero.useSpell) {
-		MessageBoxA(NULL, utils.stringf("CObj: %p AIMgr1: %p AIMgr2: %p", myHero.LPObject, myHero.LPObject->GetAIManager(), myHero.LPObject->GetAIManager2()).c_str(), "DEBUG", MB_OK);
-		myHero.useSpell = false;
 	}*/
 
 #ifdef _DEBUG
+		start = high_resolution_clock::now();
 		utils.drawDebug();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+
+		for (int i = 0; i < entitiesContainer.missilesIndex.size(); i++) {
+			gui.print("%d %s", entitiesContainer.entities[entitiesContainer.missilesIndex[i]]->Index, entitiesContainer.entities[entitiesContainer.missilesIndex[i]]->PCObject->GetMissileSpellInfo()->GetSpellData()->GetMissileName());
+		}
+
+		if (myHero.useSpell) {
+			MessageBoxA(NULL, "", "DEBUG", MB_OK);
+			myHero.useSpell = false;
+		}
 #endif
 #pragma endregion
 
-		using namespace std::chrono;
-		auto start = high_resolution_clock::now();
-		std::string chronoDbg = "";
-
+		start = high_resolution_clock::now();
 		utils.drawBoundingBox();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		utils.dbgStream("drawEntities");
 		start = high_resolution_clock::now();
 		utils.drawEntities();
 		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		utils.dbgStream("drawLastHittableMinions");
 		start = high_resolution_clock::now();
 		utils.drawLastHittableMinions();
 		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		utils.dbgStream("drawActiveSpells");
 		start = high_resolution_clock::now();
 		utils.drawActiveSpells();
 		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		utils.dbgStream("drawMissiles");
 		start = high_resolution_clock::now();
 		utils.drawMissiles();
 		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		utils.dbgStream("drawPredictedPos");
+		/*
+#ifdef _DEBUG
 		start = high_resolution_clock::now();
+#endif
 		utils.drawPredictedPos();
+#ifdef _DEBUG
 		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+#endif*/
 
-		utils.dbgStream("drawSpellCD");
 		start = high_resolution_clock::now();
 		utils.drawSpellCD();
 		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		utils.dbgStream("ChampionCustomDraw");
 		start = high_resolution_clock::now();
 		utils.ChampionCustomDraw();
 		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		utils.dbgStream("myHero");
 		start = high_resolution_clock::now();
 		myHero.tick();
 		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		utils.dbgStreamChrono(chronoDbg);
+		//utils.dbgStreamChrono(chronoDbg);
 
 		championScript.tick();
 
@@ -142,7 +146,10 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 		}
 
 		if (leftButtonDown) {
-			myHero.selectedTarget = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 150);
+			myHero.selectedTargetIndex = -1;
+			EntityBase* temp = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 150);
+			if (temp)
+				myHero.selectedTargetIndex = temp->Index;
 		}
 	}
 	catch (int e) {
@@ -151,50 +158,38 @@ void ScriptManager::tick(LPDIRECT3DDEVICE9 pDevice) {
 }
 
 void ScriptManager::init(LPDIRECT3DDEVICE9 pDevice) {
-	if (!initWnd) {
-		initWndProc();
-		initWnd = true;
-	}
 	if (!initHelpers) {
 		drawer = Drawer(pDevice);
-		initHelpers = true;
-
 		gui.init(pDevice);
+		utils.init();
 		inputManager.resetInputs();
+		initWndProc();
+		entitiesContainer.Init();
+		initHelpers = true;
 	}
+
 	if (!initLP) {
 		if (*(DWORD*)(baseAddress + oLocalPlayer) != NULL) {
-			myHero = LocalPlayer((CObject*)*(DWORD*)(baseAddress + oLocalPlayer));
-			gui.print("LocalPlayer: " + std::to_string(*(DWORD*)(baseAddress + oLocalPlayer)) + "\0");
-			myHero.championName = myHero.LPObject->GetChampionName();
-			gui.print("Hero: " + std::string(myHero.championName) + "\0");
-			gui.print("AiMgr: %p\0", myHero.LPObject->GetAIManager());
-
+			myHero = LocalPlayer(*(CObject**)(baseAddress + oLocalPlayer));
+			gui.print("LocalPlayer: %p", myHero.PCObject);
+			gui.print("Hero: " + std::string(myHero.ChampionName));
+			gui.print("AiMgr: %p\0", myHero.PCObject->GetAIManager());
 			baseUlt.init();
 
 			initLP = true;
+			gui.print("initLP");
+
+#ifdef _DEBUG
+			myHero.useSpell = false;
+#endif
 		}
 		else {
 			return;
 		}
 	}
-	if (!initAAMissileSpeed) {
-		std::string temp = myHero.LPObject->GetChampionName() + std::string("BasicAttack");
-		const char* test = temp.c_str();
-		if (myHero.LPObject->GetActiveSpell() != NULL &&
-			strcmp(myHero.LPObject->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetMissileName(), test) == 0) {
 
-			myHero.AAMissileSpeed = myHero.LPObject->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetSpellSpeed();
-			gui.print("Found AA missile speed: " + std::to_string(myHero.AAMissileSpeed) + "\0");
-			initAAMissileSpeed = true;
-		}
-	}
-	if (!initHook) {
-		int a = MH_CreateHook((LPVOID)GetCursorPos, &HkGetCursorPos, (LPVOID*)&orig_GetCursorPos);
-		int b = MH_EnableHook((LPVOID)GetCursorPos);
-
-		initHook = true;
-	}
+	MH_CreateHook((LPVOID)GetCursorPos, &HkGetCursorPos, (LPVOID*)&orig_GetCursorPos);
+	MH_EnableHook((LPVOID)GetCursorPos);
 }
 
 //KeyManager

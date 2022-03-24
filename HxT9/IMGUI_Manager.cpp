@@ -27,10 +27,10 @@ void IMGUI_Manager::tick(LPDIRECT3DDEVICE9 pDevice) {
 		////////////////////////////
 
 		ImGui::Begin("HxT9");
-		ImGui::SetWindowSize({ 700, 200 });
+		ImGui::SetWindowSize({ 1000.f, MaxConsoleLines * 18.f });
 
-		for (int i = 0; i < 10; i++) {
-			ImGui::Text(text[i].c_str());
+		for (int i = 0; i < MaxConsoleLines; i++) {
+			ImGui::Text(ConsoleLines[i].c_str());
 		}
 		ImGui::End();
 
@@ -41,8 +41,10 @@ void IMGUI_Manager::tick(LPDIRECT3DDEVICE9 pDevice) {
 	}
 }
 void IMGUI_Manager::resetConsole() {
-	for (int i = 0; i < 10; i++) {
-		text[i] = std::string("");
+	ConsoleLines.clear();
+
+	for (int i = 0; i < MaxConsoleLines; i++) {
+		ConsoleLines.push_back(std::string(""));
 	}
 }
 void IMGUI_Manager::print(const char* fmt, ...)
@@ -54,10 +56,10 @@ void IMGUI_Manager::print(const char* fmt, ...)
 	print(buf);
 }
 void IMGUI_Manager::print(std::string in) {
-	for (int i = 0; i < 9; i++) {
-		text[i] = text[i + 1];
+	for (int i = 0; i < MaxConsoleLines - 1; i++) {
+		ConsoleLines[i] = ConsoleLines[i + 1];
 	}
-	text[9] = in;
+	ConsoleLines[MaxConsoleLines - 1] = in;
 }
 void IMGUI_Manager::destroy() {
 	ImGui_ImplDX9_Shutdown();

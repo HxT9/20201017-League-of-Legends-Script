@@ -4,9 +4,9 @@
 GameFunctions GH;
 ScriptManager ticker;
 Drawer drawer;
-EntitiesContainer entities;
-IMGUI_Manager gui;
 UtilityFunctions utils;
+EntitiesContainer entitiesContainer;
+IMGUI_Manager gui;
 OrbWalker orbWalker;
 TargetSelector targetSelector;
 ChampionScript championScript;

@@ -4,135 +4,120 @@
 #include "Enums.h"
 
 EntitiesContainer::EntitiesContainer() {
-	resetEntities();
+	EntityListStartAddress = NULL;
+	EntityListEndAddress = NULL;
+	MaxIndex = 0;	
 }
-void EntitiesContainer::resetEntities() {
-	heroes.clear();
-	minions.clear();
-	turrets.clear();
-	troys.clear();
-	missiles.clear();
 
+void EntitiesContainer::Init() {
+	gui.print("Initiating EntitiesContainer");
 	ObjManager = *(DWORD*)(baseAddress + oObjectsManager);
-}
 
-/*
-0 for heroes
-1 for minions
-2 for turrets
-3 for missiles
-4 for troys
-*/
-std::vector<CObject*> EntitiesContainer::getEntities(int index) {
-	switch (index) {
-	case 0:
-		return heroes;
-		break;
-	case 1:
-		return minions;
-		break;
-	case 2:
-		return turrets;
-		break;
-	case 3:
-		return missiles;
-		break;
-	case 4:
-		return troys;
-		break;
+	entities.clear();
+	for (int i = 0; i < 0x10000; i++) {
+		entities.push_back(new EntityBase());
 	}
-
-	return std::vector<CObject*>();
 }
 
-CObject* EntitiesContainer::GetCObjectFromIndex(int index) {
-	CObject** objArray = *(CObject***)(ObjManager + 0x14);
-	if (objArray[index]->GetIndex() == index)
-		return objArray[index];
-
-	return NULL;
+void EntitiesContainer::resetEntities() {
+	heroesIndex.clear();
+	minionsIndex.clear();
+	turretsIndex.clear();
+	missilesIndex.clear();
+	troysIndex.clear();
 }
 
-/*void EntitiesContainer::tick() {
-	resetEntities();
+EntityBase* EntitiesContainer::GetEntityFromIndex(int index) {
+	if (entities[index]->PCObject)
+		return entities[index];
 
-	if (ObjManager == NULL)
-		return;
-
-	int i = 0;
-	int nObjs = *(int*)(ObjManager + 0x8);
-	int readObjs = 0;
-	CObject** objArray = *(CObject***)(ObjManager + 0x14);
-	CObject* CurrentObj;
-
-	while (readObjs < nObjs) {
-		CurrentObj = objArray[i++];
-
-		if (CurrentObj == NULL || CurrentObj->GetIndex() < 0 || CurrentObj->GetIndex() > nObjs)
-			continue;
-
-		
-
-		readObjs++;
-		if (funcs.isHero(CurrentObj)) {
-			heroes[iHeroes++] = CurrentObj;
-			continue;
-		}
-		if (funcs.isMinion(CurrentObj)) {
-			minions[iMinions++] = CurrentObj;
-			if (funcs.isDragon(CurrentObj)) {
-				dragons[iDragons++] = CurrentObj;
-				continue;
-			}
-			continue;
-		}
-		if (funcs.isTurret(CurrentObj)) {
-			turrets[iTurrets++] = CurrentObj;
-			continue;
-		}
-		if (funcs.isTroy(CurrentObj)) {
-			troys[iTroys++] = CurrentObj;
-			continue;
-		}
-		if (funcs.isMissile(CurrentObj)) {
-			missiles[iMissiles++] = CurrentObj;
-			continue;
-		}
-	}
-}*/
+	return &EntityBase();
+}
 
 void EntitiesContainer::tick() {
-	resetEntities();
-
 	if (ObjManager == NULL)
 		return;
 
-	int readObjs = 0;
-	CObject *CurrentObj, *NextObj = GH.getFirstCObject((void*)ObjManager);
+	updateEL();
 
-	while (NextObj) {
-		CurrentObj = NextObj;
-		NextObj = GH.getNextCObject((void*)ObjManager, NextObj);
+	resetEntities();
 
-		/*if (GH.isTroy(CurrentObj)) {
-			troys.insert(troys.end(), CurrentObj);
-			continue;
-		}*/
-		if (GH.isMinion(CurrentObj)) {
-			minions.insert(minions.end(), CurrentObj);
-			continue;
+	int index;
+	CObject *CurrentObj;
+
+	for(DWORD i = EntityListStartAddress; i < EntityListEndAddress; i += 4){
+		index = (i - EntityListStartAddress) / 4;
+
+		if (isValidObject(i)) {
+			CurrentObj = *(CObject**)i;
+
+			/*if (GH.isTroy(CurrentObj)) {
+				if (entities[index]->PCObject != CurrentObj)
+					entities[index] = &EntityBase(CurrentObj, EntityType::Troy);
+				troysIndex.push_back(index);
+				entities[index]->UpdateAttributes();
+				continue;
+			}*/
+			if (GH.isMinion(CurrentObj)) {
+				if (entities[index]->PCObject != CurrentObj)
+					entities[index]->Init(CurrentObj, EntityType::Minion);
+				minionsIndex.push_back(index);
+				entities[index]->UpdateAttributes();
+				continue;
+			}
+			if (GH.isMissile(CurrentObj)) {
+				if (entities[index]->PCObject != CurrentObj)
+					entities[index]->Init(CurrentObj, EntityType::Missile);
+				missilesIndex.push_back(index);
+				entities[index]->UpdateAttributes();
+				continue;
+			}
+			if (GH.isTurret(CurrentObj)) {
+				if (entities[index]->PCObject != CurrentObj)
+					entities[index]->Init(CurrentObj, EntityType::Turret);
+				turretsIndex.push_back(index);
+				entities[index]->UpdateAttributes();
+				continue;
+			}
+			if (GH.isHero(CurrentObj)) {
+				if (entities[index]->PCObject != CurrentObj)
+					entities[index]->Init(CurrentObj, EntityType::Hero);
+				heroesIndex.push_back(index);
+				entities[index]->UpdateAttributes();
+				continue;
+			}
+			entities[index]->Delete();
 		}
-		if (GH.isMissile(CurrentObj)) {
-			missiles.insert(missiles.end(), CurrentObj);
-			continue;
-		}
-		if (GH.isTurret(CurrentObj)) {
-			turrets.insert(turrets.end(), CurrentObj);
-			continue;
-		}
-		if (GH.isHero(CurrentObj)) {
-			heroes.insert(heroes.end(), CurrentObj);
-			continue;
+		else {
+			entities[index]->Delete();
 		}
 	}
 }
+
+void EntitiesContainer::updateEL() {
+	EntityListStartAddress = ((DWORD*)ObjManager)[5];
+	EntityListEndAddress = ((DWORD*)ObjManager)[6];
+	MaxIndex = (EntityListEndAddress - EntityListStartAddress) / 4;
+}
+
+bool EntitiesContainer::isValidObject(DWORD obj) {
+	return *(DWORD*)obj && !(*(BYTE*)obj & 1);
+}
+
+/*CObject* EntitiesContainer::getNextObject(CObject* curObj) {
+	int nextIndex = curObj->Index + 1;
+	DWORD nextAddr;
+
+	if (nextIndex < MaxIndex) { //maxIndex escluso
+		nextAddr = EntityListStartAddress + nextIndex * 4;
+		
+		while (!isValidObject(nextAddr)) {
+			nextIndex++;
+			nextAddr += 4;
+
+			if (nextIndex >= MaxIndex)
+				break;
+		}
+	}
+	return NULL;
+}*/

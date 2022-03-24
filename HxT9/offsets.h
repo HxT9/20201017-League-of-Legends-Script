@@ -65,7 +65,7 @@
 
 #define oSpellBookActiveSpell 0x20 //ObjSpellBook + oObjCastingSpell //MissileObject being created
 #define oActiveSpellSpellInfoPtr 0x8 //Dopo questa si va a +0x38 su spelldata
-#define oActiveSpellCastTime 0x10 //ObjCastingSpell]+...
+#define oActiveSpellEndCastTime 0x10 //ObjCastingSpell]+...
 #define oActiveSpellStartPos 0x84
 #define oActiveSpellEndPos 0x90
 #define oActiveSpellTargetArray 0xc0 //Si entra nell'array e trovi la lista (di solito l'ultimo è il target)

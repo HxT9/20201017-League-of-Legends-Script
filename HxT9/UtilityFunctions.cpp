@@ -3,12 +3,39 @@
 #include <vector>
 #include <cstdarg>
 #include <fstream>
+#include <iostream>
 
 #define M_PI           3.14159265358979323846
 
+std::vector<std::string> missilesExported;
+std::string missileFile = "E:\\Downloads\\Cheats\\Lol\\Missiles.txt";
+std::vector<std::string> activeSpellsExported;
+std::string activeSpellFile = "E:\\Downloads\\Cheats\\Lol\\ActiveSpells.txt";
+
+void UtilityFunctions::init()
+{
+	std::fstream f;
+	std::string l;
+	f.open(missileFile);
+	if (f.is_open()) {
+		while (std::getline(f, l)) { //read data from file object and put it into string.
+			missilesExported.push_back(l);
+		}
+		f.close();
+	}
+
+	f.open(activeSpellFile);
+	if (f.is_open()) {
+		while (std::getline(f, l)) { //read data from file object and put it into string.
+			activeSpellsExported.push_back(l);
+		}
+		f.close();
+	}
+}
+
 void UtilityFunctions::drawBoundingBox() {
-	if (myHero.LPObject) {
-		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.boundingRadius, 10, 0xff00ff00, 2);
+	if (myHero.PCObject) {
+		drawer.drawCircumference(myHero.Pos, myHero.BoundingRadius, 10, 0xff00ff00, 2);
 	}
 }
 
@@ -16,205 +43,108 @@ float UtilityFunctions::calcEffectiveDamage(float damage, float armor) { //Anche
 	return damage * (100 / (100 + armor));
 }
 
-bool UtilityFunctions::isValidTarget(CObject* target) {
-	return target && target->IsVisible() && target->isTargetable() && GH.isAlive(target);
+bool UtilityFunctions::isValidTarget(EntityBase* target) {
+	return target->Visible && target->Targetable && GH.isAlive(target->PCObject);
 }
 
 void UtilityFunctions::drawEntities() {
 	float r;
-	CObject* temp;
-	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[i];
+	EntityBase* temp;
+
+	for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
 		if (isValidTarget(temp)) {
-			if (temp->GetTeam() != myHero.LPObject->GetTeam()) {
-				r = temp->GetAttackRange() + temp->GetBoundingRadius();
+			if (temp->Team != myHero.Team && temp->Pos.isDrawable()) {
+				r = temp->AttackRange + temp->BoundingRadius;
 
-				drawer.drawCircumference(temp->GetPos(), r, 30, 0x7fff0000, 2);
+				drawer.drawCircumference(temp->Pos, r, 30, 0x7fff0000, 2);
 
-				if (temp->GetPos().distTo(myHero.LPObject->GetPos()) > 800 && temp->GetPos().distTo(myHero.LPObject->GetPos()) < 2500)
-					drawer.drawLine(temp->GetPos(), myHero.LPObject->GetPos(), 0xffff0000, 2);
+				if (temp->Pos.distTo(myHero.Pos) > 800 && temp->Pos.distTo(myHero.Pos) < 2500)
+					drawer.drawLine(temp->Pos, myHero.Pos, 0xffff0000, 2);
 
-				if (temp == myHero.selectedTarget) {
-					drawer.drawCircumference(temp->GetPos(), 75, 50, 0x7fffff00, 4);
+				if (temp->Index == myHero.selectedTargetIndex) {
+					drawer.drawCircumference(temp->Pos, 75, 50, 0x7fffff00, 4);
 				}
 			}
 		}
 	}
-	for (int i = 0; i < entities.turrets.size(); i++) {
-		temp = entities.turrets[i];
-		if (temp->GetTeam() != myHero.LPObject->GetTeam() && temp->IsVisible() && temp->GetHealth() > 1) {
-			drawer.drawCircumference(temp->GetPos(), 850, 30, 0xffff0000, 2);
+
+	for (int i = 0; i < entitiesContainer.turretsIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.turretsIndex[i]];
+		if (temp->Team != myHero.Team && temp->Visible && temp->Health > 1 && temp->Pos.isDrawable()) {
+			drawer.drawCircumference(temp->Pos, 850, 30, 0xffff0000, 2);
 		}
 	}
 
-	if(myHero.LPObject)
-		drawer.drawCircumference(myHero.LPObject->GetPos(), myHero.LPObject->GetAttackRange() + myHero.boundingRadius, 50, 0x7f00ff00, 2);
+	drawer.drawCircumference(myHero.Pos, myHero.AttackRange + myHero.BoundingRadius, 50, 0x7f00ff00, 2);
 }
 
 void UtilityFunctions::drawLastHittableMinions() {
-	float myDamage = myHero.LPObject->GetTotalAttackDamage();
+	float myDamage = myHero.GetTotalAttackDamage();
 	float effDamage;
-	if (strcmp(myHero.championName, "kalista") == 0) {
+	if (myHero.ChampionName == "kalista") {
 		myDamage *= 0.9;
 	}
 
 	float dmgIncoming, AATimeNeeded;
-	CObject *temp, *missile;
-	for (int i = 0; i < entities.minions.size(); i++) {
-		temp = entities.minions[i];
+	EntityBase *temp, *missile;
+	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
 		if (!isValidTarget(temp)
-			|| temp->GetTeam() == myHero.LPObject->GetTeam()
-			|| temp->GetPos().distTo(myHero.LPObject->GetPos()) > 1500
-			|| temp->GetMaxHealth() < 10)
+			|| temp->Team == myHero.Team
+			|| temp->Pos.distTo(myHero.Pos) > 1500
+			|| temp->MaxHealth < 10)
 			continue;
 
 
-		effDamage = calcEffectiveDamage(myDamage, temp->GetArmor());
-		AATimeNeeded = (temp->GetPos().distTo(myHero.LPObject->GetPos()) / myHero.AAMissileSpeed ? myHero.AAMissileSpeed : 2000) + myHero.AACastTime;
+		effDamage = calcEffectiveDamage(myDamage, temp->Armor);
+		
+		AATimeNeeded = (temp->Pos.distTo(myHero.Pos) / myHero.AAMissileSpeed ? myHero.AAMissileSpeed : 2000) + myHero.AACastTime;
 		dmgIncoming = 0;
-		for (int j = 0; j < entities.missiles.size(); j++) {
-			missile = entities.missiles[j];
+		for (int j = 0; j < entitiesContainer.missilesIndex.size(); j++) {
+			missile = entitiesContainer.entities[entitiesContainer.missilesIndex[j]];
 			if (!missile) continue;
-			if (missile->GetMissileTargetIndex() != temp->GetIndex()) continue;
+			if (missile->TargetIndex != temp->Index) continue;
 
-			if (missile->GetPos().distTo(temp->GetPos()) / 300 < AATimeNeeded) {
-				dmgIncoming += entities.GetCObjectFromIndex(missile->GetMissileSourceIndex()) ? entities.GetCObjectFromIndex(missile->GetMissileSourceIndex())->GetTotalAttackDamage() : 0;
+			if (missile->Pos.distTo(temp->Pos) / 300 < AATimeNeeded) {
+				dmgIncoming += entitiesContainer.GetEntityFromIndex(missile->SourceIndex)->GetTotalAttackDamage();
 			}
 		}
 
-		if (effDamage > temp->GetHealth()) {
-			drawer.drawCircumference(temp->GetPos(), 50, 10, 0x7f00ff00, 2);
+		if (effDamage > temp->Health) {
+			drawer.drawCircumference(temp->Pos, 50, 10, 0x7f00ff00, 2);
 		}
-		else if (effDamage > temp->GetHealth() - (dmgIncoming)) {
-			drawer.drawCircumference(temp->GetPos(), 50, 10, 0x7fffff00, 2);
+		else if (effDamage > temp->Health - (dmgIncoming)) {
+			drawer.drawCircumference(temp->Pos, 50, 10, 0x7fffff00, 2);
 		}
 		else {
-			drawer.drawCircumference(temp->GetPos(), 50, 10, 0x7fff0000, 2);
+			drawer.drawCircumference(temp->Pos, 50, 10, 0x7fff0000, 2);
 		}
 	}
 }
 
 void UtilityFunctions::drawDebug() {
 	Vector3 pos;
+	EntityBase* temp;
+	for (int i = 0; i < entitiesContainer.MaxIndex; i++) {
+		temp = entitiesContainer.entities[i];
+		if (temp->PCObject) {
+			GH.worldToScreen(&temp->Pos, &pos);
+			drawer.drawTextMedium(pos, utils.stringf("%p", temp->PCObject).c_str(), 0xffff0000);
 
-	for (int i = 0; i < 5; i++) {
-		std::vector<CObject*> ent = entities.getEntities(i);
-		for (int j = 0; j < ent.size(); j++) {
-			if (ent[j]) {
-				GH.worldToScreen(&ent[j]->GetPos(), &pos);
-				drawer.drawTextSmall(pos, utils.stringf("%p", ent[j]).c_str(), 0xffff0000);
-
-				pos.y += 30;
-				drawer.drawTextSmall(pos, utils.stringf("%i", ent[j]->GetIndex()).c_str(), 0xffff0000);
-			}
+			pos.y += 50;
+			drawer.drawTextMedium(pos, utils.stringf("%i", temp->Index).c_str(), 0xffff0000);
 		}
 	}
 
-	Path p = myHero.LPObject->GetPath();
+	Path p = myHero.PCObject->GetPath();
 	for (int i = 0; i < p.nPathPoints; i++) {
 		drawer.drawCircumference(p.pathPoints[i], 30, 10, 0xffffff00, 2);
 
 		if (i > 0)
 			drawer.drawLine(p.pathPoints[i], p.pathPoints[i - 1], 0xffffffff, 2);
 	}
-
-	/*Path myPath;
-	for (int j = 0; j < entities.iHeroes; j++) {
-		if (entities.heroes[j] != NULL && entities.heroes[j]->IsVisible() && GH.isAlive(entities.heroes[j])) {
-			myPath = entities.heroes[j]->GetPath();
-			for (int i = 0; i < myPath.nPathPoints; i++) {
-				drawer.drawCircumference(myPath.pathPoints[i], 50, 15, 0xffffff00, 3);
-			}
-		}
-	}*/
 }
-
-__declspec(naked) void* __cdecl UtilityFunctions::get_peb()
-{
-	__asm {
-		mov eax, fs:0x2C //I dont remember if is 0x18, 0x2c or 0x30
-		mov eax, [eax + 0x30]
-		retn
-	}
-}
-
-void UtilityFunctions::drawPredictedPos() {
-	CObject* temp;
-	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[i];
-		if (isValidTarget(temp)) {
-			drawer.drawCircumference(getPredictedPos(temp, 1, 0, myHero.LPObject), 40, 15, 0xff00ffff, 2);
-		}
-	}
-}
-
-/*CObject* UtilityFunctions::getMissileSourceEntity(CObject* missile) {
-	short id = missile->GetMissileSourceIndex();
-
-	
-
-	for (int i = 0; i < entities.minions.size(); i++)
-		if (entities.minions[i]->GetIndex() == id)
-			return entities.minions[i];
-
-	for (int i = 0; i < entities.heroes.size(); i++)
-		if (entities.heroes[i]->GetIndex() == id)
-			return entities.heroes[i];
-
-	for (int i = 0; i < entities.turrets.size(); i++)
-		if (entities.turrets[i]->GetIndex() == id)
-			return entities.turrets[i];
-
-	return NULL;
-}*/
-
-/*
-bool isColliding(Vector3 start, Vector3 end, float SpellWidth, Vector3 center, float radius) {
-	Equation line = start.lineEquation(end);
-	float dist = abs(line.a * center.x + line.b * center.z + line.c) / sqrt(line.a * line.a + line.b * line.b);
-	if (dist <= radius + SpellWidth / 2) {
-		return true;
-	}
-	else {
-		//Controllo se è dentro il rettangolo (Raddrizzo il rettangolo sul punto start - width/2)
-		
-		//3---end----2
-		//|		   |
-		//|		   |
-		//0---start--1
-		//Calcolo dei vertici
-		Vector3 vertici[4];
-		vertici[0] = start.setRelativeMagnitude(start, SpellWidth / 2);
-		vertici[1] = vertici[0].rotatePoint(start, M_PI);
-		vertici[2] = end.setRelativeMagnitude(end, SpellWidth / 2).rotatePoint(end, M_PI / -2);
-		vertici[3] = vertici[2].rotatePoint(end, M_PI);
-
-		float angle = atan2f(start.z - end.z, start.x - end.x);
-		angle = (angle > M_PI / 2 ? -1 : 1) * abs(angle - M_PI / 2);
-
-		//Rotazione
-		vertici[1] = vertici[1].rotatePoint(vertici[0], angle);
-		vertici[2] = vertici[2].rotatePoint(vertici[0], angle);
-		vertici[3] = vertici[3].rotatePoint(vertici[0], angle);
-		center = center.rotatePoint(vertici[0], angle);
-
-		//Calcolo gli estremi assoluti del rettangolo
-		float b = vertici[0].z, t = vertici[0].z, l = vertici[0].x, r = vertici[0].x;
-		for (int i = 0; i < 4; i++) {
-			if (vertici[i].z < b) b = vertici[i].z;
-			if (vertici[i].z > t) t = vertici[i].z;
-			if (vertici[i].x < l) l = vertici[i].x;
-			if (vertici[i].x > r) r = vertici[i].x;
-		}
-		
-		//Vedo se il cerchio è dentro
-		if (center.x >= l && center.x <= r && center.z >= b && center.z <= t)
-			return true;
-
-		return false;
-	}
-}
-*/
 
 bool UtilityFunctions::isCollision(Vector3 start, Vector3 end, float SpellWidth, Vector3 center, float radius)
 {
@@ -242,14 +172,14 @@ bool UtilityFunctions::isCollision(Vector3 start, Vector3 end, float SpellWidth,
 
 int UtilityFunctions::minionsColliding(Vector3 start, Vector3 end, float width) {
 	float length = start.distTo(end);
-	CObject* temp;
+	EntityBase* temp;
 	int collision = 0;
-	for (int i = 0; i < entities.minions.size(); i++) {
-		temp = entities.minions[i];
-		if (!isValidTarget(temp) || temp->GetTeam() == myHero.LPObject->GetTeam() || start.distTo(temp->GetPos()) > start.distTo(end))
+	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
+		if (!isValidTarget(temp) || temp->Team == myHero.Team || start.distTo(temp->Pos) > start.distTo(end))
 			continue;
 
-		if (isCollision(start, end, width, temp->GetPos(), temp->GetBoundingRadius()))
+		if (isCollision(start, end, width, temp->Pos, temp->BoundingRadius))
 			collision++;
 	}
 	return collision;
@@ -258,30 +188,30 @@ int UtilityFunctions::minionsColliding(Vector3 start, Vector3 end, float width) 
 int UtilityFunctions::heroesColliding(Vector3 start, Vector3 end, float width) {
 	float length = start.distTo(end);
 	int collision = 0;
-	CObject* temp;
-	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[i];
-		if (!isValidTarget(temp) || temp->GetTeam() == myHero.LPObject->GetTeam() || start.distTo(temp->GetPos()) > start.distTo(end))
+	EntityBase* temp;
+	for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
+		if (!isValidTarget(temp) || temp->Team == myHero.Team || start.distTo(temp->Pos) > start.distTo(end))
 			continue;
 
-		if (isCollision(start, end, width, temp->GetPos(), temp->GetBoundingRadius()))
+		if (isCollision(start, end, width, temp->Pos, temp->BoundingRadius))
 			collision++;
 	}
 	return collision;
 }
 
-Vector3 UtilityFunctions::getPredictedPos(CObject* hero, float seconds, float width, CObject* sender) {
+Vector3 UtilityFunctions::getPredictedPos(EntityBase* hero, float seconds, float width) {
 	int firstPoint = 0;
-	float distance = hero->GetMovementSpeed() * seconds;
-	Path path = hero->GetPath();
-	Vector3 curPos = hero->GetPos();
+	float distance = hero->MovementSpeed * seconds;
+	Path path = hero->PCObject->GetPath();
+	Vector3 curPos = hero->Pos;
 	Vector3 result;
 
 	if (!seconds || !path.nPathPoints) {
-		return hero->GetPos();
+		return hero->Pos;
 	}
 
-	firstPoint = hero->getAIMgrPassedWaypoints() - 1;
+	firstPoint = hero->PCObject->getAIMgrPassedWaypoints() - 1;
 	
 	if (firstPoint < 0 || firstPoint >= path.nPathPoints) return curPos;
 
@@ -307,27 +237,27 @@ void UtilityFunctions::ChampionCustomDraw() {
 	float dmg;
 	int spellLvl;
 	Vector3 screenPos;
-	CObject* temp;
-	if (strcmp(myHero.championName, "Xerath") == 0) {
-		spellLvl = myHero.LPObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
-		dmg = (2 + spellLvl) * (150 + 50 * spellLvl + myHero.LPObject->GetAP() * 0.45);
+	EntityBase* temp;
+	if (myHero.ChampionName == "Xerath") {
+		spellLvl = myHero.PCObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
+		dmg = (2 + spellLvl) * (150 + 50 * spellLvl + myHero.AbilityPower * 0.45);
 
-		for (int i = 0; i < entities.heroes.size(); i++) {
-			temp = entities.heroes[i];
-			if (isValidTarget(temp) && temp->IsEnemyTo(myHero.LPObject) && temp->GetHealth() < calcEffectiveDamage(dmg, temp->GetMagicResist())) {
-				GH.worldToScreen(&temp->GetPos(), &screenPos);
+		for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
+			temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
+			if (isValidTarget(temp) && temp->IsEnemyTo(&myHero) && temp->Health < calcEffectiveDamage(dmg, temp->MagicResist)) {
+				GH.worldToScreen(&temp->Pos, &screenPos);
 				drawer.drawTextSmall(screenPos, "!!! KILLABLE WITH ULT !!!", 0xffffff00);
 			}
 		}
 	}
-	else if (strcmp(myHero.championName, "Kalista") == 0) {
-		for (int i = 0; i < entities.heroes.size(); i++) {
-			temp = entities.heroes[i];
-			dmg = championScript.getKalistaSpearDamage(entities.heroes[i]);
+	else if (myHero.ChampionName == "Kalista") {
+		for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
+			temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
+			dmg = championScript.getKalistaSpearDamage(temp);
 			if (dmg > 0) {
-				if (isValidTarget(temp) && temp->IsEnemyTo(myHero.LPObject) && temp->GetHealth() > 0) {
-					GH.worldToScreen(&temp->GetPos(), &screenPos);
-					drawer.drawTextMedium(screenPos, stringf("%d%", (int)(dmg * 100 / temp->GetHealth())).c_str(), 0xffffff00);
+				if (isValidTarget(temp) && temp->IsEnemyTo(&myHero) && temp->Health > 0) {
+					GH.worldToScreen(&temp->Pos, &screenPos);
+					drawer.drawTextMedium(screenPos, stringf("%d%", (int)(dmg * 100 / temp->Health)).c_str(), 0xffffff00);
 				}
 			}
 		}
@@ -335,78 +265,41 @@ void UtilityFunctions::ChampionCustomDraw() {
 }
 
 void UtilityFunctions::drawSpellCD() {
-	CObject* temp;
+	EntityBase* temp;
 	Vector3 screenPos;
-	float cdQ, cdW, cdE, cdR, cdS1, cdS2;
 	std::string text;
-	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[i];
-		if (temp != myHero.LPObject && temp->IsVisible() && GH.isAlive(temp) && temp->GetSpellBook()) {
-			GH.worldToScreen(&temp->GetPos(), &screenPos);
+
+	for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
+		if (temp->Index != myHero.Index && temp->Visible && GH.isAlive(temp->PCObject)) {
+			GH.worldToScreen(&temp->Pos, &screenPos);
 			screenPos.y -= 100;
 
 			text = "";
 
-			if (temp->GetSpellBook()->GetSpellSlot(Spells::Q) &&
-				temp->GetSpellBook()->GetSpellSlot(Spells::Q)->GetSpellLvl() > 0) {
-				cdQ = temp->GetSpellBook()->GetSpellSlot(Spells::Q)->GetSpellReady() - gameTime;
-				if (cdQ < 0) cdQ = 0;
-			}
-			else
-				cdQ = -1;
-
-			if (temp->GetSpellBook()->GetSpellSlot(Spells::W) &&
-				temp->GetSpellBook()->GetSpellSlot(Spells::W)->GetSpellLvl() > 0) {
-				cdW = temp->GetSpellBook()->GetSpellSlot(Spells::W)->GetSpellReady() - gameTime;
-				if (cdW < 0) cdW = 0;
-			}
-			else
-				cdW = -1;
-
-			if (temp->GetSpellBook()->GetSpellSlot(Spells::E) &&
-				temp->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellLvl() > 0) {
-				cdE = temp->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellReady() - gameTime;
-				if (cdE < 0) cdE = 0;
-			}
-			else
-				cdE = -1;
-
-			if (temp->GetSpellBook()->GetSpellSlot(Spells::R) &&
-				temp->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl() > 0) {
-				cdR = temp->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellReady() - gameTime;
-				if (cdR < 0) cdR = 0;
-			}
-			else
-				cdR = -1;
-
-			cdS1 = temp->GetSpellBook()->GetSpellSlot(Spells::Summoner1)->GetSpellReady() - gameTime;
-			if (cdS1 < 0) cdS1 = 0;
-			cdS2 = temp->GetSpellBook()->GetSpellSlot(Spells::Summoner2)->GetSpellReady() - gameTime;
-			if (cdS2 < 0) cdS2 = 0;
-
-			text = stringf("[%d]", (int)ceilf(cdQ));
+			text = stringf("[%d]", (int)ceilf(temp->SpellQCD));
 			screenPos.x += 25;
-			drawer.drawTextMedium(screenPos, text.c_str(), cdQ == 0 ? 0xff00ff00 : 0xffff0000);
+			drawer.drawTextMedium(screenPos, text.c_str(), !temp->SpellQCD ? 0xff00ff00 : 0xffff0000);
 
-			text = stringf("[%d]", (int)ceilf(cdW));
+			text = stringf("[%d]", (int)ceilf(temp->SpellWCD));
 			screenPos.x += 35;
-			drawer.drawTextMedium(screenPos, text.c_str(), cdW == 0 ? 0xff00ff00 : 0xffff0000);
+			drawer.drawTextMedium(screenPos, text.c_str(), !temp->SpellWCD ? 0xff00ff00 : 0xffff0000);
 
-			text = stringf("[%d]", (int)ceilf(cdE));
+			text = stringf("[%d]", (int)ceilf(temp->SpellECD));
 			screenPos.x += 35;
-			drawer.drawTextMedium(screenPos, text.c_str(), cdE == 0 ? 0xff00ff00 : 0xffff0000);
+			drawer.drawTextMedium(screenPos, text.c_str(), !temp->SpellECD ? 0xff00ff00 : 0xffff0000);
 
-			text = stringf("[%d]", (int)ceilf(cdR));
+			text = stringf("[%d]", (int)ceilf(temp->SpellRCD));
 			screenPos.x += 35;
-			drawer.drawTextMedium(screenPos, text.c_str(), cdR == 0 ? 0xff00ff00 : 0xffff0000);
+			drawer.drawTextMedium(screenPos, text.c_str(), !temp->SpellRCD ? 0xff00ff00 : 0xffff0000);
 
-			text = stringf("[%d]", (int)ceilf(cdS1));
+			text = stringf("[%d]", (int)ceilf(temp->SpellDCD));
 			screenPos.x += 35;
-			drawer.drawTextMedium(screenPos, text.c_str(), cdS1 == 0 ? 0xff00ffff : 0xffffff00);
+			drawer.drawTextMedium(screenPos, text.c_str(), !temp->SpellDCD ? 0xff00ffff : 0xffffff00);
 
-			text = stringf("[%d]", (int)ceilf(cdS2));
+			text = stringf("[%d]", (int)ceilf(temp->SpellFCD));
 			screenPos.x += 35;
-			drawer.drawTextMedium(screenPos, text.c_str(), cdS2 == 0 ? 0xff00ffff : 0xffffff00);
+			drawer.drawTextMedium(screenPos, text.c_str(), !temp->SpellFCD ? 0xff00ffff : 0xffffff00);
 		}
 	}
 }
@@ -450,6 +343,15 @@ std::string UtilityFunctions::stringf(const char* fmt, ...)
 	return buf;
 }
 
+void UtilityFunctions::MB(const char* fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	std::string buf = vformat(fmt, ap);
+	va_end(ap);
+
+	MessageBoxA(NULL, buf.c_str(), "DEBUG", MB_OK);
+}
+
 void drawRectangle(Vector3 vStart, Vector3 vEnd, float radius) {
 	drawer.drawRectangle(vStart, vEnd, radius, 0xffffffff, 2);
 }
@@ -463,18 +365,18 @@ void drawConic(Vector3 vCenter, Vector3 vEnd, int angle) {
 }
 
 void UtilityFunctions::drawActiveSpells() {
-	CObject* temp;
-	for (int i = 0; i < entities.heroes.size(); i++) {
-		temp = entities.heroes[i];
-		if (temp != NULL && temp->GetActiveSpell() != NULL && 
-			temp->GetActiveSpell()->GetTargetIndex() == NULL
+	EntityBase* temp;
+	for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
+		if (temp != NULL && temp->ActiveSpell && 
+			temp->ActiveSpell->GetTargetIndex() == NULL
 #ifndef _DEBUG
-			&& temp->GetTeam() != myHero.LPObject->GetTeam()
+			&& temp->Team != myHero.Team
 #endif
 			) {
-			char* spellName = temp->GetActiveSpell()->GetSpellInfo()->GetSpellData()->GetMissileName();
-			Vector3 vEnd = temp->GetActiveSpell()->GetEndPos();
-			Vector3 vStart = temp->GetActiveSpell()->GetStartPos();
+			char* spellName = temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetMissileName();
+			Vector3 vEnd = temp->ActiveSpell->GetEndPos();
+			Vector3 vStart = temp->ActiveSpell->GetStartPos();
 				
 			//Aatrox
 			if (strcmp(spellName, "AatroxQ") == 0) {
@@ -1753,31 +1655,34 @@ void UtilityFunctions::drawActiveSpells() {
 				return;
 			}
 
-			/*std::fstream ActiveSpells;
-			ActiveSpells.open("E:\\Downloads\\Cheats\\Lol\\ActiveSpells.txt", std::ofstream::app);
-			ActiveSpells << spellName << std::endl;
-			ActiveSpells.close();*/
+			if (std::find(activeSpellsExported.begin(), activeSpellsExported.end(), spellName) == activeSpellsExported.end()) {
+				std::fstream ActiveSpells;
+				ActiveSpells.open(activeSpellFile, std::ofstream::app);
+				ActiveSpells << spellName << std::endl;
+				ActiveSpells.close();
+
+				activeSpellsExported.push_back(spellName);
+			}
 		}
 	}
 }
 
 void UtilityFunctions::drawMissiles() {
-	CObject* temp;
-	for (int i = 0; i < entities.missiles.size(); i++) {
-		temp = entities.missiles[i];
+	EntityBase* temp;
+	for (int i = 0; i < entitiesContainer.missilesIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.missilesIndex[i]];
 		if (temp != NULL &&
-				entities.GetCObjectFromIndex(temp->GetMissileSourceIndex()) != NULL &&
-				GH.isHero(entities.GetCObjectFromIndex(temp->GetMissileSourceIndex())) &&
-				temp->GetMissileTargetIndex() == NULL
+				entitiesContainer.GetEntityFromIndex(temp->SourceIndex)->Type == EntityType::Hero &&
+				temp->TargetIndex == NULL
 #ifndef _DEBUG
-			&& entities.GetCObjectFromIndex(temp->GetMissileSourceIndex())->GetTeam() != myHero.LPObject->GetTeam()
+			&& entitiesContainer.GetEntityFromIndex(temp->SourceIndex)->Team != myHero.Team
 #endif
 			) {
 
-			char* spellName = temp->GetMissileSpellInfo()->GetSpellData()->GetMissileName();
-			Vector3 vStart = temp->GetMissileStartPos();
-			Vector3 vPos = temp->GetPos();
-			Vector3 vEnd = temp->GetMissileEndPos();
+			char* spellName = temp->SpellInfo->GetSpellData()->GetMissileName();
+			Vector3 vStart = temp->StartPos;
+			Vector3 vPos = temp->Pos;
+			Vector3 vEnd = temp->EndPos;
 			vPos.y = vStart.y = vEnd.y;
 
 			//Ahri
@@ -2428,10 +2333,14 @@ void UtilityFunctions::drawMissiles() {
 				return;
 			}
 
-			/*std::fstream ActiveSpells;
-			ActiveSpells.open("E:\\Downloads\\Cheats\\Lol\\Missiles.txt", std::ofstream::app);
-			ActiveSpells << spellName << std::endl;
-			ActiveSpells.close();*/
+			if (std::find(missilesExported.begin(), missilesExported.end(), spellName) == missilesExported.end()) {
+				std::fstream ActiveSpells;
+				ActiveSpells.open(missileFile, std::ofstream::app);
+				ActiveSpells << spellName << std::endl;
+				ActiveSpells.close();
+
+				missilesExported.push_back(spellName);
+			}
 		}
 	}
 }
@@ -2446,6 +2355,13 @@ void UtilityFunctions::dbgStream(std::string msg) {
 void UtilityFunctions::dbgStreamChrono(std::string msg) {
 	std::fstream DebugStream;
 	DebugStream.open("E:\\Downloads\\Cheats\\Lol\\Chrono.txt", std::ofstream::app);
+	DebugStream << msg << std::endl;
+	DebugStream.close();
+}
+
+void UtilityFunctions::dbgStreamFile(std::string fileName, std::string msg) {
+	std::fstream DebugStream;
+	DebugStream.open(("E:\\Downloads\\Cheats\\Lol\\" + fileName).c_str(), std::ofstream::app);
 	DebugStream << msg << std::endl;
 	DebugStream.close();
 }

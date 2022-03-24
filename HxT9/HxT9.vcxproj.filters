@@ -252,6 +252,9 @@
     <ClInclude Include="Constants.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
+    <ClInclude Include="EntityBase.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="d3dx9math.inl">
@@ -375,6 +378,9 @@
     </ClCompile>
     <ClCompile Include="MinHook\trampoline.c">
       <Filter>MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityBase.cpp">
+      <Filter>Source Files\Global</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

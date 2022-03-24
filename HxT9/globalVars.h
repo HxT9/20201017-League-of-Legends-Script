@@ -20,7 +20,7 @@
 extern GameFunctions GH;
 extern ScriptManager ticker;
 extern Drawer drawer;
-extern EntitiesContainer entities;
+extern EntitiesContainer entitiesContainer;
 extern IMGUI_Manager gui;
 extern UtilityFunctions utils;
 extern OrbWalker orbWalker;
