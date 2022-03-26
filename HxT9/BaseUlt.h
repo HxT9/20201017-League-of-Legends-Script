@@ -4,6 +4,7 @@
 class BaseUlt
 {
 public:
+	float lastBaseUlt;
 	float speed;
 	float width;
 	float castTime;

@@ -7,6 +7,7 @@ public:
 
 	SpellInfo* GetSpellInfo();
 	float GetCastingStartTime();
+	float GetCastingEndTime();
 	Vector3 GetStartPos();
 	Vector3 GetEndPos();
 	short GetTargetIndex();

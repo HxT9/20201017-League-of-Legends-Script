@@ -10,6 +10,10 @@ float ActiveSpell::GetCastingStartTime() {
 	return *(float*)((DWORD)this + oActiveSpellCastTime);
 }
 
+float ActiveSpell::GetCastingEndTime() {
+	return *(float*)((DWORD)this + oActiveSpellEndCastTime);	
+}
+
 Vector3 ActiveSpell::GetStartPos() {
 	return *(Vector3*)((DWORD)this + oActiveSpellStartPos);
 }
@@ -41,5 +45,5 @@ float ActiveSpell::GetChannelEndTime() {
 }
 
 float ActiveSpell::GetChannelingTime() {
-	return GetChannelEndTime() - GetCastingStartTime();
+	return GetChannelEndTime() - GetChannelStartTime();
 }

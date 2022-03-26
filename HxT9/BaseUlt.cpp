@@ -30,6 +30,8 @@ void BaseUlt::init() {
 		spawnPoint = redSpawnPosition;
 	else
 		spawnPoint = blueSpawnPosition;
+
+	lastBaseUlt = 0;
 }
 
 void BaseUlt::tick()
@@ -73,7 +75,7 @@ void BaseUlt::tick()
 	}
 
 	if (targetIndex != 0) {
-		if (abs(calculatedBaseUlt - gameTime - time) < 0.2) {
+		if (calculatedBaseUlt - gameTime - time < 0 && gameTime > lastBaseUlt + 5) {
 			//gui.print(utils.stringf("BASEULT CAST"));
 			if (myHero.ChampionName == "Ezreal") {
 				myHero.nextActionTime = 0;
@@ -87,6 +89,7 @@ void BaseUlt::tick()
 					myHero.castBaseUlt();
 				}
 			}
+			lastBaseUlt = gameTime;
 		}
 	}
 
@@ -127,7 +130,7 @@ void BaseUlt::tick()
 
 				//Controllo sulla vita e sul recall
 				if (dmg > temp->Health) {
-					calculatedBaseUlt = temp->ActiveSpell->GetCastingStartTime() + temp->ActiveSpell->GetChannelingTime();
+					calculatedBaseUlt = temp->ActiveSpell->GetChannelEndTime();
 					targetIndex = temp->Index;
 					//gui.print(utils.stringf("BASEULT START GameTime: %f, CalculatedTime: %f", gameTime, calculatedBaseUlt));
 				}

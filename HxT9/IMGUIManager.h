@@ -4,10 +4,11 @@
 #include <string>
 #include <vector>
 
-class IMGUI_Manager
+class IMGUIManager
 {
 public:
-	int MaxConsoleLines = 35;
+	bool Show = false;
+	int MaxConsoleLines = 1000;
 	std::vector<std::string> ConsoleLines;
 
 	void init(LPDIRECT3DDEVICE9 Device);

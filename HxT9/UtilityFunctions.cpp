@@ -33,9 +33,12 @@ void UtilityFunctions::init()
 	}
 }
 
-void UtilityFunctions::drawBoundingBox() {
+void UtilityFunctions::drawMyHero() {
 	if (myHero.PCObject) {
-		drawer.drawCircumference(myHero.Pos, myHero.BoundingRadius, 10, 0xff00ff00, 2);
+		drawer.drawCircumference(myHero.Pos, myHero.BoundingRadius, 15, 0xff00ff00, 2);
+
+		if (myHero.useSpell)
+			drawer.drawTextSmall({ 100,200, 0 }, "Using spell", 0xff00ff00);
 	}
 }
 

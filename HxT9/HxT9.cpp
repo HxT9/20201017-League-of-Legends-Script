@@ -1,18 +1,8 @@
+#include "HxT9.h"
 #include <Windows.h>
-
 #include "globalVars.h"
-#include "Detour.h"
-#include "utilities.h"
-#include "functionDefinitions.h"
-#include ".\libs\MinHook.h"
-#include <iostream>
-#include <fstream>
-
+#include "HookManager.h"
 #pragma comment(lib, "nod3dx9.lib")
-
-HRESULT WINAPI myPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT*, CONST RECT*, HWND, CONST RGNDATA*);
-
-PVOID pTarget;
 
 DWORD FindD3D9VTable(DWORD Len)
 {
@@ -36,12 +26,8 @@ DWORD GetD3D9VTableFunction(int VTableIndex)
     return VTable[VTableIndex];
 }
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
-    HMODULE d3dll;
-    DWORD adr;
-    PDWORD VTable;
-
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
@@ -50,50 +36,20 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         baseAddress = (DWORD)GetModuleHandle(NULL);
 
         do {
-            d3dll = GetModuleHandle(L"d3d9.dll");
             Sleep(10);
-        } while (!d3dll);
+        } while (!GetModuleHandle(L"d3d9.dll"));
 
-        adr = findPattern("d3d9.dll", "C7 06 ? ? ? ? 89 86 ? ? ? ? 89 86") + 2;
-
-        if (adr == NULL) {
-            MessageBoxA(NULL, "d3d9 not found", "Error", MB_OK);
-            return FALSE;
-        }
-
-        memcpy(&VTable, (PVOID)adr, 4);
-
-        //originalPresent = (Prototype_Present)DetourFunction((PBYTE)VTable[17], (PBYTE)myPresent, 5);
-        pTarget = (PVOID)VTable[17];
-
-        MH_Initialize();
-        MH_CreateHook(pTarget, &myPresent, (LPVOID*)&originalPresent);
-        MH_EnableHook(pTarget);
+        hookManager.Init();
 
         break;
 
     case DLL_PROCESS_DETACH:
-        MH_DisableHook(pTarget);
+        gui.destroy();
+        hookManager.Dispose();
+
+        FreeLibraryAndExitThread(thisDll, 0);
+
         break;
     }
     return TRUE;
-}
-
-static void sendException() {
-    std::fstream DebugStream;
-    DebugStream.open("E:\\Downloads\\Cheats\\Lol\\Debug.txt", std::ofstream::app);
-    DebugStream << "Exception" << std::endl;
-    DebugStream.close();
-}
-
-HRESULT WINAPI myPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT* pSrcRect, CONST RECT* pDstRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion) {
-    __try{
-        ticker.tick(pDevice);
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER) {
-        gui.print("Exception");
-        sendException();
-    }
-    
-    return originalPresent(pDevice, pSrcRect, pDstRect, hDestWindow, pDirtyRegion);
 }

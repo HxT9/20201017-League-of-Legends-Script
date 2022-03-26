@@ -1,7 +1,6 @@
 #include "LocalPlayer.h"
 #include "globalVars.h"
 #include "offsets.h"
-#include "utilities.h"
 
 float LocalPlayer::Humanize() {
 	return ((rand() % 41) / 1000) - 0.02;

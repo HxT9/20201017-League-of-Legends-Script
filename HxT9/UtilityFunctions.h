@@ -7,7 +7,7 @@ class UtilityFunctions
 public:
 	void init();
 
-	void		drawBoundingBox();
+	void		drawMyHero();
 	float		calcEffectiveDamage(float damage, float armor);
 	bool		isValidTarget(EntityBase* target);
 	void		drawEntities();

@@ -38,21 +38,21 @@
     <ClInclude Include="d3dx9shape.h" />
     <ClInclude Include="d3dx9tex.h" />
     <ClInclude Include="d3dx9xof.h" />
-    <ClInclude Include="Detour.h" />
     <ClInclude Include="Drawer.h" />
     <ClInclude Include="EntitiesContainer.h" />
     <ClInclude Include="EntityBase.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="Equation.h" />
-    <ClInclude Include="functionDefinitions.h" />
     <ClInclude Include="GameFunctions.h" />
     <ClInclude Include="globalVars.h" />
+    <ClInclude Include="HookManager.h" />
+    <ClInclude Include="HxT9.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_dx9.h" />
     <ClInclude Include="imgui_impl_win32.h" />
     <ClInclude Include="imgui_internal.h" />
-    <ClInclude Include="IMGUI_Manager.h" />
+    <ClInclude Include="IMGUIManager.h" />
     <ClInclude Include="imstb_rectpack.h" />
     <ClInclude Include="imstb_textedit.h" />
     <ClInclude Include="imstb_truetype.h" />
@@ -80,7 +80,6 @@
     <ClInclude Include="SpellSlot.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="TargetSelector.h" />
-    <ClInclude Include="utilities.h" />
     <ClInclude Include="UtilityFunctions.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>
@@ -94,19 +93,19 @@
     <ClCompile Include="BuffManager.cpp" />
     <ClCompile Include="ChampionScript.cpp" />
     <ClCompile Include="CObject.cpp" />
-    <ClCompile Include="Detour.cpp" />
     <ClCompile Include="Drawer.cpp" />
     <ClCompile Include="EntitiesContainer.cpp" />
     <ClCompile Include="EntityBase.cpp" />
     <ClCompile Include="Equation.cpp" />
     <ClCompile Include="GameFunctions.cpp" />
     <ClCompile Include="globalVars.cpp" />
+    <ClCompile Include="HookManager.cpp" />
     <ClCompile Include="HxT9.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
     <ClCompile Include="imgui_impl_dx9.cpp" />
     <ClCompile Include="imgui_impl_win32.cpp" />
-    <ClCompile Include="IMGUI_Manager.cpp" />
+    <ClCompile Include="IMGUIManager.cpp" />
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="LocalPlayer.cpp" />
@@ -125,7 +124,6 @@
     <ClCompile Include="SpellInfo.cpp" />
     <ClCompile Include="SpellSlot.cpp" />
     <ClCompile Include="TargetSelector.cpp" />
-    <ClCompile Include="utilities.cpp" />
     <ClCompile Include="UtilityFunctions.cpp" />
     <ClCompile Include="Vector3.cpp" />
   </ItemGroup>

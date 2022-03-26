@@ -1,5 +1,4 @@
 #pragma once
-#include "functionDefinitions.h"
 #include "CObject.h"
 #include "SpellBook.h"
 #include <string>

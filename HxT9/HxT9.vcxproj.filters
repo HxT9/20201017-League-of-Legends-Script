@@ -120,9 +120,6 @@
     <ClInclude Include="imgui_impl_win32.h">
       <Filter>Header Files\IMGui</Filter>
     </ClInclude>
-    <ClInclude Include="Detour.h">
-      <Filter>Header Files\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="ActiveSpell.h">
       <Filter>Header Files\GameObjects\Spell</Filter>
     </ClInclude>
@@ -156,16 +153,13 @@
     <ClInclude Include="Equation.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="functionDefinitions.h">
-      <Filter>Header Files\GameObjects</Filter>
-    </ClInclude>
     <ClInclude Include="GameFunctions.h">
       <Filter>Header Files\GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="globalVars.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
-    <ClInclude Include="IMGUI_Manager.h">
+    <ClInclude Include="IMGUIManager.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
     <ClInclude Include="LocalPlayer.h">
@@ -197,9 +191,6 @@
     </ClInclude>
     <ClInclude Include="TargetSelector.h">
       <Filter>Header Files\Global</Filter>
-    </ClInclude>
-    <ClInclude Include="utilities.h">
-      <Filter>Header Files\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="UtilityFunctions.h">
       <Filter>Header Files\Global</Filter>
@@ -255,6 +246,12 @@
     <ClInclude Include="EntityBase.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
+    <ClInclude Include="HookManager.h">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="HxT9.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="d3dx9math.inl">
@@ -279,9 +276,6 @@
     </ClCompile>
     <ClCompile Include="HxT9.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Detour.cpp">
-      <Filter>Source Files\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="ActiveSpell.cpp">
       <Filter>Source Files\GameObjects\Spell</Filter>
@@ -316,7 +310,7 @@
     <ClCompile Include="globalVars.cpp">
       <Filter>Source Files\Global</Filter>
     </ClCompile>
-    <ClCompile Include="IMGUI_Manager.cpp">
+    <ClCompile Include="IMGUIManager.cpp">
       <Filter>Source Files\Global</Filter>
     </ClCompile>
     <ClCompile Include="LocalPlayer.cpp">
@@ -345,9 +339,6 @@
     </ClCompile>
     <ClCompile Include="TargetSelector.cpp">
       <Filter>Source Files\Global</Filter>
-    </ClCompile>
-    <ClCompile Include="utilities.cpp">
-      <Filter>Source Files\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="UtilityFunctions.cpp">
       <Filter>Source Files\Global</Filter>
@@ -380,6 +371,9 @@
       <Filter>MinHook</Filter>
     </ClCompile>
     <ClCompile Include="EntityBase.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="HookManager.cpp">
       <Filter>Source Files\Global</Filter>
     </ClCompile>
   </ItemGroup>
