@@ -103,9 +103,13 @@ HRESULT WINAPI HkD3DPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT* pSrcRect, CON
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
 LRESULT WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param) {
-	if (gui.Show) {
-		if (u_msg == WM_KEYUP && w_param == VK_SHIFT){
-			gui.Show = false;
+	if (gui.ShowLog) {
+		ImGui_ImplWin32_WndProcHandler(hwnd, u_msg, w_param, l_param);
+	}
+
+	if (gui.ShowMain) {
+		if (u_msg == WM_KEYUP && w_param == VK_END){
+			gui.ShowMain = false;
 			CallWindowProcA(hookManager.NewWndProc, hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
 		}
 
@@ -123,11 +127,18 @@ LRESULT WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param) 
 		break;
 
 	case WM_KEYDOWN:
+		if (w_param == VK_SHIFT) {
+			gui.ShowLog = true;
+		}
 		break;
 
 	case WM_KEYUP:
 		if (w_param == VK_SHIFT){
-			gui.Show = true;
+			gui.ShowLog = false;
+		}
+
+		if (w_param == VK_END) {
+			gui.ShowMain = true;
 			CallWindowProcA(hookManager.NewWndProc, hwnd, WM_ACTIVATE, WA_INACTIVE, 0);
 		}
 
@@ -136,6 +147,9 @@ LRESULT WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param) 
 
 		if (w_param == VK_NUMPAD2)
 			myHero.useSpell = false;
+
+		if (w_param == VK_NUMPAD5)
+			utils.MB("Debugging messagebox with NUMPAD5");
 
 		break;
 
@@ -156,8 +170,6 @@ BOOL WINAPI HkGetCursorPos(LPPOINT lpPoint) {
 	if (inputManager.hookingMousePos) {
 		lpPoint->x = inputManager.hookedMousePos.x;
 		lpPoint->y = inputManager.hookedMousePos.y;
-
-		gui.print("Injected GetCursorPos: %i, %i", lpPoint->x, lpPoint->y);
 	}
 
 	return ret;

@@ -87,11 +87,3 @@ float	GameFunctions::getAttackCastDelay(CObject* obj) {
 float	GameFunctions::getAttackDelay(CObject* obj) {
 	fnGetAttackDelay fun = (fnGetAttackDelay)(baseAddress + oGetAttackDelay); return fun(obj);
 }
-CObject* GameFunctions::getFirstCObject(void* objManager)
-{
-	fnGetFirstCObject fun = (fnGetFirstCObject)(baseAddress + oGetFirstCObject); return fun(objManager);
-}
-CObject* GameFunctions::getNextCObject(void* objManager, CObject* obj)
-{
-	fnGetNextCObject fun = (fnGetNextCObject)(baseAddress + oGetNextCObject); return fun(objManager, obj);
-}

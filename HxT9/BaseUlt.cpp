@@ -74,7 +74,7 @@ void BaseUlt::tick()
 		}
 	}
 
-	if (targetIndex != 0) {
+	if (targetIndex) {
 		if (calculatedBaseUlt - gameTime - time < 0 && gameTime > lastBaseUlt + 5) {
 			//gui.print(utils.stringf("BASEULT CAST"));
 			if (myHero.ChampionName == "Ezreal") {
@@ -90,10 +90,9 @@ void BaseUlt::tick()
 				}
 			}
 			lastBaseUlt = gameTime;
+			targetIndex = 0;
 		}
 	}
-
-	if (gameTime > calculatedBaseUlt - time + 1) targetIndex = 0;
 
 	if (targetIndex == 0){
 		if (myHero.ChampionName == "Ashe") {
@@ -132,7 +131,6 @@ void BaseUlt::tick()
 				if (dmg > temp->Health) {
 					calculatedBaseUlt = temp->ActiveSpell->GetChannelEndTime();
 					targetIndex = temp->Index;
-					//gui.print(utils.stringf("BASEULT START GameTime: %f, CalculatedTime: %f", gameTime, calculatedBaseUlt));
 				}
 			}
 		}

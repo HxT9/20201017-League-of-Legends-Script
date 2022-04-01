@@ -53,11 +53,12 @@ bool UtilityFunctions::isValidTarget(EntityBase* target) {
 void UtilityFunctions::drawEntities() {
 	float r;
 	EntityBase* temp;
+	Vector3 vTemp;
 
 	for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
 		temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
 		if (isValidTarget(temp)) {
-			if (temp->Team != myHero.Team && temp->Pos.isDrawable()) {
+			if (temp->Team != myHero.Team) {
 				r = temp->AttackRange + temp->BoundingRadius;
 
 				drawer.drawCircumference(temp->Pos, r, 30, 0x7fff0000, 2);
@@ -66,7 +67,7 @@ void UtilityFunctions::drawEntities() {
 					drawer.drawLine(temp->Pos, myHero.Pos, 0xffff0000, 2);
 
 				if (temp->Index == myHero.selectedTargetIndex) {
-					drawer.drawCircumference(temp->Pos, 75, 50, 0x7fffff00, 4);
+					drawer.drawCircumference(temp->Pos, 75, 20, 0xffffff00, 4);
 				}
 			}
 		}
@@ -373,9 +374,7 @@ void UtilityFunctions::drawActiveSpells() {
 		temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
 		if (temp != NULL && temp->ActiveSpell && 
 			temp->ActiveSpell->GetTargetIndex() == NULL
-#ifndef _DEBUG
-			&& temp->Team != myHero.Team
-#endif
+			&& (temp->Team != myHero.Team || scriptManager.Debugging)
 			) {
 			char* spellName = temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetMissileName();
 			Vector3 vEnd = temp->ActiveSpell->GetEndPos();
@@ -1677,9 +1676,7 @@ void UtilityFunctions::drawMissiles() {
 		if (temp != NULL &&
 				entitiesContainer.GetEntityFromIndex(temp->SourceIndex)->Type == EntityType::Hero &&
 				temp->TargetIndex == NULL
-#ifndef _DEBUG
-			&& entitiesContainer.GetEntityFromIndex(temp->SourceIndex)->Team != myHero.Team
-#endif
+			&& (entitiesContainer.GetEntityFromIndex(temp->SourceIndex)->Team != myHero.Team || scriptManager.Debugging)
 			) {
 
 			char* spellName = temp->SpellInfo->GetSpellData()->GetMissileName();

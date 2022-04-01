@@ -42,7 +42,6 @@ void LocalPlayer::myIssueOrder(void* thisPtr, int Order, Vector3* Loc, EntityBas
 void LocalPlayer::myCastSpell(Spells spell, Vector3* pos) {
 	Vector3 sp;
 	GH.worldToScreen(pos, &sp);
-
 	myCastSpellScreen(spell, sp);
 }
 bool LocalPlayer::castSpellMaster(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, Vector3* pos1, Vector3* pos2, DWORD networkID) {

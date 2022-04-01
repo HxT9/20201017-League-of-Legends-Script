@@ -8,6 +8,9 @@ class ScriptManager
 	bool initHelpers = false;
 
 public:
+	bool Debugging = false;
+
+public:
 	void Tick(LPDIRECT3DDEVICE9 pDevice);
 	void Init(LPDIRECT3DDEVICE9 pDevice);
 };

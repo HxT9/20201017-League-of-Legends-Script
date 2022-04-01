@@ -23,53 +23,60 @@ void Drawer::tick(LPDIRECT3DDEVICE9 pDev) {
 		D3DXCreateFontW(pDevice, 18, 7, FW_BOLD, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_FontMedium);
 }
 
-void Drawer::drawPolygon(Vector3 vectors[], int n, int d3dcolor, float lineWidth) {
+void Drawer::drawPolygon(Vector3 vectors[], int n, int d3dcolor, float lineWidth, bool isWorldPos) {
 	Vector3 shortVectors[1000];
 	Vector3 vDir;
 	int nShort = 0, subVectors;
 	float maxLength = 1000, rest;
 
-	//////////////////////////SUBDIVIDING VECTORS
-	//Suddivido le varie linee in linee più corte
-	shortVectors[nShort] = vectors[0];
-	nShort++;
-	for (int i = 1; i < n; i++) {
-		vDir = vectors[i] - vectors[i - 1];
-		if (vDir.getMagnitude() > maxLength) {
-			subVectors = (int)(vDir.getMagnitude() / maxLength);
-			for (int j = 0; j < subVectors; j++) {
-				shortVectors[nShort] = vectors[i].setRelativeMagnitude(vectors[i-1], maxLength*(j+1));
+	if (isWorldPos) {
+		//////////////////////////SUBDIVIDING VECTORS
+		//Suddivido le varie linee in linee più corte
+		shortVectors[nShort] = vectors[0];
+		nShort++;
+		for (int i = 1; i < n; i++) {
+			vDir = vectors[i] - vectors[i - 1];
+			if (vDir.getMagnitude() > maxLength) {
+				subVectors = (int)(vDir.getMagnitude() / maxLength);
+				for (int j = 0; j < subVectors; j++) {
+					shortVectors[nShort] = vectors[i].setRelativeMagnitude(vectors[i - 1], maxLength * (j + 1));
+					nShort++;
+				}
+				shortVectors[nShort] = vectors[i].setRelativeMagnitude(vectors[i - 1], vDir.getMagnitude());
 				nShort++;
 			}
-			shortVectors[nShort] = vectors[i].setRelativeMagnitude(vectors[i-1], vDir.getMagnitude());
-			nShort++;
-		}
-		else {
-			shortVectors[nShort] = vectors[i];
-			nShort++;
-		}
-	}
-	if (n > 2) {
-		vDir = vectors[n - 1] - vectors[0];
-		if (vDir.getMagnitude() > maxLength) {
-			subVectors = (int)(vDir.getMagnitude() / maxLength);
-			for (int j = 0; j < subVectors; j++) {
-				//shortVectors[nShort] = vectors[i].setRelativeMagnitude(shortVectors[nShort - 1], maxLength);
-				shortVectors[nShort] = vectors[0].setRelativeMagnitude(vectors[n - 1], maxLength * (j + 1));
+			else {
+				shortVectors[nShort] = vectors[i];
 				nShort++;
 			}
-			shortVectors[nShort] = vectors[0].setRelativeMagnitude(vectors[n - 1], vDir.getMagnitude());
-			nShort++;
 		}
-		else {
-			shortVectors[nShort] = vectors[0];
-			nShort++;
+		if (n > 2) {
+			vDir = vectors[n - 1] - vectors[0];
+			if (vDir.getMagnitude() > maxLength) {
+				subVectors = (int)(vDir.getMagnitude() / maxLength);
+				for (int j = 0; j < subVectors; j++) {
+					//shortVectors[nShort] = vectors[i].setRelativeMagnitude(shortVectors[nShort - 1], maxLength);
+					shortVectors[nShort] = vectors[0].setRelativeMagnitude(vectors[n - 1], maxLength * (j + 1));
+					nShort++;
+				}
+				shortVectors[nShort] = vectors[0].setRelativeMagnitude(vectors[n - 1], vDir.getMagnitude());
+				nShort++;
+			}
+			else {
+				shortVectors[nShort] = vectors[0];
+				nShort++;
+			}
+		}
+		//////////////////////////SUBDIVIDING VECTORS
+		for (int i = 0; i < nShort; i++) {
+			GH.worldToScreen(&shortVectors[i], &shortVectors[i]);
 		}
 	}
-	//////////////////////////SUBDIVIDING VECTORS
-
-	for (int i = 0; i < nShort; i++) {
-		GH.worldToScreen(&shortVectors[i], &shortVectors[i]);
+	else {
+		nShort = n;
+		for (int i = 0; i < n; i++) {
+			shortVectors[i] = vectors[i];
+		}
 	}
 
 	m_Line->SetWidth(lineWidth);
@@ -90,7 +97,7 @@ void Drawer::drawLine(Vector3 vStart, Vector3 vEnd, int d3dcolor, float lineWidt
 	Vector3 points[2] = { {0,0,0}, {0,0,0} };
 	points[0] = vStart;
 	points[1] = vEnd;
-	drawPolygon(points, 2, d3dcolor, lineWidth);
+	drawPolygon(points, 2, d3dcolor, lineWidth, true);
 }
 void Drawer::drawRectangle(Vector3 vStart, Vector3 vEnd, float radius, int d3dcolor, float lineWidth) {
 	Vector3 vDirection = Vector3(vEnd.x - vStart.x, 60, vEnd.z - vStart.z);
@@ -100,7 +107,7 @@ void Drawer::drawRectangle(Vector3 vStart, Vector3 vEnd, float radius, int d3dco
 	points[1] = vStart + Vector3(vDirection.z * 1, 60, vDirection.x * -1).setMagnitude(radius);
 	points[2] = vEnd + Vector3(vDirection.z * 1, 60, vDirection.x * -1).setMagnitude(radius);
 	points[3] = vEnd + Vector3(vDirection.z * -1, 60, vDirection.x * 1).setMagnitude(radius);
-	drawPolygon(points, 4, d3dcolor, lineWidth);
+	drawPolygon(points, 4, d3dcolor, lineWidth, true);
 }
 void Drawer::drawCircumference(Vector3 center, float radius, int precision, int d3dcolor, float lineWidth) {
 	if (precision > 360)
@@ -110,7 +117,17 @@ void Drawer::drawCircumference(Vector3 center, float radius, int precision, int 
 	for (int i = 0; i < precision; i++) {
 		points[i] = Vector3(center.x + radius * cosf(angle * i), center.y, center.z + radius * sinf(angle * i));
 	}
-	drawPolygon(points, precision, d3dcolor, lineWidth);
+	drawPolygon(points, precision, d3dcolor, lineWidth, true);
+}
+void Drawer::drawCircumferenceScreen(Vector3 center, float radius, int precision, int d3dcolor, float lineWidth) {
+	if (precision > 360)
+		precision = 360;
+	float angle = (2 * M_PI) / precision; //radianti
+	Vector3 points[360];
+	for (int i = 0; i < precision; i++) {
+		points[i] = Vector3(center.x + radius * cosf(angle * i), center.y + radius * sinf(angle * i), 0);
+	}
+	drawPolygon(points, precision, d3dcolor, lineWidth, false);
 }
 void Drawer::drawConic(Vector3 center, Vector3 vEnd, int angle, int precision, int d3dcolor, float lineWidth) {
 	Vector3 points[360];
@@ -136,7 +153,7 @@ void Drawer::drawConic(Vector3 center, Vector3 vEnd, int angle, int precision, i
 
 	points[precision] = center;
 
-	drawPolygon(points, precision + 1, d3dcolor, lineWidth);
+	drawPolygon(points, precision + 1, d3dcolor, lineWidth, true);
 }
 void Drawer::drawTextSmall(Vector3 screenPosition, const char* text, int d3dcolor) {
 	if (!screenPosition.isDrawable()) return;

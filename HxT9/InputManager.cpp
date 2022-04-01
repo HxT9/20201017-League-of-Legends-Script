@@ -12,6 +12,9 @@ InputManager::InputManager()
 
 	ChampionOnlyDown = getInput(C_championOnlyKey, false);
 	ChampionOnlyUp = getInput(C_championOnlyKey, true);
+
+	yOffset = (GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER));
+	xOffset = (GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER));
 }
 
 INPUT InputManager::getInput(char key, bool up) {
@@ -94,6 +97,8 @@ void InputManager::tick()
 				Inputs.front().screenPos.y += windowPos.top;
 
 				hookedMousePos = Inputs.front().screenPos;
+				hookedMousePos.x += xOffset;
+				hookedMousePos.y += yOffset;
 				hookingMousePos = Inputs.front().hookMouse;
 			}
 			else {

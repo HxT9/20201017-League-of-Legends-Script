@@ -17,10 +17,11 @@ public:
 	Drawer();
 	Drawer(LPDIRECT3DDEVICE9 pDev);
 	void tick(LPDIRECT3DDEVICE9 pDev);
-	void drawPolygon(Vector3 vectors[], int n, int d3dcolor, float lineWidth);
+	void drawPolygon(Vector3 vectors[], int n, int d3dcolor, float lineWidth, bool isWorldPos);
 	void drawLine(Vector3 vStart, Vector3 vEnd, int d3dcolor, float lineWidth);
 	void drawRectangle(Vector3 vStart, Vector3 vEnd, float radius, int d3dcolor, float lineWidth); //Radius is half height
 	void drawCircumference(Vector3 center, float radius, int precision, int d3dcolor, float lineWidth);
+	void drawCircumferenceScreen(Vector3 center, float radius, int precision, int d3dcolor, float lineWidth);
 	void drawConic(Vector3 center, Vector3 vEnd, int angle, int precision, int d3dcolor, float lineWidth);
 	void drawTextSmall(Vector3 screenPosition, const char* text, int d3dcolor);
 	void drawTextMedium(Vector3 screenPosition, const char* text, int d3dcolor);

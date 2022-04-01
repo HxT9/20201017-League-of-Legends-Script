@@ -5,12 +5,12 @@
 #include <string>
 #include "imgui.h"
 #include "libs/MinHook.h"
-#include <chrono>
 
-//typedef BOOL(WINAPI* myGetCursorPos)(LPPOINT lpPoint);
-//myGetCursorPos originalGetCursorPos = NULL;
-BOOL WINAPI HkGetCursorPos(LPPOINT lpPoint);
-BOOL(WINAPI* orig_GetCursorPos)(LPPOINT) = GetCursorPos;
+//#define HXT9_USECHRONO
+
+#ifdef HXT9_USECHRONO
+#include <chrono>
+#endif
 
 void toClipboard(const std::string& s) {
 	OpenClipboard(0);
@@ -27,8 +27,6 @@ void toClipboard(const std::string& s) {
 	GlobalFree(hg);
 }
 
-using namespace std::chrono;
-
 void ScriptManager::Tick(LPDIRECT3DDEVICE9 pDevice) {
 	std::string chronoDbg = "";
 	gameTime = *(float*)(baseAddress + oGameTime);
@@ -42,80 +40,93 @@ void ScriptManager::Tick(LPDIRECT3DDEVICE9 pDevice) {
 
 		drawer.tick(pDevice); //Aggiornamento del pDevice
 
-		gui.tick(pDevice);
-
+#ifdef HXT9_USECHRONO
+		using namespace std::chrono;
 		auto start = high_resolution_clock::now();
 		entitiesContainer.tick();
-		//chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-#pragma region Debug
-	/*if (myHero.useSpell) {
-		for (int i = 0; i < entitiesContainer.missiles.size(); i++)
-			if (entitiesContainer.missiles[i]->GetMissileSourceIndex() == myHero.LPCObject->getIndex()) {
-				toClipboard(utils.stringf("%p ", entitiesContainer.missiles[0]).c_str());
-				MessageBoxA(NULL, utils.stringf("pointer: %p pos: %s", entitiesContainer.missiles[0], entitiesContainer.missiles[0]->GetPos().toString()).c_str(), "Debug", MB_OK);
-				myHero.useSpell = false;
-				break;
-			}
-	}*/
+		start = high_resolution_clock::now();
+		gui.tick();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-#ifdef _DEBUG
-		//start = high_resolution_clock::now();
-		utils.drawDebug();
-		//chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+		start = high_resolution_clock::now();
+		if (this->Debugging)
+			utils.drawDebug();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		for (int i = 0; i < entitiesContainer.missilesIndex.size(); i++) {
-			gui.print("%d %s", entitiesContainer.entities[entitiesContainer.missilesIndex[i]]->Index, entitiesContainer.entities[entitiesContainer.missilesIndex[i]]->PCObject->GetMissileSpellInfo()->GetSpellData()->GetMissileName());
-		}
-
-		if (myHero.useSpell) {
-			MessageBoxA(NULL, "", "DEBUG", MB_OK);
-			myHero.useSpell = false;
-		}
-#endif
-#pragma endregion
-
-		//start = high_resolution_clock::now();
+		start = high_resolution_clock::now();
 		utils.drawMyHero();
-		//chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		//start = high_resolution_clock::now();
+		start = high_resolution_clock::now();
 		utils.drawEntities();
-		//chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		//start = high_resolution_clock::now();
+		start = high_resolution_clock::now();
 		utils.drawLastHittableMinions();
-		//chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		//start = high_resolution_clock::now();
+		start = high_resolution_clock::now();
 		utils.drawActiveSpells();
-		//chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		//start = high_resolution_clock::now();
+		start = high_resolution_clock::now();
 		utils.drawMissiles();
-		//chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
-
-		////start = high_resolution_clock::now();
-		//utils.drawPredictedPos();
-		////chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
 		//start = high_resolution_clock::now();
-		utils.drawSpellCD();
+		//utils.drawPredictedPos();
 		//chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
-		//utils.dbgStreamChrono(chronoDbg);
+		start = high_resolution_clock::now();
+		utils.drawSpellCD();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
+		start = high_resolution_clock::now();
 		utils.ChampionCustomDraw();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
+		start = high_resolution_clock::now();
 		myHero.tick();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
+		start = high_resolution_clock::now();
 		championScript.tick();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
+		start = high_resolution_clock::now();
 		orbWalker.tick();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
+		start = high_resolution_clock::now();
 		baseUlt.tick();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
 
+		start = high_resolution_clock::now();
 		inputManager.tick();
+		chronoDbg += utils.stringf("%f;", duration<double>(high_resolution_clock::now() - start));
+
+		utils.dbgStreamChrono(chronoDbg);
+#else
+		entitiesContainer.tick();
+		gui.tick();
+		if (this->Debugging)
+			utils.drawDebug();
+		utils.drawMyHero();
+		utils.drawEntities();
+		utils.drawLastHittableMinions();
+		utils.drawActiveSpells();
+		utils.drawMissiles();
+		//utils.drawPredictedPos();
+		utils.drawSpellCD();
+		utils.ChampionCustomDraw();
+		myHero.tick();
+		championScript.tick();
+		orbWalker.tick();
+		baseUlt.tick();
+		inputManager.tick();
+#endif
 	}
 	catch (int e) {
 		gui.print("Exception");
@@ -142,10 +153,6 @@ void ScriptManager::Init(LPDIRECT3DDEVICE9 pDevice) {
 
 			initLP = true;
 			gui.print("initLP");
-
-#ifdef _DEBUG
-			myHero.useSpell = false;
-#endif
 		}
 		else {
 			return;

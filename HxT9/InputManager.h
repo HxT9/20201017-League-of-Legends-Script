@@ -14,6 +14,8 @@ typedef struct {
 
 class InputManager {
 public:
+	float xOffset;
+	float yOffset;
 	float delay;
 	float lastExecution;
 	bool hookingMousePos;

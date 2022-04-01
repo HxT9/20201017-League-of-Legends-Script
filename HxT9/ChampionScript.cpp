@@ -279,7 +279,7 @@ void ChampionScript::tick() {
 	}
 
 	if (myHero.ChampionName == "Xerath") {
-		if (myHero.ActiveSpell != NULL && std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("XerathLocusOfPower") != std::string::npos ) {
+		if (myHero.ActiveSpell != NULL && std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("LocusOfPower") != std::string::npos ) {
 			if (GetKeyState(VK_LBUTTON) & 0x8000 && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::R, &zero) == SpellState::Ready) {
 				range = 5000;
 				target = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 300);

@@ -7,15 +7,18 @@
 class IMGUIManager
 {
 public:
-	bool Show = false;
+	bool ShowLog = false;
+	bool ShowMain = false;
 	int MaxConsoleLines = 1000;
 	std::vector<std::string> ConsoleLines;
 
 	void init(LPDIRECT3DDEVICE9 Device);
-	void tick(LPDIRECT3DDEVICE9 pDevice);
+	void tick();
 	void destroy();
 	void print(const char* fmt, ...);
 	void print(std::string in);
 	void resetConsole();
+	void renderLogWindow();
+	void renderMainWindow();
 };
 

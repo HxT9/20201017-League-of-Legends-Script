@@ -1,38 +1,33 @@
 ﻿#pragma once
 
-#define oObjectsManager	0x1879830 
-#define oLocalPlayer	0x31168d4 
-#define oChatClientBox	0x3116f60
-#define oGameTime		0x310df84 
-#define oMinimapObj		0x310f288
-#define oHudInstance	0x1879860
+#define oObjectsManager	0x24b9bb0			//8B 0D ? ? ? ? 56 E8 ? ? ? ? 85 C0 74
+#define oLocalPlayer	0x310b314			//8B 3D ? ? ? ? 3B F7 75
+#define oChatClientBox	0x310b3e4			//8B 0D ? ? ? ? 85 C9 74 0D 8B 41
+#define oGameTime		0x31023cc			//F3 0F 5C 0D ? ? ? ? 0F 2F C1 F3
+#define oMinimapObj		0x310240c			//8B 0D ? ? ? ? 66 0F 6E C6
+#define oHudInstance	0x24b9be0			//8B 0D ? ? ? ? FF 70 FC 8B 49 0C E8 ? ? ? ? C6
 
-#define oGetFirstCObject	0x279b50
-#define oGetNextCObject		0x27a760
-
-#define oGetAIManager		0x127550
-#define oGetBoundingRadius	0x125160
+#define oGetAIManager		0x12dde0		//E8 ? ? ? ? 6A 00 6A 01 FF 74 24 14
+#define oGetBoundingRadius	0x12b880		//FF 90 ? ? ? ? 8B C8 E8 ? ? ? ? D9 54 24 08 D9 5C 24 (mid function)
 
 //Functions
-#define oIsHero			0x13e420
-#define oIsMinion		0x13e480
-#define oIsTurret		0x13e630
-#define oIsMissile		0x13e4a0
-#define oIsTroy			0x13e7a0
-#define oIsAlive		0x13f8d0
+#define oIsHero			0x1465b0			//E8 ? ? ? ? 83 C4 04 84 C0 74 61 85
+#define oIsMinion		0x146610			//E8 ? ? ? ? 83 C4 04 B9 ? ? ? ? 84 C0 0F 44 CB
+#define oIsTurret		0x1467c0			//E8 ? ? ? ? 83 C4 04 84 C0 74 09 5F
+#define oIsMissile		0x146630			//E8 ? ? ? ? 83 C4 04 84 C0 74 3F
+#define oIsTroy			0x146930			//E8 ? ? ? ? 8B D8 83 C4 04 85 DB 74 63 8B 0B //E8 ? ? ? ? 8B E8 83 C4 04 85 ED 0F 84 ? ? ? ? 6A 08
+#define oIsAlive		0x13fdb0			//56 8B F1 8B 06 8B 80 ? ? ? ? FF D0 84 C0 74 19
 
-#define oGetSpellState		0x4e1780
-#define oGetAttackCastDelay	0x276d60
-#define oGetAttackDelay		0x276e60
+#define oGetSpellState		0x4e45e0		//83 EC 14 8B 44 24 1C 55
+#define oGetAttackCastDelay	0x27a6f0		//83 EC 0C 53 8B 5C 24 14 8B CB 56 57 8B 03 FF 90
+#define oGetAttackDelay		0x27a7f0		//8B 44 24 04 51 F3
 
-#define oW2S		0xa34420
+#define oW2S		0xa2cb20				//83 EC 10 56 E8 ? ? ? ? 8B 08
 
-#define oIssueClickNew 0x5ed0c0 //Come viene chiamato in 0x5d9f60 (8B 44 24 04 6A 01 FF 70 40 Attenzione, questa sig è per la chiamante, non la vera funzione)
-//#define oCastSpellNew 0x5cf310
-
+#define oIssueClickNew 0x5f30b0 //Come viene chiamato in 0x5d9f60 (8B 44 24 04 6A 01 FF 70 40 Attenzione, questa sig è per la chiamante, non la vera funzione)
 
 //Chat offsets
-#define oChatBoxChatOpened	0x73C
+#define oChatBoxChatOpened	0x73C			//C7 86 ? ? ? ? ? ? ? ? E8 ? ? ? ? 83 C4 04 85 C0 75 30 F6 86 ? ? ? ? ? 75 1B 38 86 ? ? ? ?
 
 //MMap offsets
 #define oMinimapObjectHud	0x110
@@ -40,26 +35,26 @@
 #define oMinimapSize		0x4C
 
 //HeroOffsets
-#define oObjIndex 0x20
-#define oObjTeam 0x4C
-#define oObjName 0x6C
-#define oObjNetworkID 0xCC //4000001D
-#define oObjPos 0x1F4
-#define oObjVisibility 0x28C
-#define oObjMana 0x2B4
+#define oObjIndex 0x20						//39 48 20 0F 84 ? ? ? ? 8B CF C6 45 11 00 E8 ? ? ? ?
+#define oObjTeam 0x4C						//3B 53 4C 0F 84 ? ? ? ? 3B F2 75 3D F3 0F 11 02 F3 0F 10 44 24 ? F3 0F 11 42 ? 
+#define oObjName 0x6C						//8D 41 6C C3
+#define oObjNetworkID 0xCC //4000001D		//8D BB ? ? ? ? 83 EF 18 8B CF E8 ? ? ? ? 83 EE 01 75 F1 8D 4B 0C
+#define oObjPos 0x1F4						//8D 8F ? ? ? ? E8 ? ? ? ? 8B 83 ? ? ? ? 05 ? ? ? ? 89 44 24 20 83 C0 0C 89 44 24 4C 83 38 00 75 20 E8 ? ? ? ? 8B 4C 24 20
+#define oObjVisibility 0x25C				//8D 8F ? ? ? ? E8 ? ? ? ? 8D 4C 24 34 51 8B C8 8B 10 FF 92 ? ? ? ? 6A 00 8B CF
+#define oObjMana 0x2B4						//8D B3 ? ? ? ? F3 0F 11 83 ? ? ? ? BF ? ? ? ? C6 83 ? ? ? ? ? 8B CE E8 ? ? ? ? 83 C6 70 83 EF 01 75 F1 0F 31
 #define oObjMaxMana 0x2C4
-#define oObjTargetable	0xD1C
-#define oObjHealth 0xdb4
-#define oObjMaxHealth 0xdc4
-#define oObjBonusAtk 0x1234
-#define oObjAP 0x1244
-#define oObjBaseAtk 0x12BC
-#define oObjArmor 0x12E4
-#define oObjMagicResist 0x12EC
-#define oObjMoveSpeed 0x12FC
-#define oObjAtkRange 0x1304
-#define oObjBuffMgr 0x21B8 //P.S. Non va deferenziato e a 0x10 si trova l'array
-#define oObjSpellBook 0x2370
+#define oObjTargetable	0xD1C				//8D B0 ? ? ? ? 56 FF 74 24 20 E8 ? ? ? ? 8A 5C 24 1C 8B 7C 24 20 8B 4C 24 18
+#define oObjHealth 0xDB4					//8D 8B ? ? ? ? C6 83 ? ? ? ? ? 50 8D 83 ? ? ? ? C7 83 ? ? ? ? ? ? ? ? 50
+#define oObjMaxHealth 0xDC4
+#define oObjBonusAtk 0x1234					//89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? F3 0F 10 86 ? ? ? ? F3 0F 11 44 24 ? 8B 44 24 18
+#define oObjAP 0x1244						//89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? F3 0F 10 86 ? ? ? ? F3 0F 11 44 24 ? 8B 44 24 18
+#define oObjBaseAtk 0x12BC					//8B 81 ? ? ? ? 81 C1 ? ? ? ? 89 47 04
+#define oObjArmor 0x12E4					//89 8E ? ? ? ? 8B 88 ? ? ? ? 89 8E ? ? ? ? 8B CE FF 92 ? ? ? ?
+#define oObjMagicResist 0x12EC				//8B 81 ? ? ? ? 89 42 0C 8B 81 ? ? ? ? 89 42 08 F3 0F 58 86 ? ? ? ? 5F 5E F3 0F 11 42 ? 59 C2 04 00
+#define oObjMoveSpeed 0x12FC				//89 8E ? ? ? ? 8B 88 ? ? ? ? 89 8E ? ? ? ? 8B 88 ? ? ? ? 89 8E ? ? ? ? 8B CE FF 92 ? ? ? ?
+#define oObjAtkRange 0x1304					//D9 83 ? ? ? ? 5F 5E 5B 83 C4 08 C3			
+#define oObjBuffMgr 0x21B8					//???? //C7 85 ? ? ? ? ? ? ? ? 8D 45 20 //8D 8B ? ? ? ? FF 30 FF 73 20 //0x14ca80 //P.S. Non va deferenziato e a 0x10 si trova l'array
+#define oObjSpellBook 0x2370				//8B 84 83 ? ? ? ? EB 06 8B 83 ? ? ? ? 85 C0 0F 84 ? ? ? ? 53 8B CF E8 ? ? ? ? 8B C8 8B 10 FF 52 18 8B F0
 #define oObjChampionName 0x2BE4
 #define oObjLevel 0x33A4
 
@@ -79,13 +74,13 @@
 #define oSpellSlotSpellReady 0x28 //SpellSlot + 0x28 (float) (CD = SpellReady - gameTime)
 #define oSpellSlotSpellInfo 0x13C
 
-#define oSpellInfoSpellData 0x44 //SpellInfo + 0x38 (ptr)
-#define oSpellDataMissileName 0x6C //SpellData + 0x58
-#define oSpellDataSpellName 0x90 //SpellData + 0x58
+#define oSpellInfoSpellData 0x44
+#define oSpellDataMissileName 0x78
+#define oSpellDataSpellName 0x9C
 #define oSpellDataCastTime 0x264 
-#define oSpellDataSpellMaxCooldown 0x28C //oObjSpellData + oSpellDataSpellMaxCooldown + 4 * SpellLvl (No cdr)
-#define oSpellDataSpellSpeed 0x460 //SpellData + 0x418
-#define oSpellDataSpellWidth 0x494
+#define oSpellDataSpellMaxCooldown 0x298 //oObjSpellData + oSpellDataSpellMaxCooldown + 4 * SpellLvl (No cdr)
+#define oSpellDataSpellSpeed 0x46C //SpellData + 0x418
+#define oSpellDataSpellWidth 0x4A0
 
 #define oSpellBookManaCost 0x58 //SpellBook + 0x58 + 0x10 * SpellSlot (float)
 
