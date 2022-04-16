@@ -9,9 +9,6 @@ void OrbWalker::tick() {
 	bool chatOpened = *(bool*)(*(DWORD*)(baseAddress + oChatClientBox) + oChatBoxChatOpened);
 
 	dmg = myHero.GetTotalAttackDamage();
-	if (myHero.ChampionName == "kalista") {
-		dmg *= 0.9;
-	}
 
 	myHero.behaviour = Behaviour::Nothing;
 	if (focused && !chatOpened) {
@@ -38,13 +35,13 @@ void OrbWalker::ComboLogic() {
 	myHero.AutoAttack(targetSelector.getBestChampion(myHero.AttackRange, true));
 }
 void OrbWalker::PushLogic() {
-	EntityBase* target = targetSelector.getBestMinion(false, dmg, myHero.AttackRange, myHero.AAMissileSpeed, myHero.AACastTime, false);
+	EntityBase* target = targetSelector.getBestMinion(false, dmg, myHero.AttackRange, myHero.AAMissileSpeed, myHero.AACastTime, false, false);
 	if (target == NULL)
 		target = targetSelector.getTurret();
 	myHero.AutoAttack(target);
 }
 void OrbWalker::LastHitLogic() {
-	myHero.AutoAttack(targetSelector.getBestMinion(true, dmg, myHero.AttackRange, myHero.AAMissileSpeed, myHero.AACastTime, false));
+	myHero.AutoAttack(targetSelector.getBestMinion(true, dmg, myHero.AttackRange, myHero.AAMissileSpeed, myHero.AACastTime, false, false));
 }
 void OrbWalker::FleeLogic() {
 	myHero.MoveTo(GH.getMouseWorldPosition());

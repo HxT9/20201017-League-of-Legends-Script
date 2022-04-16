@@ -31,11 +31,6 @@ int main()
 
 	Sleep(1000);
 
-	if (FindWindowW(NULL, L"Blitz") == NULL) {
-		startup(BlitzPath);
-		while (!FindWindowW(NULL, L"Blitz")) {}
-	}
-
 	PROCESSENTRY32 entry;
 
 	DWORD Pid;
@@ -45,6 +40,7 @@ int main()
 
 	entry.dwSize = sizeof(PROCESSENTRY32);
 	while (!injected) {
+		startLoop:
 		HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
 		if (Process32First(snapshot, &entry) == TRUE)
@@ -93,6 +89,12 @@ int main()
 						cin.get();
 					}
 				}
+			}
+			if (!injected) {
+				startup(BlitzPath);
+				Sleep(3000);
+				while (!FindWindowW(NULL, L"Blitz")) {}
+				goto startLoop;
 			}
 		}
 		CloseHandle(snapshot);

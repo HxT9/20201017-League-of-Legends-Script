@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="ActiveSpell.h" />
     <ClInclude Include="BaseUlt.h" />
-    <ClInclude Include="BuffEntry.h" />
     <ClInclude Include="BuffInfo.h" />
     <ClInclude Include="BuffManager.h" />
     <ClInclude Include="ChampionScript.h" />

@@ -95,6 +95,42 @@ void EntityBase::UpdateAttributes()
 				Targetable = PCObject->isTargetable();
 				TargetableNextUpdate = getNextUpdate(TargetableUpdateInterval, TargetableUpdateNInt, Offset);
 			}
+
+			//SpellBook
+			if (gameTime >= SpellBookNextUpdate || DEBUGGING) {
+				SpellBk = PCObject->GetSpellBook();
+				SpellBookNextUpdate = getNextUpdate(SpellBookUpdateInterval, SpellBookUpdateNInt, Offset);
+			}
+
+			//ActiveSpell
+			if (gameTime >= ActiveSpellNextUpdate || DEBUGGING) {
+				ActiveSpell = PCObject->GetActiveSpell();
+				ActiveSpellNextUpdate = getNextUpdate(ActiveSpellUpdateInterval, ActiveSpellUpdateNInt, Offset);
+			}
+
+			//BuffManager
+			if (gameTime >= BuffManagerNextUpdate || DEBUGGING) {
+				BuffMgr = PCObject->getBuffManager();
+				BuffManagerNextUpdate = getNextUpdate(BuffManagerUpdateInterval, BuffManagerUpdateNInt, Offset);
+			}
+
+			//Level
+			if (gameTime >= LevelNextUpdate || DEBUGGING) {
+				Level = PCObject->GetLevel();
+				LevelNextUpdate = getNextUpdate(LevelUpdateInterval, LevelUpdateNInt, Offset);
+			}
+
+			//MovementSpeed
+			if (gameTime >= MovementSpeedNextUpdate || DEBUGGING) {
+				MovementSpeed = PCObject->GetMovementSpeed();
+				MovementSpeedNextUpdate = getNextUpdate(MovementSpeedUpdateInterval, MovementSpeedUpdateNInt, Offset);
+			}
+			
+			//ChampionName
+			if (gameTime >= ObjectNameNextUpdate || DEBUGGING) {
+				ObjectName = PCObject->GetObjectName();
+				ObjectNameNextUpdate = getNextUpdate(ObjectNameUpdateInterval, ObjectNameUpdateNInt, Offset);
+			}
 		}
 
 		if (Type == EntityType::Hero){
@@ -162,30 +198,6 @@ void EntityBase::UpdateAttributes()
 
 				SpellCDNextUpdate = getNextUpdate(SpellCDUpdateInterval, SpellCDUpdateNInt, Offset);
 			}
-
-			//SpellCD
-			if (gameTime >= ActiveSpellNextUpdate || DEBUGGING) {
-				ActiveSpell = PCObject->GetActiveSpell();
-				ActiveSpellNextUpdate = getNextUpdate(ActiveSpellUpdateInterval, ActiveSpellUpdateNInt, Offset);
-			}
-
-			//Level
-			if (gameTime >= LevelNextUpdate || DEBUGGING) {
-				Level = PCObject->GetLevel();
-				LevelNextUpdate = getNextUpdate(LevelUpdateInterval, LevelUpdateNInt, Offset);
-			}
-
-			//MovementSpeed
-			if (gameTime >= MovementSpeedNextUpdate || DEBUGGING) {
-				MovementSpeed = PCObject->GetMovementSpeed();
-				MovementSpeedNextUpdate = getNextUpdate(MovementSpeedUpdateInterval, MovementSpeedUpdateNInt, Offset);
-			}
-
-			//ChampionName
-			if (gameTime >= ChampionNameNextUpdate || DEBUGGING) {
-				ChampionName = PCObject->GetChampionName();
-				ChampionNameNextUpdate = getNextUpdate(ChampionNameUpdateInterval, ChampionNameUpdateNInt, Offset);
-			}
 		}
 
 		if (Type == EntityType::Missile) {
@@ -205,10 +217,89 @@ void EntityBase::UpdateAttributes()
 
 float EntityBase::GetTotalAttackDamage()
 {
-	return BaseAttackDamage + BonusAttackDamage;
+	int lvl = 0;
+	float Dmg = BaseAttackDamage + BonusAttackDamage;
+
+	if (ObjectName == "Kalista")
+		Dmg *= 0.9;
+	if (ObjectName == "Draven" && HasBuff("DravenSpinningAttack")) {
+		lvl = SpellBk->GetSpellSlot(Spells::Q)->GetSpellLvl();
+		Dmg += 35 + (5 * lvl) + (BonusAttackDamage * (60 + 10 * lvl) / 100);
+	}
+
+	return Dmg;
 }
 
 bool EntityBase::IsEnemyTo(EntityBase* eb)
 {
 	return (this->Team == 100 && eb->Team == 200) || (this->Team == 200 && eb->Team == 100);
+}
+
+/*
+* Check if entity has buff and return number of it in a float variable
+*/
+float EntityBase::HasBuff(std::string BuffName) {
+	float ret = 0;
+	BuffInfo* bi;
+	for (int i = 0; i < BuffMgr->BuffCount(); i++) {
+		bi = BuffMgr->getBuff(i);
+		if (bi && std::string(bi->GetBuffName()) == BuffName) {
+			ret = bi->GetBuffCountInt() + bi->GetBuffCountAlt();
+			if (!ret) bi->GetBuffCountFloat();
+
+			if (ret > 0)
+				break;
+		}
+	}
+	return ret;
+}
+
+float EntityBase::IncomingDamage(float seconds) {
+	float totalDamage = 0;
+	float missileApplyDamageDelay = 0.1;
+	EntityBase* temp;
+
+	//Ciclo i missili che ce l'hanno come target
+	for (int i = 0; i < entitiesContainer.missilesIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.missilesIndex[i]];
+
+		if (temp->TargetIndex == Index
+			&& entitiesContainer.entities[temp->SourceIndex]
+			&& temp->Pos.distTo(Pos) / temp->SpellInfo->GetSpellData()->GetSpellSpeed() + missileApplyDamageDelay < seconds
+			&& temp->MissileName.find("BasicAttack") != std::string::npos) {
+
+			totalDamage += utils.calcEffectiveDamage(entitiesContainer.entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
+		}
+	}
+
+	//Ciclo i minion che fanno il melee
+	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
+
+		if (temp->ObjectName.find("MinionMelee") != std::string::npos
+			&& temp->ActiveSpell
+			&& temp->ActiveSpell->GetTargetIndex() == Index) {
+
+			if (gameTime + seconds > temp->ActiveSpell->GetChannelEndTime()) {
+				totalDamage += utils.calcEffectiveDamage(entitiesContainer.entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
+			}
+		}
+	}
+
+	//Ciclo i player che fanno il melee
+	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
+		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
+		if (temp->ActiveSpell
+			&& temp->Pos.distTo(Pos) < 400
+			&& temp->ActiveSpell->GetTargetIndex() == Index
+			&& std::string(temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetMissileName()).find("BasicAttack") != std::string::npos) {
+
+			if (gameTime + seconds > temp->ActiveSpell->GetChannelEndTime()) {
+				totalDamage += utils.calcEffectiveDamage(entitiesContainer.entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
+			}
+		}
+	}
+
+	//Ritorno una percentuale perchè ogni tanto ritorna troppo
+	return totalDamage * 0.7;
 }

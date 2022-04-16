@@ -126,9 +126,6 @@
     <ClInclude Include="BaseUlt.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
-    <ClInclude Include="BuffEntry.h">
-      <Filter>Header Files\GameObjects\Buff</Filter>
-    </ClInclude>
     <ClInclude Include="BuffInfo.h">
       <Filter>Header Files\GameObjects\Buff</Filter>
     </ClInclude>

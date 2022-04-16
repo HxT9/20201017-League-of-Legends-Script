@@ -20,6 +20,7 @@ public:
 	WNDPROC NewWndProc;
 
 public:
+	HookManager();
 	void Init();
 	void Dispose();
 };

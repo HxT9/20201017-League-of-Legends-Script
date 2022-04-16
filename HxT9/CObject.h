@@ -29,7 +29,7 @@ public:
 	bool IsEnemyTo(CObject* Obj);
 	char* GetName();
 	char* GetRefName();
-	char* GetChampionName();
+	char* GetObjectName();
 	int GetTeam();
 	float GetFlatArmorReduction();
 	float GetPercArmorReduction();

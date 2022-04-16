@@ -4,9 +4,8 @@
 
 InputManager::InputManager()
 {
-	Inputs = std::queue<PERS_INPUT>();
+	Inputs = std::deque<PERS_INPUT>();
 	lastExecution = 0.f;
-	delay = myHero.Humanize();
 	hookingMousePos = false;
 	hookedMousePos = Vector3();
 
@@ -24,7 +23,9 @@ INPUT InputManager::getInput(char key, bool up) {
 	in.type = INPUT_KEYBOARD;
 	in.ki.wVk = key;
 	in.ki.wScan = MapVirtualKey(in.ki.wVk, 0);
-	in.ki.dwFlags = KEYEVENTF_SCANCODE;
+	in.ki.dwFlags = 0;
+	if (useScan)
+		in.ki.dwFlags = KEYEVENTF_SCANCODE;
 	if (up)
 		in.ki.dwFlags |= KEYEVENTF_KEYUP;
 	in.ki.time = 0;
@@ -37,10 +38,15 @@ void InputManager::addKey(char key, bool up) {
 }
 
 void InputManager::addInput(PERS_INPUT in) {
+	if (in.isAA)
+		for (int i = 0; i < Inputs.size(); i++)
+			if (Inputs[i].isAA)
+				return;
+
 	if (in.championOnly)
 		addInput(ChampionOnlyDown);
 
-	Inputs.push(in);
+	Inputs.push_back(in);
 
 	if (in.championOnly)
 		addInput(ChampionOnlyUp);
@@ -78,17 +84,19 @@ void InputManager::addHookedInput(char key, Vector3 hookedPos, bool onlyUp) {
 
 void InputManager::resetInputs()
 {
-	while (!Inputs.empty())
-		Inputs.pop();
+	Inputs.clear();
 }
 
 void InputManager::tick()
 {
 	RECT windowPos;
 	INPUT inputs[10];
-	if (gameTime >= lastExecution + delay && !Inputs.empty()) {
+	if (!Inputs.empty()) {
 		if (Inputs.front().isClick) {
 			GH.issueClick(Inputs.front().screenPos);
+			
+			if (Inputs.front().isAA)
+				myHero.CastedAA();
 		}
 		else {
 			if (Inputs.front().hookMouseChange) {
@@ -106,9 +114,11 @@ void InputManager::tick()
 			}
 		}
 
-		Inputs.pop();
+		Inputs.pop_front();
+
+		//if (scriptManager.Debugging)
+		//	gui.print("[InputManager] lastExecution: %f, gameTime: %f, delta: %f, inputs left: %d", lastExecution, gameTime, gameTime - lastExecution, Inputs.size());
+
 		lastExecution = gameTime;
 	}
-
-	delay = myHero.Humanize();
 }

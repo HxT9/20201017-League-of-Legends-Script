@@ -18,7 +18,7 @@ float BuffInfo::GetBuffEndTime(){
 	return *(float*)((DWORD)this + oBuffEndTime);
 }
 int BuffInfo::GetBuffCountAlt(){
-	return (*(int*)((DWORD)this + oBuffCountAlt) - *(int*)((DWORD)this + oBuffCountAlt2)) >> 3;
+	return (*(int*)((DWORD)this + oBuffCountAlt));
 }
 float BuffInfo::GetBuffCountFloat(){
 	return *(float*)((DWORD)this + oBuffFloatCount);
@@ -34,5 +34,5 @@ const char* BuffInfo::GetBuffName(){
 	if (*(DWORD*)(aux + oBuffName) == NULL)
 		return "NULL";
 
-	return (char*)(aux + oBuffName);
+	return (char*)(aux + oBuffNameOffset);
 }

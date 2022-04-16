@@ -10,7 +10,6 @@ EntitiesContainer::EntitiesContainer() {
 }
 
 void EntitiesContainer::Init() {
-	gui.print("Initiating EntitiesContainer");
 	ObjManager = *(DWORD*)(baseAddress + oObjectsManager);
 
 	entities.clear();

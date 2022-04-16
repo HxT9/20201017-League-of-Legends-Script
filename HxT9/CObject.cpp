@@ -104,8 +104,8 @@ char* CObject::GetRefName() {
 	return *(char**)((DWORD)this + oObjName);
 }
 
-char* CObject::GetChampionName() {
-	return *(char**)((DWORD)this + oObjChampionName);
+char* CObject::GetObjectName() {
+	return *(char**)((DWORD)this + oObjObjectName);
 }
 
 int CObject::GetTeam() {

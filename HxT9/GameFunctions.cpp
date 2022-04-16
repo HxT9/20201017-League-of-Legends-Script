@@ -33,6 +33,11 @@ void GameFunctions::issueClick(Vector3 screenPos) {
 	fun(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x24), 1, 0, true, screenPos.x, screenPos.y, 0);
 }
 
+/*void GameFunctions::issueKey(Vector3 screenPos) {
+	fnIssueOrderNew fun = (fnIssueOrderNew)(baseAddress + oIssueClickNew);
+	fun(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x34), 0, 0, 0, 0, 0);
+}*/
+
 void* GameFunctions::getAIManager(CObject* obj) {
 	fnGetAIManager fun = (fnGetAIManager)(baseAddress + oGetAIManager);
 	return fun((DWORD)obj);

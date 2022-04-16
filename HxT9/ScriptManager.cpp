@@ -12,6 +12,7 @@
 #include <chrono>
 #endif
 
+DWORD WINAPI Unload(LPVOID lpParam);
 void toClipboard(const std::string& s) {
 	OpenClipboard(0);
 	EmptyClipboard();
@@ -29,6 +30,7 @@ void toClipboard(const std::string& s) {
 
 void ScriptManager::Tick(LPDIRECT3DDEVICE9 pDevice) {
 	std::string chronoDbg = "";
+
 	gameTime = *(float*)(baseAddress + oGameTime);
 	if (gameTime < 1) {
 		return;
@@ -36,6 +38,13 @@ void ScriptManager::Tick(LPDIRECT3DDEVICE9 pDevice) {
 	try {
 		if (!(initLP && initHelpers)) {
 			Init(pDevice);
+		}
+
+		if (unloaded) {
+			gui.destroy();
+			hookManager.Dispose();
+			CreateThread(NULL, 0, &Unload, NULL, 0, NULL);
+			return;
 		}
 
 		drawer.tick(pDevice); //Aggiornamento del pDevice
@@ -111,17 +120,9 @@ void ScriptManager::Tick(LPDIRECT3DDEVICE9 pDevice) {
 #else
 		entitiesContainer.tick();
 		gui.tick();
-		if (this->Debugging)
-			utils.drawDebug();
-		utils.drawMyHero();
-		utils.drawEntities();
-		utils.drawLastHittableMinions();
-		utils.drawActiveSpells();
-		utils.drawMissiles();
-		//utils.drawPredictedPos();
-		utils.drawSpellCD();
-		utils.ChampionCustomDraw();
-		myHero.tick();
+
+		utils.Draw();
+		myHero.Tick();
 		championScript.tick();
 		orbWalker.tick();
 		baseUlt.tick();
@@ -147,7 +148,7 @@ void ScriptManager::Init(LPDIRECT3DDEVICE9 pDevice) {
 		if (*(DWORD*)(baseAddress + oLocalPlayer) != NULL) {
 			myHero = LocalPlayer(*(CObject**)(baseAddress + oLocalPlayer));
 			gui.print("LocalPlayer: %p", myHero.PCObject);
-			gui.print("Hero: " + std::string(myHero.ChampionName));
+			gui.print("Hero: " + std::string(myHero.ObjectName));
 			gui.print("AiMgr: %p\0", myHero.PCObject->GetAIManager());
 			baseUlt.init();
 
@@ -160,4 +161,13 @@ void ScriptManager::Init(LPDIRECT3DDEVICE9 pDevice) {
 	}
 }
 
+DWORD WINAPI Unload(LPVOID lpParam) {
+	Sleep(500);
+	MessageBoxA(NULL, "DLL unloading", "HxT9", MB_OK);
+	FreeLibraryAndExitThread(thisDll, 0);
 
+	MessageBoxA(NULL, "Can't unload the dll. Restarting script", "HxT9", MB_OK);
+	scriptManager.initLP = false;
+	scriptManager.initHelpers = false;
+	hookManager.Init();
+}

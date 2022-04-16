@@ -35,14 +35,14 @@ void ChampionScript::tick() {
 		}
 	}*/
 
-	if (myHero.ChampionName == "Cassiopeia") {
+	if (myHero.ObjectName == "Cassiopeia") {
 		switch (myHero.behaviour) {
 		case Behaviour::LastHit:
 			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
 				damage = 48 + myHero.Level * 4;
 				damage += myHero.AbilityPower * 0.1;
 
-				target = targetSelector.getBestMinion(true, damage, 700, 2000, 0.1, false);
+				target = targetSelector.getBestMinion(true, damage, 700, 2000, 0.1, false, true);
 				if (target != NULL)
 					myHero.CastSpellAtTarget(Spells::E, target);
 			}
@@ -52,7 +52,7 @@ void ChampionScript::tick() {
 				damage = 48 + myHero.Level * 4;
 				damage += myHero.AbilityPower * 0.1;
 
-				target = targetSelector.getBestMinion(true, damage, 700, 2000, 0.1, false);
+				target = targetSelector.getBestMinion(true, damage, 700, 2000, 0.1, false, true);
 				if (target != NULL)
 					myHero.CastSpellAtTarget(Spells::E, target);
 			}
@@ -84,7 +84,7 @@ void ChampionScript::tick() {
 		return;
 	}
 
-	if (myHero.ChampionName == "Ezreal") {
+	if (myHero.ObjectName == "Ezreal") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
@@ -108,7 +108,7 @@ void ChampionScript::tick() {
 		return;
 	}
 
-	if (myHero.ChampionName == "Kalista") {
+	if (myHero.ObjectName == "Kalista") {
 		//BuffName: kalistaexpungemarker
 		switch (myHero.behaviour) {
 		case Behaviour::LastHit:
@@ -163,7 +163,7 @@ void ChampionScript::tick() {
 		return;
 	}
 
-	if (myHero.ChampionName == "Jinx") {
+	if (myHero.ObjectName == "Jinx") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
@@ -179,7 +179,7 @@ void ChampionScript::tick() {
 		return;
 	}
 
-	if (myHero.ChampionName == "KogMaw") {
+	if (myHero.ObjectName == "KogMaw") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
@@ -224,7 +224,7 @@ void ChampionScript::tick() {
 		return;
 	}
 
-	if (myHero.ChampionName == "Tristana") {
+	if (myHero.ObjectName == "Tristana") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::R, &zero) == SpellState::Ready) {
@@ -245,7 +245,7 @@ void ChampionScript::tick() {
 		return;
 	}
 
-	if (myHero.ChampionName == "Varus") {
+	if (myHero.ObjectName == "Varus") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (!myHero.chargingSpell && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
@@ -278,18 +278,16 @@ void ChampionScript::tick() {
 		}
 	}
 
-	if (myHero.ChampionName == "Xerath") {
+	if (myHero.ObjectName == "Xerath") {
 		if (myHero.ActiveSpell != NULL && std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("LocusOfPower") != std::string::npos ) {
 			if (GetKeyState(VK_LBUTTON) & 0x8000 && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::R, &zero) == SpellState::Ready) {
 				range = 5000;
 				target = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 300);
-				/*if (target == NULL) {
-					target = targetSelector.getBestChampion(range);
-				}*/
 				if (target != NULL) {
-					predictedPos = utils.getPredictedPos(target, 0.627, 270);
-					if (predictedPos.distTo(myHero.Pos) <= range)
+					predictedPos = utils.getPredictedPos(target, 0.627, 400, SkillShotType::Circular);
+					if (predictedPos.distTo(myHero.Pos) <= range) {
 						myHero.CastSpellAtPos(Spells::R, predictedPos);
+					}
 				}
 			}
 		}
@@ -318,7 +316,7 @@ void ChampionScript::tick() {
 					//gui.print(utils.stringf("Q range: %f", range));
 					target = targetSelector.getBestChampion(range);
 					if (target != NULL) {
-						predictedPos = utils.getPredictedPos(target, 0.5, 290);
+						predictedPos = utils.getPredictedPos(target, 0.5, 145);
 						if (predictedPos.distTo(myHero.Pos) <= range)
 							myHero.ReleaseChargeableSpell(Spells::Q, predictedPos);
 					}
@@ -327,7 +325,7 @@ void ChampionScript::tick() {
 				if (!myHero.chargingSpell && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
 					target = targetSelector.getBestChampion(1000);
 					if (target != NULL) {
-						predictedPos = utils.getPredictedPos(target, 0.25, 420);
+						predictedPos = utils.getPredictedPos(target, 0.25, 500, SkillShotType::Circular);
 						if (predictedPos.distTo(myHero.Pos) <= 1000)
 							myHero.CastSpellAtPos(Spells::W, predictedPos);
 					}
@@ -340,7 +338,7 @@ void ChampionScript::tick() {
 
 	//URF
 	/*
-	if (myHero.ChampionName == "Ryze") {
+	if (myHero.ObjectName == "Ryze") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
@@ -365,7 +363,7 @@ void ChampionScript::tick() {
 		}
 	}
 	
-	if (myHero.ChampionName == "Karthus") {
+	if (myHero.ObjectName == "Karthus") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (!myHero.chargingSpell && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
@@ -379,7 +377,7 @@ void ChampionScript::tick() {
 			break;
 		}
 	}
-	if (myHero.ChampionName == "Kayle") {
+	if (myHero.ObjectName == "Kayle") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (targetSelector.getBestChampion(700) && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
@@ -391,7 +389,7 @@ void ChampionScript::tick() {
 			break;
 		}
 	}
-	if (myHero.ChampionName == "Lucian") {
+	if (myHero.ObjectName == "Lucian") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
@@ -405,7 +403,7 @@ void ChampionScript::tick() {
 			break;
 		}
 	}
-	if (myHero.ChampionName == "Vayne") {
+	if (myHero.ObjectName == "Vayne") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (myHero.afterAA && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready && targetSelector.getBestChampion(600) != NULL) {
@@ -414,7 +412,7 @@ void ChampionScript::tick() {
 			break;
 		}
 	}
-	if (myHero.ChampionName == "Draven") {
+	if (myHero.ObjectName == "Draven") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
@@ -429,24 +427,13 @@ void ChampionScript::tick() {
 	*/
 }
 
-
-int getKalistaSpears(CObject* target) {
-	for (int i = 0; i < target->getBuffManager()->BuffCount(); i++) {
-		if (strcmp(target->getBuffManager()->getBuff(i)->GetBuffName(), "kalistaexpungemarker") == 0) {
-			if (target->getBuffManager()->getBuff(i)->GetBuffEndTime() > gameTime) {
-				return target->getBuffManager()->getBuff(i)->GetBuffCountAlt();
-			}
-		}
-	}
-	return 0;
-}
-
 float ChampionScript::getKalistaSpearDamage(EntityBase* target) {
-	int eLvl = myHero.PCObject->GetSpellBook()->GetSpellSlot(Spells::E)->GetSpellLvl();
+	int eLvl = myHero.SpellBk->GetSpellSlot(Spells::E)->GetSpellLvl();
+	int spears = (int)target->HasBuff("kalistaexpungemarker");
 	float armor = target->Armor;
 	float dmg = 10 + 10 * eLvl + myHero.GetTotalAttackDamage() * 0.6;
-	if (getKalistaSpears(target->PCObject) > 0)
-		dmg += ((0.5 * pow(eLvl, 2) + 2.5 * eLvl + 7) + (myHero.GetTotalAttackDamage() * ((16.25 + 3.75 * eLvl) / 100))) * (getKalistaSpears(target->PCObject) - 1);
+	if (spears)
+		dmg += ((0.5 * pow(eLvl, 2) + 2.5 * eLvl + 7) + (myHero.GetTotalAttackDamage() * ((16.25 + 3.75 * eLvl) / 100))) * (spears - 1);
 	else
 		dmg = 0;
 
@@ -454,7 +441,7 @@ float ChampionScript::getKalistaSpearDamage(EntityBase* target) {
 }
 
 
-/*if (myHero.ChampionName == "Annie") {
+/*if (myHero.ObjectName == "Annie") {
 	if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
 		target = targetSelector.getBestChampion(625);
 		if (target != NULL)

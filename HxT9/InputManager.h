@@ -7,6 +7,7 @@ typedef struct {
 	INPUT in = INPUT();
 	bool championOnly = false;
 	bool isClick = false;
+	bool isAA = false;
 	Vector3 screenPos = Vector3();
 	bool hookMouse = false;
 	bool hookMouseChange = false;
@@ -14,13 +15,14 @@ typedef struct {
 
 class InputManager {
 public:
+	bool useScan = false;
 	float xOffset;
 	float yOffset;
 	float delay;
 	float lastExecution;
 	bool hookingMousePos;
 	Vector3 hookedMousePos;
-	std::queue<PERS_INPUT> Inputs;
+	std::deque<PERS_INPUT> Inputs;
 	INPUT ChampionOnlyDown;
 	INPUT ChampionOnlyUp;
 	InputManager();

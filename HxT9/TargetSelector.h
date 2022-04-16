@@ -4,7 +4,7 @@
 class TargetSelector
 {
 public:
-	EntityBase* getBestMinion(bool onlyLastHit, float dmg, float range, float speed, float castTime, bool isSpell);
+	EntityBase* getBestMinion(bool onlyLastHit, float dmg, float range, float speed, float castTime, bool isSpell, bool isAP);
 	EntityBase* getBestChampion(float range);
 	EntityBase* getBestChampion(float range, bool aa);
 	EntityBase* getTurret();

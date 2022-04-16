@@ -1,5 +1,6 @@
 #include "Vector3.h"
 #include <cmath>
+#include "globalVars.h"
 
 Vector3::Vector3() {
 	x = y = z = 0.f;
@@ -79,4 +80,9 @@ Vector3 Vector3::rotatePoint(Vector3 pivot, float radAngle) {
 }
 Vector3 Vector3::setWorldY() {
 	return Vector3(x, 60, z);
+}
+Vector3 Vector3::ToScreen() {
+	Vector3 ret;
+	GH.worldToScreen(this, &ret);
+	return ret;
 }

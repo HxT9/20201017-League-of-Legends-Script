@@ -48,5 +48,6 @@ public:
 	Equation lineEquation(Vector3 vOther);
 	Vector3 rotatePoint(Vector3 pivot, float angle);
 	Vector3 setWorldY();
+	Vector3 ToScreen();
 };
 

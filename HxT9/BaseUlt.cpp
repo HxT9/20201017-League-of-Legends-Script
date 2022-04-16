@@ -2,22 +2,22 @@
 #include "globalVars.h"
 
 void BaseUlt::init() {
-	if (myHero.ChampionName == "Ashe") {
+	if (myHero.ObjectName == "Ashe") {
 		speed = 1600;
 		castTime = 0.25;
 		width = 260;
 	}
-	if (myHero.ChampionName == "Ezreal") {
+	if (myHero.ObjectName == "Ezreal") {
 		speed = 2000;
 		castTime = 1;
 		width = 320;
 	}
-	if (myHero.ChampionName == "Draven") {
+	if (myHero.ObjectName == "Draven") {
 		speed = 2000;
 		width = 320;
 		castTime = 0.5;
 	}
-	if (myHero.ChampionName == "Jinx") {
+	if (myHero.ObjectName == "Jinx") {
 		speed = 1700; //to fix
 		castTime = 0.6;
 		width = 280;
@@ -39,6 +39,9 @@ void BaseUlt::tick()
 	float dmg, baseDmg;
 	float time;
 	EntityBase* temp;
+
+	if (!enabled)
+		return;
 
 	//Controllo che non abbia stoppato il recall
 	for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
@@ -63,7 +66,7 @@ void BaseUlt::tick()
 
 	time = castTime + spawnPoint.distTo(myHero.Pos) / speed;
 
-	if (myHero.ChampionName == "Jinx") {
+	if (myHero.ObjectName == "Jinx") {
 		time = castTime;
 		if (spawnPoint.distTo(myHero.Pos) > 1350) {
 			time += 1350 / 1700;
@@ -77,16 +80,16 @@ void BaseUlt::tick()
 	if (targetIndex) {
 		if (calculatedBaseUlt - gameTime - time < 0 && gameTime > lastBaseUlt + 5) {
 			//gui.print(utils.stringf("BASEULT CAST"));
-			if (myHero.ChampionName == "Ezreal") {
+			if (myHero.ObjectName == "Ezreal") {
 				myHero.nextActionTime = 0;
 				myHero.nextSpellTime = 0;
-				myHero.castBaseUlt();
+				myHero.CastBaseUlt();
 			}
 			else {
 				if (utils.heroesColliding(myHero.Pos, spawnPoint, width) == 0) {
 					myHero.nextActionTime = 0;
 					myHero.nextSpellTime = 0;
-					myHero.castBaseUlt();
+					myHero.CastBaseUlt();
 				}
 			}
 			lastBaseUlt = gameTime;
@@ -95,20 +98,20 @@ void BaseUlt::tick()
 	}
 
 	if (targetIndex == 0){
-		if (myHero.ChampionName == "Ashe") {
+		if (myHero.ObjectName == "Ashe") {
 			baseDmg = 200 * myHero.PCObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
 			baseDmg += myHero.AbilityPower;
 		}
-		if (myHero.ChampionName == "Ezreal") {
+		if (myHero.ObjectName == "Ezreal") {
 			baseDmg = 200 + 150 * myHero.PCObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
 			baseDmg += myHero.AbilityPower * 0.9;
 			baseDmg += myHero.GetTotalAttackDamage();
 		}
-		if (myHero.ChampionName == "Draven") {
+		if (myHero.ObjectName == "Draven") {
 			baseDmg = 75 + 100 * myHero.PCObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
 			baseDmg += myHero.BonusAttackDamage * (0.9 + 0.2 * myHero.PCObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl());
 		}
-		if (myHero.ChampionName == "Jinx") {
+		if (myHero.ObjectName == "Jinx") {
 			baseDmg = 150 + 100 * myHero.PCObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
 			baseDmg += myHero.BonusAttackDamage * 1.5;
 		}
@@ -117,11 +120,11 @@ void BaseUlt::tick()
 			temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
 			if (temp != NULL && temp->Index != myHero.Index && temp->ActiveSpell && strcmp(temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName(), "Recall") == 0) {
 				//Calcolo danno AD/AP
-				if (myHero.ChampionName == "Ashe" || myHero.ChampionName == "Ezreal") {
+				if (myHero.ObjectName == "Ashe" || myHero.ObjectName == "Ezreal") {
 					dmg = utils.calcEffectiveDamage(baseDmg, temp->MagicResist);
 				}
 				else {
-					if (myHero.ChampionName == "Jinx") {
+					if (myHero.ObjectName == "Jinx") {
 						baseDmg += (0.2 + 0.5 * myHero.PCObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl()) * (temp->MaxHealth - temp->Health);
 					}
 					dmg = utils.calcEffectiveDamage(baseDmg, temp->Armor);

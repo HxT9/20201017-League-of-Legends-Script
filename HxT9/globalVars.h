@@ -37,4 +37,6 @@ extern HMODULE thisDll;
 extern DWORD baseAddress;
 extern LocalPlayer myHero;
 extern float gameTime;
+extern bool unloaded;
+extern bool debugging;
 #pragma endregion

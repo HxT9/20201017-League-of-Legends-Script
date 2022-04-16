@@ -4,11 +4,9 @@
 
 class ScriptManager
 {
+public:
 	bool initLP = false;
 	bool initHelpers = false;
-
-public:
-	bool Debugging = false;
 
 public:
 	void Tick(LPDIRECT3DDEVICE9 pDevice);

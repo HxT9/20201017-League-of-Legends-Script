@@ -75,7 +75,20 @@ void IMGUIManager::renderMainWindow() {
 	switch (selectedTab) {
 	case 0:
 		ImGui::BeginChildFrame(id++, ImVec2(0, 0));
-		ImGui::Checkbox("Debugging", &scriptManager.Debugging);
+		ImGui::Checkbox("Debugging", &debugging);
+		ImGui::Checkbox("Use Custom Prediction (WIP)", &utils.UseCustomPrediction);
+		ImGui::Checkbox("Use Input ScanCode", &inputManager.useScan);
+		ImGui::Checkbox("Use Spells (Num1 On, Num2 Off)", &myHero.useSpell);
+		ImGui::Checkbox("Use AA in Combo", &myHero.useAAInCombo);
+		ImGui::Checkbox("BaseUlt Enabled", &baseUlt.enabled);
+		ImGui::SliderFloat("Action Delay (s)", &myHero.ActionDelay, 0, 0.500);
+		ImGui::SliderInt("Humanizer Min (ms)", &myHero.HumanizerMin, 0, 500);
+		ImGui::SliderInt("Humanizer Max (ms)", &myHero.HumanizerMax, 0, 500);
+
+		ImGui::Spacing();
+		if (ImGui::Button("Unload Script")) {
+			unloaded = true;
+		}
 		ImGui::EndChildFrame();
 		break;
 	case 1:
@@ -106,14 +119,21 @@ void IMGUIManager::renderMainWindow() {
 		PostMessage(FindWindowA(0, "League of Legends (TM) Client"), WM_ACTIVATE, WA_ACTIVE, 0);
 }
 
-void IMGUIManager::tick() {
-	if (!(ShowLog || ShowMain)) return;
+void renderOverlay() {
+	createWindow("Overlay", NULL, ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar, { 100, 200 }, {300, 200});
+	ImGui::BeginChild("#Overlay", ImVec2(0, 0), false);
+	ImGui::TextColored(myHero.useSpell ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1), "Using Spell");
+	ImGui::EndChild();
+	ImGui::End();
+}
 
+void IMGUIManager::tick() {
 	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	////////////////////////////
 
+	renderOverlay();
 	if (ShowLog) renderLogWindow();
 	if (ShowMain) renderMainWindow();
 

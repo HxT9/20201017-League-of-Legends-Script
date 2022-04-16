@@ -21,4 +21,6 @@ HMODULE thisDll;
 DWORD baseAddress;
 LocalPlayer myHero;
 float gameTime;
+bool unloaded = false;
+bool debugging = false;
 #pragma endregion

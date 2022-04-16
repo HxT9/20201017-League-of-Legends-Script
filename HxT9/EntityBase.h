@@ -43,8 +43,14 @@ class EntityBase
 	Interval	MissileUpdateInterval			= Interval::cs;
 	int			MissileUpdateNInt				= 5;
 
+	Interval	SpellBookUpdateInterval			= Interval::s;
+	int			SpellBookUpdateNInt				= 5;
+
 	Interval	ActiveSpellUpdateInterval		= Interval::ms;
 	int			ActiveSpellUpdateNInt			= 5;
+
+	Interval	BuffManagerUpdateInterval		= Interval::s;
+	int			BuffManagerUpdateNInt			= 5;
 
 	Interval	LevelUpdateInterval				= Interval::ds;
 	int			LevelUpdateNInt					= 5;
@@ -52,8 +58,8 @@ class EntityBase
 	Interval	MovementSpeedUpdateInterval		= Interval::ds;
 	int			MovementSpeedUpdateNInt			= 5;
 
-	Interval	ChampionNameUpdateInterval		= Interval::s;
-	int			ChampionNameUpdateNInt			= 10;
+	Interval	ObjectNameUpdateInterval		= Interval::s;
+	int			ObjectNameUpdateNInt			= 10;
 
 	float	NetworkIDNextUpdate			= 0;
 	float	TeamNextUpdate				= 0;
@@ -68,10 +74,12 @@ class EntityBase
 	float	TargetableNextUpdate		= 0;
 	float	MissileNextUpdate			= 0;
 	float	SpellCDNextUpdate			= 0;
+	float	SpellBookNextUpdate = 0;
 	float	ActiveSpellNextUpdate		= 0;
+	float	BuffManagerNextUpdate		= 0;
 	float	LevelNextUpdate				= 0;
 	float	MovementSpeedNextUpdate		= 0;
-	float	ChampionNameNextUpdate		= 0;
+	float	ObjectNameNextUpdate		= 0;
 
 public:
 	bool DEBUGGING = true;
@@ -96,6 +104,12 @@ public:
 	float		AttackRange			= 0;
 	float		BoundingRadius		= 0;
 	bool		Targetable			= 0;
+	SpellBook*	SpellBk				= NULL;
+	ActiveSpell* ActiveSpell		= NULL;
+	BuffManager* BuffMgr			= NULL;
+	int			Level				= 0;
+	float		MovementSpeed		= 0;
+	std::string	ObjectName			= "";
 
 	//Heroes
 	float			SpellQCD			= 0;
@@ -104,10 +118,6 @@ public:
 	float			SpellRCD			= 0;
 	float			SpellDCD			= 0;
 	float			SpellFCD			= 0;
-	ActiveSpell*	ActiveSpell			= NULL;
-	int				Level				= 0;
-	float			MovementSpeed		= 0;
-	std::string		ChampionName		= "";
 
 	//Missile
 	int			SourceIndex			= 0;
@@ -124,4 +134,6 @@ public:
 	void	UpdateAttributes();
 	float	GetTotalAttackDamage();
 	bool	IsEnemyTo(EntityBase* eb);
+	float	HasBuff(std::string BuffName);
+	float	IncomingDamage(float seconds);
 };

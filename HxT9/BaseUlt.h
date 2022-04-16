@@ -4,6 +4,8 @@
 class BaseUlt
 {
 public:
+	bool enabled = true;
+
 	float lastBaseUlt;
 	float speed;
 	float width;

@@ -5,8 +5,10 @@
 class UtilityFunctions
 {
 public:
-	void init();
+	bool		UseCustomPrediction = false;
 
+	void		init();
+	void		Draw();
 	void		drawMyHero();
 	float		calcEffectiveDamage(float damage, float armor);
 	bool		isValidTarget(EntityBase* target);
@@ -22,7 +24,7 @@ public:
 	bool		isCollision(Vector3 start, Vector3 end, float width, Vector3 center, float radius);
 	int			minionsColliding(Vector3 start, Vector3 end, float width);
 	int			heroesColliding(Vector3 start, Vector3 end, float width);
-	Vector3		getPredictedPos(EntityBase* hero, float seconds, float width);
+	Vector3		getPredictedPos(EntityBase* hero, float seconds, float width, SkillShotType spellType = SkillShotType::Linear);
 	void		ChampionCustomDraw();
 	std::string	vformat(const char* fmt, va_list ap);
 	std::string	stringf(const char* fmt, ...);

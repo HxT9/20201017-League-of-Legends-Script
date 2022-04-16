@@ -68,9 +68,11 @@ PVOID GetD3DPresent() {
 	return (PVOID)VTable[17];
 }
 
-void HookManager::Init() {
+HookManager::HookManager() {
 	MH_Initialize();
+}
 
+void HookManager::Init() {
 	OriginalD3DPresent = GetD3DPresent();
 	MH_CreateHook(OriginalD3DPresent, &HkD3DPresent, (LPVOID*)&NewD3DPresent);
 	MH_EnableHook(OriginalD3DPresent);
@@ -84,8 +86,7 @@ void HookManager::Init() {
 }
 
 void HookManager::Dispose() {
-	MH_DisableHook(OriginalD3DPresent);
-	MH_DisableHook(OriginalGetCursorPos);
+	MH_DisableHook(MH_ALL_HOOKS);
 
 	WNDPROC(SetWindowLongA(FindWindowA(0, "League of Legends (TM) Client"), GWL_WNDPROC, (LONG)NewWndProc));
 }
@@ -95,7 +96,7 @@ HRESULT WINAPI HkD3DPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT* pSrcRect, CON
         scriptManager.Tick(pDevice);
     }
     __except (EXCEPTION_EXECUTE_HANDLER) {
-        gui.print("Exception");
+        gui.print("[%f] Exception", gameTime);
     }
 
     return hookManager.NewD3DPresent(pDevice, pSrcRect, pDstRect, hDestWindow, pDirtyRegion);
@@ -108,7 +109,7 @@ LRESULT WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param) 
 	}
 
 	if (gui.ShowMain) {
-		if (u_msg == WM_KEYUP && w_param == VK_END){
+		if (u_msg == WM_KEYUP && (w_param == VK_END || w_param == VK_ESCAPE)){
 			gui.ShowMain = false;
 			CallWindowProcA(hookManager.NewWndProc, hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
 		}

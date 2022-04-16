@@ -33,12 +33,22 @@ void UtilityFunctions::init()
 	}
 }
 
+void UtilityFunctions::Draw() {
+	if (debugging)
+		utils.drawDebug();
+	drawMyHero();
+	drawEntities();
+	drawLastHittableMinions();
+	drawActiveSpells();
+	drawMissiles();
+	//drawPredictedPos();
+	drawSpellCD();
+	ChampionCustomDraw();
+}
+
 void UtilityFunctions::drawMyHero() {
 	if (myHero.PCObject) {
 		drawer.drawCircumference(myHero.Pos, myHero.BoundingRadius, 15, 0xff00ff00, 2);
-
-		if (myHero.useSpell)
-			drawer.drawTextSmall({ 100,200, 0 }, "Using spell", 0xff00ff00);
 	}
 }
 
@@ -86,39 +96,27 @@ void UtilityFunctions::drawEntities() {
 void UtilityFunctions::drawLastHittableMinions() {
 	float myDamage = myHero.GetTotalAttackDamage();
 	float effDamage;
-	if (myHero.ChampionName == "kalista") {
-		myDamage *= 0.9;
-	}
 
 	float dmgIncoming, AATimeNeeded;
 	EntityBase *temp, *missile;
 	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
 		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
 		if (!isValidTarget(temp)
-			|| temp->Team == myHero.Team
+			|| !temp->IsEnemyTo(&myHero)
 			|| temp->Pos.distTo(myHero.Pos) > 1500
 			|| temp->MaxHealth < 10)
 			continue;
 
-
 		effDamage = calcEffectiveDamage(myDamage, temp->Armor);
 		
 		AATimeNeeded = (temp->Pos.distTo(myHero.Pos) / myHero.AAMissileSpeed ? myHero.AAMissileSpeed : 2000) + myHero.AACastTime;
-		dmgIncoming = 0;
-		for (int j = 0; j < entitiesContainer.missilesIndex.size(); j++) {
-			missile = entitiesContainer.entities[entitiesContainer.missilesIndex[j]];
-			if (!missile) continue;
-			if (missile->TargetIndex != temp->Index) continue;
 
-			if (missile->Pos.distTo(temp->Pos) / 300 < AATimeNeeded) {
-				dmgIncoming += entitiesContainer.GetEntityFromIndex(missile->SourceIndex)->GetTotalAttackDamage();
-			}
-		}
+		dmgIncoming = temp->IncomingDamage(AATimeNeeded);
 
 		if (effDamage > temp->Health) {
 			drawer.drawCircumference(temp->Pos, 50, 10, 0x7f00ff00, 2);
 		}
-		else if (effDamage > temp->Health - (dmgIncoming)) {
+		else if (effDamage > temp->Health - dmgIncoming) {
 			drawer.drawCircumference(temp->Pos, 50, 10, 0x7fffff00, 2);
 		}
 		else {
@@ -134,10 +132,13 @@ void UtilityFunctions::drawDebug() {
 		temp = entitiesContainer.entities[i];
 		if (temp->PCObject) {
 			GH.worldToScreen(&temp->Pos, &pos);
-			drawer.drawTextMedium(pos, utils.stringf("%p", temp->PCObject).c_str(), 0xffff0000);
+			drawer.drawTextSmall(pos, utils.stringf("%p", temp->PCObject).c_str(), 0xffffffff);
 
-			pos.y += 50;
-			drawer.drawTextMedium(pos, utils.stringf("%i", temp->Index).c_str(), 0xffff0000);
+			pos.y += 15;
+			drawer.drawTextSmall(pos, utils.stringf("%i", temp->Index).c_str(), 0xffffffff);
+
+			pos.y += 15;
+			drawer.drawTextSmall(pos, utils.stringf("%s", temp->ObjectName).c_str(), 0xffffffff);
 		}
 	}
 
@@ -204,16 +205,20 @@ int UtilityFunctions::heroesColliding(Vector3 start, Vector3 end, float width) {
 	return collision;
 }
 
-Vector3 UtilityFunctions::getPredictedPos(EntityBase* hero, float seconds, float width) {
+Vector3 UtilityFunctions::getPredictedPos(EntityBase* hero, float seconds, float width = 0, SkillShotType spellType) {
 	int firstPoint = 0;
-	float distance = hero->MovementSpeed * seconds;
+	float distanceTraveled = hero->MovementSpeed * seconds; //Alla distanza che percorre tolgo metà width della spell
+
 	Path path = hero->PCObject->GetPath();
 	Vector3 curPos = hero->Pos;
 	Vector3 result;
 
-	if (!seconds || !path.nPathPoints) {
+	if (!seconds || !path.nPathPoints || (distanceTraveled < width / 2 && spellType == SkillShotType::Circular)) {
 		return hero->Pos;
 	}
+
+	if(UseCustomPrediction)
+		distanceTraveled -= (width / 3);
 
 	firstPoint = hero->PCObject->getAIMgrPassedWaypoints() - 1;
 	
@@ -222,15 +227,15 @@ Vector3 UtilityFunctions::getPredictedPos(EntityBase* hero, float seconds, float
 	path.pathPoints[firstPoint] = curPos;
 
 	for (int i = firstPoint; i < path.nPathPoints - 1; i++) {
-		if (distance < path.pathPoints[i].distTo(path.pathPoints[i + 1])) {
-			result = path.pathPoints[i + 1].setRelativeMagnitude(path.pathPoints[i], distance);
-			distance = 0;
+		if (distanceTraveled < path.pathPoints[i].distTo(path.pathPoints[i + 1])) {
+			result = path.pathPoints[i + 1].setRelativeMagnitude(path.pathPoints[i], distanceTraveled);
+			distanceTraveled = 0;
 			break;
 		}
 
-		distance -= path.pathPoints[i].distTo(path.pathPoints[i + 1]);
+		distanceTraveled -= path.pathPoints[i].distTo(path.pathPoints[i + 1]);
 	}
-	if (distance > 0) {
+	if (distanceTraveled > 0) {
 		result = path.pathPoints[path.nPathPoints - 1];
 	}
 
@@ -242,7 +247,7 @@ void UtilityFunctions::ChampionCustomDraw() {
 	int spellLvl;
 	Vector3 screenPos;
 	EntityBase* temp;
-	if (myHero.ChampionName == "Xerath") {
+	if (myHero.ObjectName == "Xerath") {
 		spellLvl = myHero.PCObject->GetSpellBook()->GetSpellSlot(Spells::R)->GetSpellLvl();
 		dmg = (2 + spellLvl) * (150 + 50 * spellLvl + myHero.AbilityPower * 0.45);
 
@@ -254,14 +259,13 @@ void UtilityFunctions::ChampionCustomDraw() {
 			}
 		}
 	}
-	else if (myHero.ChampionName == "Kalista") {
+	else if (myHero.ObjectName == "Kalista") {
 		for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
 			temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
 			dmg = championScript.getKalistaSpearDamage(temp);
 			if (dmg > 0) {
 				if (isValidTarget(temp) && temp->IsEnemyTo(&myHero) && temp->Health > 0) {
-					GH.worldToScreen(&temp->Pos, &screenPos);
-					drawer.drawTextMedium(screenPos, stringf("%d%", (int)(dmg * 100 / temp->Health)).c_str(), 0xffffff00);
+					drawer.drawTextSmall(temp->Pos.ToScreen(), stringf("%d%%", (int)(dmg * 100 / temp->Health)).c_str(), 0xffffffff);
 				}
 			}
 		}
@@ -374,7 +378,7 @@ void UtilityFunctions::drawActiveSpells() {
 		temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
 		if (temp != NULL && temp->ActiveSpell && 
 			temp->ActiveSpell->GetTargetIndex() == NULL
-			&& (temp->Team != myHero.Team || scriptManager.Debugging)
+			&& (temp->Team != myHero.Team || debugging)
 			) {
 			char* spellName = temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetMissileName();
 			Vector3 vEnd = temp->ActiveSpell->GetEndPos();
@@ -1676,7 +1680,7 @@ void UtilityFunctions::drawMissiles() {
 		if (temp != NULL &&
 				entitiesContainer.GetEntityFromIndex(temp->SourceIndex)->Type == EntityType::Hero &&
 				temp->TargetIndex == NULL
-			&& (entitiesContainer.GetEntityFromIndex(temp->SourceIndex)->Team != myHero.Team || scriptManager.Debugging)
+			&& (entitiesContainer.GetEntityFromIndex(temp->SourceIndex)->Team != myHero.Team || debugging)
 			) {
 
 			char* spellName = temp->SpellInfo->GetSpellData()->GetMissileName();

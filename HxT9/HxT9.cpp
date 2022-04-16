@@ -47,8 +47,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
         gui.destroy();
         hookManager.Dispose();
 
-        FreeLibraryAndExitThread(thisDll, 0);
-
         break;
     }
     return TRUE;
