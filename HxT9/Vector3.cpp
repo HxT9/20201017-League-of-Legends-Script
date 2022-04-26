@@ -41,8 +41,11 @@ float Vector3::distTo(Vector3 pv) {
 float Vector3::getAngle() {
 	return atan2f(z, x);
 }
+float Vector3::getAngle(Vector3 other) {
+	return acos((x * other.x + y * other.y) / (sqrt(pow(x, 2) + pow(y, 2)) * sqrt(pow(other.x, 2) + pow(other.y, 2))));
+}
 std::string Vector3::toString() {
-	return "x: " + std::to_string(x) + ", y: " + std::to_string(y) + ", z: " + std::to_string(z);
+	return "{"+ std::to_string(x) + ", " + std::to_string(y) + ", " + std::to_string(z) + "}";
 }
 bool Vector3::isDrawable() {
 	return x > -1500 && x < 3500 && y > -1500 && y < 2500;

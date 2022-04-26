@@ -7,7 +7,7 @@ SpellInfo* ActiveSpell::GetSpellInfo() {
 }
 
 float ActiveSpell::GetCastingStartTime() {
-	return *(float*)((DWORD)this + oActiveSpellCastTime);
+	return GetCastingEndTime() - GetCastTime();
 }
 
 float ActiveSpell::GetCastingEndTime() {

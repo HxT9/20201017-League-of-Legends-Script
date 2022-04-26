@@ -40,6 +40,7 @@ public:
 	Vector3 setRelativeMagnitude(Vector3 origin, float mag);
 	float distTo(Vector3 pv);
 	float getAngle();
+	float getAngle(Vector3 other);
 	std::string toString();
 	bool isDrawable();
 	float Dot(Vector3 vOther);

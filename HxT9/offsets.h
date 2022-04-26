@@ -43,10 +43,10 @@
 #define oObjPos 0x1F4						//8D 8F ? ? ? ? E8 ? ? ? ? 8B 83 ? ? ? ? 05 ? ? ? ? 89 44 24 20 83 C0 0C 89 44 24 4C 83 38 00 75 20 E8 ? ? ? ? 8B 4C 24 20
 #define oObjVisibility 0x28C				//8D 8F ? ? ? ? E8 ? ? ? ? 8D 4C 24 34 51 8B C8 8B 10 FF 92 ? ? ? ? 6A 00 8B CF
 #define oObjMana 0x2B4						//8D B3 ? ? ? ? F3 0F 11 83 ? ? ? ? BF ? ? ? ? C6 83 ? ? ? ? ? 8B CE E8 ? ? ? ? 83 C6 70 83 EF 01 75 F1 0F 31
-#define oObjMaxMana 0x2C4
+#define oObjMaxMana oObjMana + 0x10
 #define oObjTargetable	0xD1C				//8D B0 ? ? ? ? 56 FF 74 24 20 E8 ? ? ? ? 8A 5C 24 1C 8B 7C 24 20 8B 4C 24 18 "mIsTargetable" + 0x9
 #define oObjHealth 0xDB4					//8D 8B ? ? ? ? C6 83 ? ? ? ? ? 50 8D 83 ? ? ? ? C7 83 ? ? ? ? ? ? ? ? 50
-#define oObjMaxHealth 0xDC4
+#define oObjMaxHealth oObjHealth + 0x10
 #define oObjBonusAtk 0x11FC					//89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? F3 0F 10 86 ? ? ? ? F3 0F 11 44 24 ? 8B 44 24 18
 #define oObjAP 0x120C						//89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? 8B 86 ? ? ? ? 89 86 ? ? ? ? F3 0F 10 86 ? ? ? ? F3 0F 11 44 24 ? 8B 44 24 18
 #define oObjBaseAtk 0x1284					//8B 81 ? ? ? ? 81 C1 ? ? ? ? 89 47 04
@@ -63,12 +63,12 @@
 #define oActiveSpellSpellInfoPtr 0x8 //Dopo questa si va a +0x38 su spelldata
 #define oActiveSpellEndCastTime 0x10 //ObjCastingSpell]+...
 #define oActiveSpellStartPos 0x84
-#define oActiveSpellEndPos 0x90
+#define oActiveSpellEndPos oActiveSpellStartPos + 0xC
 #define oActiveSpellTargetArray 0xc0 //Si entra nell'array e trovi la lista (di solito l'ultimo è il target)
-#define oActiveSpellTargetArraySize 0xc4 //Penso sia sempre 1
+#define oActiveSpellTargetArraySize oActiveSpellTargetArray + 0x4 //Penso sia sempre 1
 #define oActiveSpellCastTime 0xCC
 #define oActiveSpellChannelStartTime 0x13C //ObjCastingSpell]+...
-#define oActiveSpellChannelEndTime 0x140
+#define oActiveSpellChannelEndTime oActiveSpellChannelStartTime + 0x4
 
 #define oSpellBookSpellSlots 0x488 //localPlayer + objSpellBook + objSpellSlots + spellslotnumber
 #define oSpellSlotSpellLvl 0x1C //SpellSlot + 0x20 (int)
@@ -89,7 +89,7 @@
 #define oAIMGR_IsMoving 0x1c0 //Bool
 #define oAIMGR_PassedWaypoints 0x1c4 //int
 #define oAIMGR_NavBegin 0x1E4 //[AIMGR + NavBegin] Vector3
-#define oAIMGR_NavEnd 0x1E8 //([AIMGR + NavEnd] - 0xC) Vector3 //Tra NavBegin e NavEnd ci sono tutti i Vec3 del path
+#define oAIMGR_NavEnd oAIMGR_NavEnd + 0x4 //([AIMGR + NavEnd] - 0xC) Vector3 //Tra NavBegin e NavEnd ci sono tutti i Vec3 del path
 #define oAIMGR_IsDashing 0x214 //Bool
 #define oAIMGR_CurrentPos 0x2E4 //vec3
 #define oAIMGR_Velocity 0x2F0 //Vec3 (Probably delta coords from Currentpos per frame)
@@ -97,15 +97,15 @@
 #define oMissileSpellInfo 0x278
 #define oMissileSourceIndex 0x2DC
 #define oMissileStartPos 0x2F4
-#define oMissileEndPos 0x300
+#define oMissileEndPos oMissileStartPos + 0xC
 #define oMissileTargetIndex 0x330 //Puntatore al target
-#define oMissileHasTarget 0x334
+#define oMissileHasTarget oMissileTargetIndex + 0x4
 
-#define oBuffStartTime 0x0C
-#define oBuffEndTime 0x10
 #define oBuffType 0x4
 #define oBuffName 0x8
 #define oBuffNameOffset 0x4
-#define oBuffFloatCount 0x130
-#define oBuffIntCount 0x74
+#define oBuffStartTime 0x0C
+#define oBuffEndTime 0x10
 #define oBuffCountAlt 0x24
+#define oBuffIntCount 0x74
+#define oBuffFloatCount 0x130

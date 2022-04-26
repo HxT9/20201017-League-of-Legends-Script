@@ -78,7 +78,7 @@ void BaseUlt::tick()
 	}
 
 	if (targetIndex) {
-		if (calculatedBaseUlt - gameTime - time < 0 && gameTime > lastBaseUlt + 5) {
+		if (calculatedBaseUlt - gameTime - time < 0 && gameTime > lastBaseUlt + 10) {
 			//gui.print(utils.stringf("BASEULT CAST"));
 			if (myHero.ObjectName == "Ezreal") {
 				myHero.nextActionTime = 0;

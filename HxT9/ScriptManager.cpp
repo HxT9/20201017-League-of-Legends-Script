@@ -41,13 +41,15 @@ void ScriptManager::Tick(LPDIRECT3DDEVICE9 pDevice) {
 		}
 
 		if (unloaded) {
+			CallWindowProcA(hookManager.NewWndProc, FindWindowA(0, "League of Legends (TM) Client"), WM_ACTIVATE, WA_ACTIVE, 0);
+
 			gui.destroy();
 			hookManager.Dispose();
 			CreateThread(NULL, 0, &Unload, NULL, 0, NULL);
 			return;
 		}
 
-		drawer.tick(pDevice); //Aggiornamento del pDevice
+		drawer.tick(pDevice);
 
 #ifdef HXT9_USECHRONO
 		using namespace std::chrono;
@@ -163,7 +165,6 @@ void ScriptManager::Init(LPDIRECT3DDEVICE9 pDevice) {
 
 DWORD WINAPI Unload(LPVOID lpParam) {
 	Sleep(500);
-	MessageBoxA(NULL, "DLL unloading", "HxT9", MB_OK);
 	FreeLibraryAndExitThread(thisDll, 0);
 
 	MessageBoxA(NULL, "Can't unload the dll. Restarting script", "HxT9", MB_OK);

@@ -133,7 +133,8 @@ public:
 	void	Delete();
 	void	UpdateAttributes();
 	float	GetTotalAttackDamage();
+	float	GetBasicAttackDamage(float armor, float magicRes);
 	bool	IsEnemyTo(EntityBase* eb);
-	float	HasBuff(std::string BuffName);
+	BuffInfo* GetBuff(std::string BuffName);
 	float	IncomingDamage(float seconds);
 };

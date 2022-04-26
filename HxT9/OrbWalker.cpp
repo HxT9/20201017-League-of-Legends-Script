@@ -8,7 +8,7 @@
 void OrbWalker::tick() {
 	bool chatOpened = *(bool*)(*(DWORD*)(baseAddress + oChatClientBox) + oChatBoxChatOpened);
 
-	dmg = myHero.GetTotalAttackDamage();
+	dmg = myHero.GetBasicAttackDamage(0, 0);
 
 	myHero.behaviour = Behaviour::Nothing;
 	if (focused && !chatOpened) {

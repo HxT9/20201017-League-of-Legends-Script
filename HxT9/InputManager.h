@@ -15,6 +15,7 @@ typedef struct {
 
 class InputManager {
 public:
+	char C_championOnlyKey = 'M';
 	bool useScan = false;
 	float xOffset;
 	float yOffset;

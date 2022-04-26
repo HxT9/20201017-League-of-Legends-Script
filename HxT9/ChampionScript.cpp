@@ -58,10 +58,15 @@ void ChampionScript::tick() {
 			}
 			break;
 		case Behaviour::Combo:
+			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
+				target = targetSelector.getBestChampion(700);
+				if (target != NULL)
+					myHero.CastSpellAtTarget(Spells::E, target);
+			}
 			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
 				target = targetSelector.getBestChampion(850);
 				if (target != NULL) {
-					predictedPos = utils.getPredictedPos(target, 0.75, 150);
+					predictedPos = utils.getPredictedPos(target, 0.75, 150, SkillShotType::Circular);
 					if (predictedPos.distTo(myHero.PCObject->GetPos()) <= 850)
 						myHero.CastSpellAtPos(Spells::Q, predictedPos);
 				}
@@ -73,11 +78,6 @@ void ChampionScript::tick() {
 					if (predictedPos.distTo(myHero.Pos) <= 600)
 						myHero.CastSpellAtPos(Spells::W, predictedPos);
 				}
-			}
-			if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
-				target = targetSelector.getBestChampion(700);
-				if (target != NULL)
-					myHero.CastSpellAtTarget(Spells::E, target);
 			}
 			break;
 		}
@@ -248,30 +248,33 @@ void ChampionScript::tick() {
 	if (myHero.ObjectName == "Varus") {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
-			if (!myHero.chargingSpell && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
-				target = targetSelector.getBestChampion(925);
-				if (target != NULL) {
-					predictedPos = utils.getPredictedPos(target, 0.2419, 300);
-					if (predictedPos.distTo(myHero.Pos) <= 925)
-						myHero.CastSpellAtPos(Spells::E, predictedPos);
+			if (myHero.isChargingSpell()) {
+				if (std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("VarusQ") != std::string::npos) {
+					range = 925.f + ((gameTime - myHero.ActiveSpell->GetChannelStartTime()) / 0.2f) * 70.f;
+					range = min(range, 1625);
+					target = targetSelector.getBestChampion(range);
+					if (target != NULL) {
+						predictedPos = utils.getPredictedPos(target, myHero.Pos.distTo(target->Pos) / 1850, 50);
+						if (predictedPos.distTo(myHero.Pos) <= range)
+							myHero.ReleaseChargeableSpell(Spells::Q, predictedPos);
+					}
 				}
 			}
-			//While charging spellstate is still ready
-			if (!myHero.chargingSpell && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) { 
-				target = targetSelector.getBestChampion(1625);
-				if (target != NULL) {
-					myHero.StartChargingSpell(Spells::Q, 4);
+			else {
+				if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
+					target = targetSelector.getBestChampion(925);
+					if (target != NULL) {
+						predictedPos = utils.getPredictedPos(target, 0.2419, 300);
+						if (predictedPos.distTo(myHero.Pos) <= 925)
+							myHero.CastSpellAtPos(Spells::E, predictedPos);
+					}
 				}
-			}
-			if (myHero.chargingSpell) {
-				range = 925.f + ((gameTime - myHero.chargingStartTime) / 0.2f) * 70.f;
-				range = min(range, 1625);
-				//gui.print(utils.stringf("Q range: %f", range));
-				target = targetSelector.getBestChampion(range);
-				if (target != NULL) {
-					predictedPos = utils.getPredictedPos(target, myHero.Pos.distTo(target->Pos) / 1850, 50);
-					if (predictedPos.distTo(myHero.Pos) <= range)
-						myHero.ReleaseChargeableSpell(Spells::Q, predictedPos);
+				//While charging spellstate is still ready
+				if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
+					target = targetSelector.getBestChampion(1625);
+					if (target != NULL) {
+						myHero.StartChargingSpell(Spells::Q, 4);
+					}
 				}
 			}
 			break;
@@ -279,22 +282,34 @@ void ChampionScript::tick() {
 	}
 
 	if (myHero.ObjectName == "Xerath") {
-		if (myHero.ActiveSpell != NULL && std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("LocusOfPower") != std::string::npos ) {
-			if (GetKeyState(VK_LBUTTON) & 0x8000 && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::R, &zero) == SpellState::Ready) {
-				range = 5000;
-				target = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 300);
-				if (target != NULL) {
-					predictedPos = utils.getPredictedPos(target, 0.627, 400, SkillShotType::Circular);
-					if (predictedPos.distTo(myHero.Pos) <= range) {
-						myHero.CastSpellAtPos(Spells::R, predictedPos);
+		switch (myHero.behaviour) {
+		case Behaviour::Combo:
+			if (myHero.isChargingSpell()) {
+				if (std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("LocusOfPower") != std::string::npos) {
+					if (GetKeyState(VK_LBUTTON) & 0x8000 && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::R, &zero) == SpellState::Ready) {
+						range = 5000;
+						target = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 300);
+						if (target != NULL) {
+							predictedPos = utils.getPredictedPos(target, 0.627, 400, SkillShotType::Circular);
+							if (predictedPos.distTo(myHero.Pos) <= range) {
+								myHero.CastSpellAtPos(Spells::R, predictedPos);
+							}
+						}
+					}
+				}
+				if (std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("ArcanopulseChargeUp") != std::string::npos) {
+					range = 750 + ((gameTime - myHero.ActiveSpell->GetChannelStartTime()) / 0.15) * 65;
+					range = min(range, 1400);
+					target = targetSelector.getBestChampion(range);
+					if (target) {
+						predictedPos = utils.getPredictedPos(target, 0.5, 145);
+						if (predictedPos.distTo(myHero.Pos) <= range)
+							myHero.ReleaseChargeableSpell(Spells::Q, predictedPos);
 					}
 				}
 			}
-		}
-		else {
-			switch (myHero.behaviour) {
-			case Behaviour::Combo:
-				if (!myHero.chargingSpell && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
+			else {
+				if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::E, &zero) == SpellState::Ready) {
 					target = targetSelector.getBestChampion(1000);
 					if (target != NULL) {
 						predictedPos = utils.getPredictedPos(target, 0.25 + target->Pos.distTo(myHero.Pos) / 1600, 120);
@@ -304,25 +319,15 @@ void ChampionScript::tick() {
 				}
 
 				//While charging spellstate is still ready
-				if (!myHero.chargingSpell && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
+				if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::Q, &zero) == SpellState::Ready) {
 					target = targetSelector.getBestChampion(1400);
 					if (target != NULL) {
 						myHero.StartChargingSpell(Spells::Q, 3);
-					}
-				}
-				if (myHero.chargingSpell) {
-					range = 750 + ((gameTime - myHero.chargingStartTime) / 0.15f) * 65;
-					range = min(range, 1400);
-					//gui.print(utils.stringf("Q range: %f", range));
-					target = targetSelector.getBestChampion(range);
-					if (target != NULL) {
-						predictedPos = utils.getPredictedPos(target, 0.5, 145);
-						if (predictedPos.distTo(myHero.Pos) <= range)
-							myHero.ReleaseChargeableSpell(Spells::Q, predictedPos);
+						return;
 					}
 				}
 
-				if (!myHero.chargingSpell && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
+				if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::W, &zero) == SpellState::Ready) {
 					target = targetSelector.getBestChampion(1000);
 					if (target != NULL) {
 						predictedPos = utils.getPredictedPos(target, 0.25, 500, SkillShotType::Circular);
@@ -330,9 +335,8 @@ void ChampionScript::tick() {
 							myHero.CastSpellAtPos(Spells::W, predictedPos);
 					}
 				}
-
-				break;
 			}
+		break;
 		}
 	}
 
@@ -429,15 +433,18 @@ void ChampionScript::tick() {
 
 float ChampionScript::getKalistaSpearDamage(EntityBase* target) {
 	int eLvl = myHero.SpellBk->GetSpellSlot(Spells::E)->GetSpellLvl();
-	int spears = (int)target->HasBuff("kalistaexpungemarker");
-	float armor = target->Armor;
-	float dmg = 10 + 10 * eLvl + myHero.GetTotalAttackDamage() * 0.6;
-	if (spears)
-		dmg += ((0.5 * pow(eLvl, 2) + 2.5 * eLvl + 7) + (myHero.GetTotalAttackDamage() * ((16.25 + 3.75 * eLvl) / 100))) * (spears - 1);
-	else
-		dmg = 0;
+	if (target->GetBuff("kalistaexpungemarker")) {
+		int spears = (int)target->GetBuff("kalistaexpungemarker")->GetBuffCountAlt();
+		float armor = target->Armor;
+		float dmg = 10 + 10 * eLvl + myHero.GetTotalAttackDamage() * 0.6;
+		if (spears)
+			dmg += ((0.5 * pow(eLvl, 2) + 2.5 * eLvl + 7) + (myHero.GetTotalAttackDamage() * ((16.25 + 3.75 * eLvl) / 100))) * (spears - 1);
+		else
+			dmg = 0;
 
-	return utils.calcEffectiveDamage(dmg, armor);
+		return utils.calcEffectiveDamage(dmg, armor);
+	}
+	return 0;
 }
 
 

@@ -104,6 +104,8 @@ HRESULT WINAPI HkD3DPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT* pSrcRect, CON
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
 LRESULT WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param) {
+	EntityBase* temp;
+
 	if (gui.ShowLog) {
 		ImGui_ImplWin32_WndProcHandler(hwnd, u_msg, w_param, l_param);
 	}
@@ -112,10 +114,23 @@ LRESULT WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param) 
 		if (u_msg == WM_KEYUP && (w_param == VK_END || w_param == VK_ESCAPE)){
 			gui.ShowMain = false;
 			CallWindowProcA(hookManager.NewWndProc, hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+			return true;
 		}
-
-		ImGui_ImplWin32_WndProcHandler(hwnd, u_msg, w_param, l_param);
-		return 1;
+		
+		if (debugging) {
+			if (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard) {
+				CallWindowProcA(hookManager.NewWndProc, hwnd, WM_ACTIVATE, WA_INACTIVE, 0);
+				if (ImGui_ImplWin32_WndProcHandler(hwnd, u_msg, w_param, l_param))
+					return true;
+			}
+			else {
+				CallWindowProcA(hookManager.NewWndProc, hwnd, WM_ACTIVATE, WA_ACTIVE, 0);
+			}
+		}
+		else {
+			if (ImGui_ImplWin32_WndProcHandler(hwnd, u_msg, w_param, l_param))
+				return true;
+		}
 	}
 
 	switch (u_msg) {
@@ -134,13 +149,15 @@ LRESULT WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param) 
 		break;
 
 	case WM_KEYUP:
-		if (w_param == VK_SHIFT){
+		if (w_param == VK_SHIFT) {
 			gui.ShowLog = false;
 		}
 
 		if (w_param == VK_END) {
-			gui.ShowMain = true;
-			CallWindowProcA(hookManager.NewWndProc, hwnd, WM_ACTIVATE, WA_INACTIVE, 0);
+			if (!gui.ShowMain) {
+				gui.ShowMain = true;
+				CallWindowProcA(hookManager.NewWndProc, hwnd, WM_ACTIVATE, WA_INACTIVE, 0);
+			}
 		}
 
 		if (w_param == VK_NUMPAD1)
@@ -150,16 +167,21 @@ LRESULT WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param) 
 			myHero.useSpell = false;
 
 		if (w_param == VK_NUMPAD5)
-			utils.MB("Debugging messagebox with NUMPAD5");
+			debugging != debugging;
+
+		if (w_param == VK_NUMPAD9)
+			if (GetKeyState(VK_NUMPAD8) & 0x8000)
+				unloaded = true;			
 
 		break;
 
 	case WM_LBUTTONUP:
-		EntityBase* temp = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 150);
+		temp = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 150);
 		if (temp)
 			myHero.selectedTargetIndex = temp->Index;
 		else
 			myHero.selectedTargetIndex = -1;
+		break;
 	}
 
 	return CallWindowProcA(hookManager.NewWndProc, hwnd, u_msg, w_param, l_param);

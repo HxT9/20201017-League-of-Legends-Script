@@ -62,11 +62,11 @@ EntityBase* TargetSelector::getBestMinion(bool onlyLastHit, float dmg, float ran
 	return retMinion;
 }
 
-EntityBase* TargetSelector::getBestChampion(float range) {
-	return getBestChampion(range, false);
+EntityBase* TargetSelector::getBestChampion(float range, std::string buff) {
+	return getBestChampion(range, false, buff);
 }
 
-EntityBase* TargetSelector::getBestChampion(float range, bool aa) {
+EntityBase* TargetSelector::getBestChampion(float range, bool aa, std::string buff) {
 	float minHP = 100000;
 	EntityBase* bestHero = NULL;
 	EntityBase* temp;
@@ -79,14 +79,15 @@ EntityBase* TargetSelector::getBestChampion(float range, bool aa) {
 
 			if (temp->Team != myHero.Team &&
 				temp->Pos.distTo(myHero.Pos) <= r &&
-				temp->MaxHealth > 10) {
+				temp->MaxHealth > 10 &&
+				(buff == "" || temp->GetBuff(buff))) {
 				if (myHero.selectedTargetIndex == temp->Index)
 					return temp;
 
-					if (temp->Health < minHP) {
-						minHP = temp->Health;
-							bestHero = temp;
-					}
+				if (temp->Health < minHP) {
+					minHP = temp->Health;
+					bestHero = temp;
+				}
 			}
 		}
 	}

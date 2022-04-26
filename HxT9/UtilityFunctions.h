@@ -5,7 +5,7 @@
 class UtilityFunctions
 {
 public:
-	bool		UseCustomPrediction = false;
+	bool		UseCustomPrediction = true;
 
 	void		init();
 	void		Draw();

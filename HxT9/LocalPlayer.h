@@ -24,9 +24,6 @@ public:
 	float	nextSpellTime = 0;
 	Behaviour behaviour = Behaviour::Nothing;
 	bool	afterAA;
-	bool	chargingSpell = false;
-	float	chargingStartTime = 0;
-	float	chargingEndTime = 0;
 	int		selectedTargetIndex = -1;
 	float	lastRandomCheckTime = 0;
 	bool	ApheliosCrescendumMis = false;
@@ -37,6 +34,7 @@ public:
 	void CastedAA(float startTime);
 	void CastedAA();
 	void Tick();
+	bool isChargingSpell();
 	void AutoAttack(EntityBase* target);
 	void MoveTo(Vector3 position);
 	bool CastSpellMaster(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, Vector3* pos1, Vector3* pos2, DWORD networkID);

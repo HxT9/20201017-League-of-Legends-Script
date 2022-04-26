@@ -94,7 +94,7 @@ void UtilityFunctions::drawEntities() {
 }
 
 void UtilityFunctions::drawLastHittableMinions() {
-	float myDamage = myHero.GetTotalAttackDamage();
+	float myDamage = myHero.GetBasicAttackDamage(0, 0);
 	float effDamage;
 
 	float dmgIncoming, AATimeNeeded;
@@ -128,17 +128,22 @@ void UtilityFunctions::drawLastHittableMinions() {
 void UtilityFunctions::drawDebug() {
 	Vector3 pos;
 	EntityBase* temp;
+	std::string str;
 	for (int i = 0; i < entitiesContainer.MaxIndex; i++) {
 		temp = entitiesContainer.entities[i];
 		if (temp->PCObject) {
-			GH.worldToScreen(&temp->Pos, &pos);
-			drawer.drawTextSmall(pos, utils.stringf("%p", temp->PCObject).c_str(), 0xffffffff);
+			pos = temp->Pos.ToScreen();
+			pos.y += 10;
 
-			pos.y += 15;
-			drawer.drawTextSmall(pos, utils.stringf("%i", temp->Index).c_str(), 0xffffffff);
+			str = utils.stringf("%p\r\n%i\r\n%s\r\n", temp->PCObject, temp->Index, temp->ObjectName.c_str());
 
-			pos.y += 15;
-			drawer.drawTextSmall(pos, utils.stringf("%s", temp->ObjectName).c_str(), 0xffffffff);
+			if (temp->BuffMgr)
+				for (int j = 0; j < temp->BuffMgr->BuffCount(); j++) {
+					if (!temp->BuffMgr->getBuff(j)->IsValid()) continue;
+					str += temp->BuffMgr->getBuff(j)->GetBuffName() + std::string("\r\n");
+				}
+
+			drawer.drawTextSmall(pos, utils.stringf("%s", str.c_str()).c_str(), 0xffffffff);
 		}
 	}
 
@@ -148,6 +153,10 @@ void UtilityFunctions::drawDebug() {
 
 		if (i > 0)
 			drawer.drawLine(p.pathPoints[i], p.pathPoints[i - 1], 0xffffffff, 2);
+	}
+
+	for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
+		drawer.drawCircumference(getPredictedPos(entitiesContainer.entities[entitiesContainer.heroesIndex[i]], 0.5, 145), 30, 10, 0xffffff00, 2);
 	}
 }
 
@@ -211,14 +220,14 @@ Vector3 UtilityFunctions::getPredictedPos(EntityBase* hero, float seconds, float
 
 	Path path = hero->PCObject->GetPath();
 	Vector3 curPos = hero->Pos;
-	Vector3 result;
+	Vector3 finalPoint, preFinalPoint;
 
 	if (!seconds || !path.nPathPoints || (distanceTraveled < width / 2 && spellType == SkillShotType::Circular)) {
 		return hero->Pos;
 	}
 
-	if(UseCustomPrediction)
-		distanceTraveled -= (width / 3);
+	//if(UseCustomPrediction)
+		//distanceTraveled -= (width / 2);
 
 	firstPoint = hero->PCObject->getAIMgrPassedWaypoints() - 1;
 	
@@ -228,7 +237,8 @@ Vector3 UtilityFunctions::getPredictedPos(EntityBase* hero, float seconds, float
 
 	for (int i = firstPoint; i < path.nPathPoints - 1; i++) {
 		if (distanceTraveled < path.pathPoints[i].distTo(path.pathPoints[i + 1])) {
-			result = path.pathPoints[i + 1].setRelativeMagnitude(path.pathPoints[i], distanceTraveled);
+			finalPoint = path.pathPoints[i + 1].setRelativeMagnitude(path.pathPoints[i], distanceTraveled);
+			preFinalPoint = path.pathPoints[i];
 			distanceTraveled = 0;
 			break;
 		}
@@ -236,10 +246,25 @@ Vector3 UtilityFunctions::getPredictedPos(EntityBase* hero, float seconds, float
 		distanceTraveled -= path.pathPoints[i].distTo(path.pathPoints[i + 1]);
 	}
 	if (distanceTraveled > 0) {
-		result = path.pathPoints[path.nPathPoints - 1];
+		finalPoint = path.pathPoints[path.nPathPoints - 1];
+		if (path.nPathPoints > 1)
+			preFinalPoint = path.pathPoints[path.nPathPoints - 2];
+		else
+			preFinalPoint = finalPoint;
 	}
 
-	return result;
+	if (UseCustomPrediction) {
+		//In questo caso tengo conto della spell width per far cadere il centro prima dell'ultimo punto
+
+		//Metto la distanza dei punti a quella maggiore
+		preFinalPoint = preFinalPoint.setRelativeMagnitude(myHero.Pos, max(preFinalPoint.distTo(myHero.Pos), finalPoint.distTo(myHero.Pos)));
+		finalPoint = finalPoint.setRelativeMagnitude(myHero.Pos, max(preFinalPoint.distTo(myHero.Pos), finalPoint.distTo(myHero.Pos)));
+
+		//Adesso tolgo width/2 nella distanza tra preFinal e final
+		finalPoint = finalPoint.setRelativeMagnitude(preFinalPoint, finalPoint.distTo(preFinalPoint) > width / 2 ? preFinalPoint.distTo(finalPoint) - width / 2 : preFinalPoint.distTo(finalPoint) / 2);
+	}
+
+	return finalPoint;
 }
 
 void UtilityFunctions::ChampionCustomDraw() {

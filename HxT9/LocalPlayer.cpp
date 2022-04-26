@@ -48,7 +48,7 @@ void LocalPlayer::MyCastSpell(Spells spell, Vector3* pos) {
 }
 bool LocalPlayer::CastSpellMaster(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, Vector3* pos1, Vector3* pos2, DWORD networkID) {
 	int zero = 0;
-	if (!chargingSpell && gameTime >= nextActionTime) {
+	if (gameTime >= nextActionTime) {
 		if (GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)slotID, &zero) == SpellState::Ready) {
 			MyCastSpell(slotID, pos1);
 			nextActionTime = gameTime + ActionDelay + Humanizer();
@@ -79,14 +79,11 @@ void LocalPlayer::CastBaseUlt() {
 }
 void LocalPlayer::StartChargingSpell(Spells spell, float maxDuration) {
 	myStartChargingSpell(spell);
-	chargingSpell = true;
-	chargingStartTime = gameTime;
-	chargingEndTime = gameTime + maxDuration;
 }
 void LocalPlayer::ReleaseChargeableSpell(Spells spell, Vector3 position) {
-	if (chargingSpell && gameTime >= nextActionTime) {
-		MyCastSpell(spell, &position);
-		chargingSpell = false;
+	if (gameTime >= nextActionTime) {
+		//MyCastSpell(spell, &position);
+		inputManager.addHookedInput(getKey(spell), position.ToScreen(), true);
 	}
 }
 
@@ -131,10 +128,6 @@ void LocalPlayer::Tick() {
 			CastedAA(this->ActiveSpell->GetChannelStartTime());
 	}
 
-	if (gameTime > chargingEndTime) {
-		chargingSpell = false; chargingStartTime = 0; chargingEndTime = 0;
-	}
-
 	if (gameTime > lastRandomCheckTime) {
 		if (NextAATime > gameTime && ObjectName == "Aphelios") {
 			for (int i = 0; i < PCObject->getBuffManager()->BuffCount(); i++) {
@@ -159,9 +152,14 @@ void LocalPlayer::Tick() {
 		lastRandomCheckTime = gameTime + 0.05;
 	}
 }
+
+bool LocalPlayer::isChargingSpell() {
+	return this->ActiveSpell && std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("BasicAttack") == std::string::npos;
+}
+
 void LocalPlayer::AutoAttack(EntityBase* target){
 	//AA ignore actionTime
-	if (!chargingSpell && gameTime > NextAATime && target != NULL && !PCObject->isDashing() && (useAAInCombo || behaviour != Behaviour::Combo)) {
+	if (!isChargingSpell() && gameTime > NextAATime && target != NULL && !PCObject->isDashing() && (useAAInCombo || behaviour != Behaviour::Combo)) {
 		MyIssueOrder(this->PCObject, 3, &(target->Pos), target, false, target->Type == EntityType::Minion, true);
 	}else{
 		if (gameTime >= nextActionTime && gameTime >= LastAAEndTime) {

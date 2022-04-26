@@ -237,9 +237,6 @@
     <ClInclude Include="libs\detours.h">
       <Filter>Header Files\Libs</Filter>
     </ClInclude>
-    <ClInclude Include="Constants.h">
-      <Filter>Header Files\Global</Filter>
-    </ClInclude>
     <ClInclude Include="EntityBase.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
@@ -248,6 +245,9 @@
     </ClInclude>
     <ClInclude Include="HxT9.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlWindow.h">
+      <Filter>Header Files\Global</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -371,6 +371,9 @@
       <Filter>Source Files\Global</Filter>
     </ClCompile>
     <ClCompile Include="HookManager.cpp">
+      <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="ControlWindow.cpp">
       <Filter>Source Files\Global</Filter>
     </ClCompile>
   </ItemGroup>

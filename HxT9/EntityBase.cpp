@@ -217,14 +217,27 @@ void EntityBase::UpdateAttributes()
 
 float EntityBase::GetTotalAttackDamage()
 {
-	int lvl = 0;
 	float Dmg = BaseAttackDamage + BonusAttackDamage;
 
-	if (ObjectName == "Kalista")
+	return Dmg;
+}
+
+float EntityBase::GetBasicAttackDamage(float armor, float magicRes) {
+	int lvl = 0;
+	float Dmg = GetTotalAttackDamage();
+	BuffInfo* bi;
+
+	if (ObjectName == "Kalista") {
 		Dmg *= 0.9;
-	if (ObjectName == "Draven" && HasBuff("DravenSpinningAttack")) {
+	}
+
+	if (ObjectName == "Draven" && GetBuff("DravenSpinningAttack")) {
 		lvl = SpellBk->GetSpellSlot(Spells::Q)->GetSpellLvl();
 		Dmg += 35 + (5 * lvl) + (BonusAttackDamage * (60 + 10 * lvl) / 100);
+	}
+	
+	if (bi = GetBuff("6672buff"), bi ? bi->GetBuffCountInt() == 2 : false) {
+		Dmg += 60 + BonusAttackDamage * 0.45;
 	}
 
 	return Dmg;
@@ -238,20 +251,14 @@ bool EntityBase::IsEnemyTo(EntityBase* eb)
 /*
 * Check if entity has buff and return number of it in a float variable
 */
-float EntityBase::HasBuff(std::string BuffName) {
-	float ret = 0;
-	BuffInfo* bi;
+BuffInfo* EntityBase::GetBuff(std::string BuffName) {
+	BuffInfo* bi = NULL;
 	for (int i = 0; i < BuffMgr->BuffCount(); i++) {
 		bi = BuffMgr->getBuff(i);
-		if (bi && std::string(bi->GetBuffName()) == BuffName) {
-			ret = bi->GetBuffCountInt() + bi->GetBuffCountAlt();
-			if (!ret) bi->GetBuffCountFloat();
-
-			if (ret > 0)
-				break;
-		}
+		if (bi && bi->IsValid() && std::string(bi->GetBuffName()) == BuffName)
+			return bi;
 	}
-	return ret;
+	return NULL;
 }
 
 float EntityBase::IncomingDamage(float seconds) {

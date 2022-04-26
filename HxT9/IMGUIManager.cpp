@@ -51,7 +51,7 @@ void IMGUIManager::renderLogWindow() {
 
 void IMGUIManager::renderMainWindow() {
 	int id = 2000;
-	createWindow("Main", &ShowMain, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse, ImVec2(500, 100), ImVec2(650, 500));
+	createWindow("Main", &ShowMain, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse, ImVec2(400, 100), ImVec2(800, 600));
 
 	ImGui::BeginChild("#Main", ImVec2(0, 0), false);
 
@@ -66,8 +66,16 @@ void IMGUIManager::renderMainWindow() {
 			selectedTab = 1;
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Missiles", ImVec2(80, 25))) {
+		if (ImGui::Button("Buffs", ImVec2(80, 25))) {
 			selectedTab = 2;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("SpellSlots", ImVec2(80, 25))) {
+			selectedTab = 3;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("ActiveSpell", ImVec2(80, 25))) {
+			selectedTab = 4;
 		}
 	}
 	ImGui::EndChildFrame();
@@ -94,19 +102,86 @@ void IMGUIManager::renderMainWindow() {
 	case 1:
 		ImGui::BeginChildFrame(id++, ImVec2(0, 0));
 		for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
-			EntityBase* temp = entitiesContainer.entities[i];
+			EntityBase* temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
 			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
-			ImGui::Text(utils.stringf("Hero index %d, visible %b, health %f, pos %s", temp->Index, temp->Visible, temp->Health, temp->Pos.toString()).c_str());
+			ImGui::Text(utils.stringf("%s index %d, visible %d, health %f, pos %s", temp->ObjectName.c_str(), temp->Index, temp->Visible, temp->Health, temp->Pos.toString().c_str()).c_str());
 			ImGui::EndChildFrame();
 		}
 		ImGui::EndChildFrame();
 		break;
 	case 2:
+		BuffInfo* bi;
 		ImGui::BeginChildFrame(id++, ImVec2(0, 0));
-		for (int i = 0; i < entitiesContainer.missilesIndex.size(); i++) {
-			EntityBase* temp = entitiesContainer.entities[i];
+		for (int i = 0; i < myHero.BuffMgr->BuffCount(); i++) {
+			bi = myHero.BuffMgr->getBuff(i);
+			if (!bi->IsValid()) continue;
+
 			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
-			ImGui::Text(utils.stringf("Missile index %d, source %d, target %d, StartPos %s, EndPos %s, Name %s", temp->Index, temp->SourceIndex, temp->TargetIndex, temp->StartPos.toString(), temp->EndPos.toString(), temp->MissileName).c_str());
+			ImGui::Text(utils.stringf("Name: \"%s\", Type: %d, Start: %f, End: %f, Count Int: %d, Alt: %d, Float: %f",
+														bi->GetBuffName(),
+														bi->GetBuffType(),
+														bi->GetBuffStartTime(),
+														bi->GetBuffEndTime(),
+														bi->GetBuffCountInt(),
+														bi->GetBuffCountAlt(),
+														bi->GetBuffCountFloat()).c_str());
+			ImGui::EndChildFrame();
+		}
+		ImGui::EndChildFrame();
+		break;
+	case 3:
+		SpellSlot* ss;
+		ImGui::BeginChildFrame(id++, ImVec2(0, 0));
+		for (int i = 0; i < 64; i++) {
+			ss = myHero.SpellBk->GetSpellSlot((Spells)i);
+			if (!(ss && ss->GetSpellInfo())) continue;
+
+			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
+			ImGui::Text(utils.stringf("[%d] Missile name: \"%s\", Spell name: \"%s\"",
+				i,
+				ss->GetSpellInfo()->GetSpellData()->GetMissileName(),
+				ss->GetSpellInfo()->GetSpellData()->GetSpellName()).c_str());
+			ImGui::EndChildFrame();
+		}
+		ImGui::EndChildFrame();
+		break;
+	case 4:
+		ImGui::BeginChildFrame(id++, ImVec2(0, 0));
+		if (myHero.ActiveSpell) {
+			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
+			ImGui::Text(utils.stringf("Missile name: \"%s\", Spell name: \"%s\"",
+				myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetMissileName(),
+				myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()
+			).c_str());
+			ImGui::EndChildFrame();
+
+			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
+			ImGui::Text(utils.stringf("Casting start time: %f, Casting end time: %f, Cast time: %f",
+				myHero.ActiveSpell->GetCastingStartTime(),
+				myHero.ActiveSpell->GetCastingEndTime(),
+				myHero.ActiveSpell->GetCastTime()
+			).c_str());
+			ImGui::EndChildFrame();
+
+			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
+			ImGui::Text(utils.stringf("Channel start time: %f, Channel end time: %f, Channeling time: %f",
+				myHero.ActiveSpell->GetChannelStartTime(),
+				myHero.ActiveSpell->GetChannelEndTime(),
+				myHero.ActiveSpell->GetChannelingTime()
+			).c_str());
+			ImGui::EndChildFrame();
+
+			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
+			ImGui::Text(utils.stringf("Start Pos: %s, End Pos: %s",
+				myHero.ActiveSpell->GetStartPos().toString().c_str(),
+				myHero.ActiveSpell->GetEndPos().toString().c_str()
+			).c_str());
+			ImGui::EndChildFrame();
+
+			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
+			ImGui::Text(utils.stringf("Target Index: %d",
+				myHero.ActiveSpell->GetTargetIndex()
+			).c_str());
 			ImGui::EndChildFrame();
 		}
 		ImGui::EndChildFrame();

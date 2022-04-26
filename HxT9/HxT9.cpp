@@ -44,9 +44,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
         break;
 
     case DLL_PROCESS_DETACH:
-        gui.destroy();
-        hookManager.Dispose();
-
+        unloaded = true;
         break;
     }
     return TRUE;

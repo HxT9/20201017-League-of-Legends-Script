@@ -1,6 +1,5 @@
 #include "InputManager.h"
 #include "globalVars.h"
-#include "Constants.h"
 
 InputManager::InputManager()
 {
