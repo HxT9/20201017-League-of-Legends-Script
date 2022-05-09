@@ -120,7 +120,7 @@ void LocalPlayer::Tick() {
 	AADelay = GH.getAttackDelay(PCObject);
 
 	if (this->ActiveSpell != NULL
-		&& std::string(this->ActiveSpell->GetSpellInfo()->GetSpellData()->GetMissileName()).find("Attack") != std::string::npos) {
+		&& std::string(this->ActiveSpell->GetSpellInfo()->GetSpellData()->GetName()).find("Attack") != std::string::npos) {
 
 		AAMissileSpeed = this->ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellSpeed();
 
@@ -135,7 +135,7 @@ void LocalPlayer::Tick() {
 					bool found = false;
 					for (int j = 0; j < entitiesContainer.missilesIndex.size(); j++) {
 						EntityBase* mis = entitiesContainer.entities[entitiesContainer.missilesIndex[j]];
-						if (mis->MissileName == "ApheliosCrescendumAttackMisIn") {
+						if (mis->SpellName == "ApheliosCrescendumAttackMisIn") {
 							ApheliosCrescendumMis = true;
 							found = true;
 							break;
@@ -154,7 +154,7 @@ void LocalPlayer::Tick() {
 }
 
 bool LocalPlayer::isChargingSpell() {
-	return this->ActiveSpell && std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("BasicAttack") == std::string::npos;
+	return this->ActiveSpell && std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetName()).find("BasicAttack") == std::string::npos;
 }
 
 void LocalPlayer::AutoAttack(EntityBase* target){

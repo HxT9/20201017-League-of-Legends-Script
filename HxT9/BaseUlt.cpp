@@ -50,7 +50,7 @@ void BaseUlt::tick()
 			temp->Index == targetIndex &&
 			temp->Visible){
 			if (temp->ActiveSpell) {
-				if (strcmp(temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName(), "Recall") != 0) {
+				if (strcmp(temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetName(), "Recall") != 0) {
 					targetIndex = 0;
 
 					//gui.print(utils.stringf("BASEULT CANCELLED"));
@@ -118,7 +118,7 @@ void BaseUlt::tick()
 
 		for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
 			temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
-			if (temp != NULL && temp->Index != myHero.Index && temp->ActiveSpell && strcmp(temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName(), "Recall") == 0) {
+			if (temp != NULL && temp->Index != myHero.Index && temp->ActiveSpell && strcmp(temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetName(), "Recall") == 0) {
 				//Calcolo danno AD/AP
 				if (myHero.ObjectName == "Ashe" || myHero.ObjectName == "Ezreal") {
 					dmg = utils.calcEffectiveDamage(baseDmg, temp->MagicResist);

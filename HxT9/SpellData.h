@@ -3,9 +3,6 @@
 class SpellData {
 
 public:
-	char* GetMissileName();
-	char* GetSpellName();
-	float GetSpellWidth();
+	char* GetName();
 	float GetSpellSpeed();
-	float GetSpellMaxCD();
 };

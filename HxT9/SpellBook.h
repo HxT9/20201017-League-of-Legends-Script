@@ -7,6 +7,5 @@ class SpellBook {
 public:
 
 	ActiveSpell* GetActiveSpell();
-	float GetManaCost(int slot);
 	SpellSlot* GetSpellSlot(Spells slot);
 };

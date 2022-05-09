@@ -249,7 +249,7 @@ void ChampionScript::tick() {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (myHero.isChargingSpell()) {
-				if (std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("VarusQ") != std::string::npos) {
+				if (std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetName()).find("VarusQ") != std::string::npos) {
 					range = 925.f + ((gameTime - myHero.ActiveSpell->GetChannelStartTime()) / 0.2f) * 70.f;
 					range = min(range, 1625);
 					target = targetSelector.getBestChampion(range);
@@ -285,7 +285,7 @@ void ChampionScript::tick() {
 		switch (myHero.behaviour) {
 		case Behaviour::Combo:
 			if (myHero.isChargingSpell()) {
-				if (std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("LocusOfPower") != std::string::npos) {
+				if (std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetName()).find("LocusOfPower") != std::string::npos) {
 					if (GetKeyState(VK_LBUTTON) & 0x8000 && GH.getSpellState(myHero.PCObject->GetSpellBook(), (int)Spells::R, &zero) == SpellState::Ready) {
 						range = 5000;
 						target = targetSelector.getClickedChampion(GH.getMouseWorldPosition(), 300);
@@ -297,7 +297,7 @@ void ChampionScript::tick() {
 						}
 					}
 				}
-				if (std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()).find("ArcanopulseChargeUp") != std::string::npos) {
+				if (std::string(myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetName()).find("ArcanopulseChargeUp") != std::string::npos) {
 					range = 750 + ((gameTime - myHero.ActiveSpell->GetChannelStartTime()) / 0.15) * 65;
 					range = min(range, 1400);
 					target = targetSelector.getBestChampion(range);

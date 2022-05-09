@@ -1,6 +1,7 @@
 #include "SpellData.h"
 #include "offsets.h"
 #include <Windows.h>
+#include "globalVars.h"
 
 char* GetStr(DWORD address) {
 	if (*(int*)(address + 0x10) > 15)
@@ -9,22 +10,10 @@ char* GetStr(DWORD address) {
 		return (char*)address;
 }
 
-char* SpellData::GetMissileName() {
-	return *(char**)((DWORD)this + oSpellDataMissileName);
-}
-
-char* SpellData::GetSpellName() {
-	return *(char**)((DWORD)this + oSpellDataSpellName);
-}
-
-float SpellData::GetSpellWidth() {
-	return *(float*)((DWORD)this + oSpellDataSpellWidth);
+char* SpellData::GetName() {
+	return *(char**)((DWORD)this + oSpellDataName);
 }
 
 float SpellData::GetSpellSpeed() {
 	return *(float*)((DWORD)this + oSpellDataSpellSpeed);
-}
-
-float SpellData::GetSpellMaxCD() {
-	return *(float*)((DWORD)this + oSpellDataSpellMaxCooldown);
 }

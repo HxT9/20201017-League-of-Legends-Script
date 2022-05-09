@@ -4,6 +4,10 @@
 #include "libs/MinHook.h"
 #include "imgui.h"
 
+#include <polyhook2/Exceptions/HWBreakPointHook.hpp>
+#include "offsets.h"
+
+
 DWORD findPattern(const char* module, const char* pattern) {
 
 #define in_range(x, a, b) (x >= a && x <= b)
@@ -72,6 +76,12 @@ HookManager::HookManager() {
 	MH_Initialize();
 }
 
+int __fastcall hk_OnProcessSpell(void* spellBook, void* edx, /*SpellCastInfo* */DWORD spellCastInfo)
+{
+	gui.print("OnProcessSpell %lx %lx", spellBook, spellCastInfo);
+	GH.onProcessSpell(spellBook, spellCastInfo);
+}
+
 void HookManager::Init() {
 	OriginalD3DPresent = GetD3DPresent();
 	MH_CreateHook(OriginalD3DPresent, &HkD3DPresent, (LPVOID*)&NewD3DPresent);
@@ -80,6 +90,10 @@ void HookManager::Init() {
 	OriginalGetCursorPos = GetCursorPos;
 	MH_CreateHook(OriginalGetCursorPos, &HkGetCursorPos, (LPVOID*)&NewGetCursorPos);
 	MH_EnableHook(OriginalGetCursorPos);
+
+	std::shared_ptr<PLH::HWBreakPointHook> onPS;
+	onPS = std::make_shared<PLH::HWBreakPointHook>((char*)(baseAddress + oOnProcessSpell), (char*)&hk_OnProcessSpell, GetCurrentThread());
+	onPS->hook();
 
 	HWND hwnd = FindWindowA(0, "League of Legends (TM) Client");
 	NewWndProc = WNDPROC(SetWindowLongA(hwnd, GWL_WNDPROC, (LONG)HkWndProc));

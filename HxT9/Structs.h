@@ -2,7 +2,8 @@
 #include "Enums.h"
 #include "Vector3.h"
 
-typedef struct {
+typedef struct SkillShotProperties 
+{
 	const char* name;
 	SkillShotType skillShotType;
 	float range;
@@ -11,7 +12,7 @@ typedef struct {
 	float angle;
 }SkillShotProperties, *PSkillShotProperties;
 
-typedef struct
+typedef struct Path
 {
 	Vector3 pathPoints[100];
 	int nPathPoints = 0;

@@ -3,7 +3,7 @@
 #include <queue>
 #include <Windows.h>
 
-typedef struct {
+typedef struct PERS_INPUT {
 	INPUT in = INPUT();
 	bool championOnly = false;
 	bool isClick = false;

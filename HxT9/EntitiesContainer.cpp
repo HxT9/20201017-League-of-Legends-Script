@@ -38,7 +38,7 @@ void EntitiesContainer::tick() {
 		return;
 
 	updateEL();
-
+	
 	resetEntities();
 
 	int index;

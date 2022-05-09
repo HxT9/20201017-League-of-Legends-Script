@@ -122,7 +122,6 @@ void ScriptManager::Tick(LPDIRECT3DDEVICE9 pDevice) {
 #else
 		entitiesContainer.tick();
 		gui.tick();
-
 		utils.Draw();
 		myHero.Tick();
 		championScript.tick();
@@ -150,12 +149,11 @@ void ScriptManager::Init(LPDIRECT3DDEVICE9 pDevice) {
 		if (*(DWORD*)(baseAddress + oLocalPlayer) != NULL) {
 			myHero = LocalPlayer(*(CObject**)(baseAddress + oLocalPlayer));
 			gui.print("LocalPlayer: %p", myHero.PCObject);
-			gui.print("Hero: " + std::string(myHero.ObjectName));
-			gui.print("AiMgr: %p\0", myHero.PCObject->GetAIManager());
+			gui.print("Hero: %s", std::string(myHero.ObjectName).c_str());
+			gui.print("AiMgr: %p", myHero.PCObject->GetAIManager());
 			baseUlt.init();
 
 			initLP = true;
-			gui.print("initLP");
 		}
 		else {
 			return;

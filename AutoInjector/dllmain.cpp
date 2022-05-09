@@ -12,7 +12,7 @@ Thread hijack injection
 */
 
 
-void do_things() {
+void do_things(HMODULE hModule) {
 	bool injected = false;
 
 	// path to our dll
@@ -81,7 +81,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 )
 {
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
-		do_things();
+		do_things(hModule);
 	return TRUE;
 }
 

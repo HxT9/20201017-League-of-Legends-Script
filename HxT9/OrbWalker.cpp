@@ -6,8 +6,7 @@
 #include "EntityBase.h"
 
 void OrbWalker::tick() {
-	bool chatOpened = *(bool*)(*(DWORD*)(baseAddress + oChatClientBox) + oChatBoxChatOpened);
-
+	bool chatOpened = utils.isChatOpen();
 	dmg = myHero.GetBasicAttackDamage(0, 0);
 
 	myHero.behaviour = Behaviour::Nothing;

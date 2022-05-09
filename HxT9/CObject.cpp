@@ -33,7 +33,7 @@ int CObject::GetLevel() {
 }
 
 float CObject::GetHealth() {
-	return *(float*)((DWORD)this + oObjHealth);
+	return *(float*)((DWORD)this + oObjHP);
 }
 
 float CObject::GetBaseAttackDamage() {
@@ -57,7 +57,7 @@ float CObject::GetMagicResist() {
 }
 
 float CObject::GetMaxHealth() {
-	return *(float*)((DWORD)this + oObjHealth + 0x10);
+	return *(float*)((DWORD)this + oObjMaxHP);
 }
 
 float CObject::GetAttackRange() {
@@ -97,15 +97,11 @@ bool CObject::IsEnemyTo(CObject* Obj) {
 }
 
 char* CObject::GetName() {
-	return (char*)((DWORD)this + oObjName);
-}
-
-char* CObject::GetRefName() {
-	return *(char**)((DWORD)this + oObjName);
+	return utils.GetString((DWORD)this + oObjName);
 }
 
 char* CObject::GetObjectName() {
-	return *(char**)((DWORD)this + oObjObjectName);
+	return utils.GetString((DWORD)this + oObjObjectName);
 }
 
 int CObject::GetTeam() {

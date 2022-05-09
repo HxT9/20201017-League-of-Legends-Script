@@ -125,7 +125,7 @@ public:
 	SpellInfo*	SpellInfo			= NULL;
 	Vector3		StartPos			= Vector3();
 	Vector3		EndPos				= Vector3();
-	std::string	MissileName			= "";
+	std::string	SpellName			= "";
 
 
 	EntityBase();

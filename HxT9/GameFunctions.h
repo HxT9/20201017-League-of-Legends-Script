@@ -20,6 +20,7 @@ public:
 	void	worldToScreen(Vector3* in, Vector3* out);
 	float	getAttackCastDelay(CObject* obj);
 	float	getAttackDelay(CObject* obj);
+	int onProcessSpell(void* spellBook, DWORD spellInfo);
 	Vector3 getMouseWorldPosition();
 	CObject* getFirstCObject(void* objManager);
 	CObject* getNextCObject(void* objManager, CObject* obj);

@@ -4,6 +4,7 @@
 #include <cstdarg>
 #include <fstream>
 #include <iostream>
+#include "offsets.h"
 
 #define M_PI           3.14159265358979323846
 
@@ -30,6 +31,25 @@ void UtilityFunctions::init()
 			activeSpellsExported.push_back(l);
 		}
 		f.close();
+	}
+
+	//Cerco l'offset per chatOpen
+	DWORD ChatClientBox = *(DWORD*)(baseAddress + oChatClientBox);
+	DWORD Temp = *(DWORD*)(baseAddress + oChatHud);
+	DWORD Temp2 = 0;
+	if (Temp) {
+		Temp = *(DWORD*)(Temp + 0x4);
+		Temp2 = *(DWORD*)Temp;
+		for(int i = 0; Temp2; i++){
+			Temp2 = *(DWORD*)(Temp + (i << 2));
+			if (Temp2 && abs((int)(Temp2 - ChatClientBox)) < 0x1000) {
+				ChatOpenAddress = Temp2 + 0x48;
+				break;
+			}
+		}
+	}
+	if (!ChatOpenAddress) {
+		gui.print("Can't find isChatOpen offset");
 	}
 }
 
@@ -297,6 +317,14 @@ void UtilityFunctions::ChampionCustomDraw() {
 	}
 }
 
+bool UtilityFunctions::isChatOpen()
+{
+	if (ChatOpenAddress)
+		return *(bool*)ChatOpenAddress;
+
+	return false;
+}
+
 void UtilityFunctions::drawSpellCD() {
 	EntityBase* temp;
 	Vector3 screenPos;
@@ -385,6 +413,15 @@ void UtilityFunctions::MB(const char* fmt, ...) {
 	MessageBoxA(NULL, buf.c_str(), "DEBUG", MB_OK);
 }
 
+char* UtilityFunctions::GetString(DWORD Address) {
+	if(*(int*)(Address + 0x14) > 0x10){
+		return *(char**)(Address);
+	}
+	else {
+		return (char*)Address;
+	}
+}
+
 void drawRectangle(Vector3 vStart, Vector3 vEnd, float radius) {
 	drawer.drawRectangle(vStart, vEnd, radius, 0xffffffff, 2);
 }
@@ -405,7 +442,7 @@ void UtilityFunctions::drawActiveSpells() {
 			temp->ActiveSpell->GetTargetIndex() == NULL
 			&& (temp->Team != myHero.Team || debugging)
 			) {
-			char* spellName = temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetMissileName();
+			char* spellName = temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetName();
 			Vector3 vEnd = temp->ActiveSpell->GetEndPos();
 			Vector3 vStart = temp->ActiveSpell->GetStartPos();
 				
@@ -1708,7 +1745,7 @@ void UtilityFunctions::drawMissiles() {
 			&& (entitiesContainer.GetEntityFromIndex(temp->SourceIndex)->Team != myHero.Team || debugging)
 			) {
 
-			char* spellName = temp->SpellInfo->GetSpellData()->GetMissileName();
+			char* spellName = temp->SpellInfo->GetSpellData()->GetName();
 			Vector3 vStart = temp->StartPos;
 			Vector3 vPos = temp->Pos;
 			Vector3 vEnd = temp->EndPos;

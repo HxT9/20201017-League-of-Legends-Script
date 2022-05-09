@@ -6,6 +6,7 @@ class UtilityFunctions
 {
 public:
 	bool		UseCustomPrediction = true;
+	DWORD		ChatOpenAddress = 0;
 
 	void		init();
 	void		Draw();
@@ -26,8 +27,10 @@ public:
 	int			heroesColliding(Vector3 start, Vector3 end, float width);
 	Vector3		getPredictedPos(EntityBase* hero, float seconds, float width, SkillShotType spellType = SkillShotType::Linear);
 	void		ChampionCustomDraw();
+	bool		isChatOpen();
 	std::string	vformat(const char* fmt, va_list ap);
 	std::string	stringf(const char* fmt, ...);
 	void MB(const char* fmt, ...);
+	char* GetString(DWORD Ptr);
 };
 

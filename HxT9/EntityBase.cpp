@@ -208,7 +208,7 @@ void EntityBase::UpdateAttributes()
 				SpellInfo	= PCObject->GetMissileSpellInfo();
 				StartPos	= PCObject->GetMissileStartPos();
 				EndPos		= PCObject->GetMissileEndPos();
-				MissileName = SpellInfo->GetSpellData()->GetMissileName();
+				SpellName	= SpellInfo->GetSpellData()->GetName();
 				TeamNextUpdate = getNextUpdate(MissileUpdateInterval, MissileUpdateNInt, Offset);
 			}
 		}
@@ -273,7 +273,7 @@ float EntityBase::IncomingDamage(float seconds) {
 		if (temp->TargetIndex == Index
 			&& entitiesContainer.entities[temp->SourceIndex]
 			&& temp->Pos.distTo(Pos) / temp->SpellInfo->GetSpellData()->GetSpellSpeed() + missileApplyDamageDelay < seconds
-			&& temp->MissileName.find("BasicAttack") != std::string::npos) {
+			&& temp->SpellName.find("BasicAttack") != std::string::npos) {
 
 			totalDamage += utils.calcEffectiveDamage(entitiesContainer.entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
 		}
@@ -299,7 +299,7 @@ float EntityBase::IncomingDamage(float seconds) {
 		if (temp->ActiveSpell
 			&& temp->Pos.distTo(Pos) < 400
 			&& temp->ActiveSpell->GetTargetIndex() == Index
-			&& std::string(temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetMissileName()).find("BasicAttack") != std::string::npos) {
+			&& std::string(temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetName()).find("BasicAttack") != std::string::npos) {
 
 			if (gameTime + seconds > temp->ActiveSpell->GetChannelEndTime()) {
 				totalDamage += utils.calcEffectiveDamage(entitiesContainer.entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);

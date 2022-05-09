@@ -7,6 +7,7 @@
 #include "UtilityFunctions.h"
 
 bool scrollToBottom = true;
+bool stopLogging = false;
 int selectedTab = 0;
 
 void IMGUIManager::init(LPDIRECT3DDEVICE9 pDevice) {
@@ -32,7 +33,10 @@ void IMGUIManager::renderLogWindow() {
 	ImGui::BeginChild("#Log", ImVec2(0, 0), false);
 
 	ImGui::BeginChildFrame(id++, ImVec2(0, 30));
+	ImGui::SameLine();
 	ImGui::Checkbox("Keep scrolling to bottom", &scrollToBottom);
+	ImGui::SameLine();
+	ImGui::Checkbox("Stop Loggin", &stopLogging);
 	ImGui::EndChildFrame();
 
 	ImGui::BeginChildFrame(3, ImVec2(0, 0));
@@ -104,7 +108,7 @@ void IMGUIManager::renderMainWindow() {
 		for (int i = 0; i < entitiesContainer.heroesIndex.size(); i++) {
 			EntityBase* temp = entitiesContainer.entities[entitiesContainer.heroesIndex[i]];
 			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
-			ImGui::Text(utils.stringf("%s index %d, visible %d, health %f, pos %s", temp->ObjectName.c_str(), temp->Index, temp->Visible, temp->Health, temp->Pos.toString().c_str()).c_str());
+			ImGui::Text(utils.stringf("%s - %p index %d, visible %d, health %f, pos %s", temp->ObjectName.c_str(), temp->PCObject, temp->Index, temp->Visible, temp->Health, temp->Pos.toString().c_str()).c_str());
 			ImGui::EndChildFrame();
 		}
 		ImGui::EndChildFrame();
@@ -117,7 +121,8 @@ void IMGUIManager::renderMainWindow() {
 			if (!bi->IsValid()) continue;
 
 			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
-			ImGui::Text(utils.stringf("Name: \"%s\", Type: %d, Start: %f, End: %f, Count Int: %d, Alt: %d, Float: %f",
+			ImGui::Text(utils.stringf("%d Name: \"%s\", Type: %d, Start: %f, End: %f, Count Int: %d, Alt: %d, Float: %f",
+														i,
 														bi->GetBuffName(),
 														bi->GetBuffType(),
 														bi->GetBuffStartTime(),
@@ -137,10 +142,12 @@ void IMGUIManager::renderMainWindow() {
 			if (!(ss && ss->GetSpellInfo())) continue;
 
 			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
-			ImGui::Text(utils.stringf("[%d] Missile name: \"%s\", Spell name: \"%s\"",
+			ImGui::Text(utils.stringf("[%d] Spell name: \"%s\" Level: %d",
 				i,
-				ss->GetSpellInfo()->GetSpellData()->GetMissileName(),
-				ss->GetSpellInfo()->GetSpellData()->GetSpellName()).c_str());
+				ss->GetSpellInfo()->GetSpellData()->GetName(),
+				ss->GetSpellLvl()
+				).c_str()
+			);
 			ImGui::EndChildFrame();
 		}
 		ImGui::EndChildFrame();
@@ -149,9 +156,8 @@ void IMGUIManager::renderMainWindow() {
 		ImGui::BeginChildFrame(id++, ImVec2(0, 0));
 		if (myHero.ActiveSpell) {
 			ImGui::BeginChildFrame(id++, ImVec2(0, 40));
-			ImGui::Text(utils.stringf("Missile name: \"%s\", Spell name: \"%s\"",
-				myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetMissileName(),
-				myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetSpellName()
+			ImGui::Text(utils.stringf("Spell name: \"%s\"",
+				myHero.ActiveSpell->GetSpellInfo()->GetSpellData()->GetName()
 			).c_str());
 			ImGui::EndChildFrame();
 
@@ -233,6 +239,7 @@ void IMGUIManager::print(const char* fmt, ...)
 	print(buf);
 }
 void IMGUIManager::print(std::string in) {
+	if (stopLogging) return;
 	for (int i = 0; i < MaxConsoleLines - 1; i++) {
 		ConsoleLines[i] = ConsoleLines[i + 1];
 	}

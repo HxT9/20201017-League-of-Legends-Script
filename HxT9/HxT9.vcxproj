@@ -45,6 +45,7 @@
     <ClInclude Include="GameFunctions.h" />
     <ClInclude Include="globalVars.h" />
     <ClInclude Include="HookManager.h" />
+    <ClInclude Include="HookService.h" />
     <ClInclude Include="HxT9.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
@@ -100,6 +101,7 @@
     <ClCompile Include="GameFunctions.cpp" />
     <ClCompile Include="globalVars.cpp" />
     <ClCompile Include="HookManager.cpp" />
+    <ClCompile Include="HookService.cpp" />
     <ClCompile Include="HxT9.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
@@ -240,6 +242,9 @@
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\_install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -250,9 +255,12 @@
       <ForceFileOutput>
       </ForceFileOutput>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalLibraryDirectories>E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\zydis\dependencies\zycore\Release;E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\asmtk\Release;E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\zydis\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>asmjit.lib;asmtk.lib;Zydis.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
