@@ -14,6 +14,8 @@ BaseUlt baseUlt;
 InputManager inputManager;
 Minimap miniMap;
 HookManager hookManager;
+
+DriverRWInterface driver = DriverRWInterface("\\\\.\\HxT9", GetCurrentProcessId());
 #pragma endregion
 
 #pragma region baseVars

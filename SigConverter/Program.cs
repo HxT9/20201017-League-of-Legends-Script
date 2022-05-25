@@ -1,6 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Windows;
+using System.Threading;
 
 namespace SigConverter
 {

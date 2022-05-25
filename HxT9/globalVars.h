@@ -3,7 +3,6 @@
 #include <Windows.h>
 #include "GameFunctions.h"
 #include "LocalPlayer.h"
-#include "ScriptManager.h"
 #include "Drawer.h"
 #include "EntitiesContainer.h"
 #include "IMGUIManager.h"
@@ -15,6 +14,8 @@
 #include "InputManager.h"
 #include "Minimap.h"
 #include "HookManager.h"
+#include "DriverRWInterface.h"
+#include "ScriptManager.h"
 
 #pragma region helpers
 extern GameFunctions GH;
@@ -30,6 +31,8 @@ extern BaseUlt baseUlt;
 extern InputManager inputManager;
 extern Minimap miniMap;
 extern HookManager hookManager;
+
+extern DriverRWInterface driver;
 #pragma endregion
 
 #pragma region baseVars

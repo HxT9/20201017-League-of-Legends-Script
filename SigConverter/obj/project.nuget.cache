@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "L60X56vNEBMF5c6LCz39rxKcnMgthHlysPbbDdk5LvThdX7JdR5SffJHscDjRJObVS6Fvu3av7LGHXA7scX0lw==",
+  "dgSpecHash": "sk/1M/qUHmIoEW58j4WRKrjQVOI4yafgsdiW9j1C41pMTrWfyxGid+dHbeptZUSAQR6KXFtNg96sBauz2H8UuQ==",
   "success": true,
   "projectFilePath": "E:\\alber\\source\\repos\\20201017-League-of-Legends-Script\\SigConverter\\SigConverter.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\alber\\.nuget\\packages\\microsoft.netcore.app.host.win-x86\\5.0.16\\microsoft.netcore.app.host.win-x86.5.0.16.nupkg.sha512"
+  ],
   "logs": []
 }

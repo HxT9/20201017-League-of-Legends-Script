@@ -61,6 +61,9 @@
     <Filter Include="Header Files\Libs">
       <UniqueIdentifier>{25b6c644-a59f-4aa5-ba98-d9cb51d3e48d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PLH1">
+      <UniqueIdentifier>{5658ad65-c5e2-4b91-a242-daac40afd50e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dx9tex.h">
@@ -252,6 +255,24 @@
     <ClInclude Include="HookService.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
+    <ClInclude Include="HeavensGate.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Syscalls.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="makesyscall.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="DriverRWInterface.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="PLH1\PolyHook.hpp">
+      <Filter>PLH1</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="d3dx9math.inl">
@@ -381,6 +402,12 @@
     </ClCompile>
     <ClCompile Include="HookService.cpp">
       <Filter>Source Files\Global</Filter>
+    </ClCompile>
+    <ClCompile Include="HeavensGate.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Memory.cpp">
+      <Filter>Source Files\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,11 +1,11 @@
 #include "HookManager.h"
 #include "globalVars.h"
 #include <Psapi.h>
-#include "libs/MinHook.h"
+#include "MinHook/MinHook.h"
 #include "imgui.h"
-
-#include <polyhook2/Exceptions/HWBreakPointHook.hpp>
 #include "offsets.h"
+#include "HeavensGate.h"
+#include "Memory.h"
 
 
 DWORD findPattern(const char* module, const char* pattern) {
@@ -51,7 +51,7 @@ DWORD findPattern(const char* module, const char* pattern) {
 }
 
 PVOID GetD3DPresent() {
-	HMODULE d3dll;
+	HMODULE d3dll = NULL;
 	DWORD adr;
 	PDWORD VTable;
 
@@ -72,28 +72,80 @@ PVOID GetD3DPresent() {
 	return (PVOID)VTable[17];
 }
 
+int reapplyProtectionIndex;
+LONG WINAPI VehHandler(EXCEPTION_POINTERS* pExceptionInfo)
+{
+	if (pExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_GUARD_PAGE_VIOLATION) //We will catch PAGE_GUARD Violation
+	{
+		if (pExceptionInfo->ContextRecord->Eip == (baseAddress + oOnProcessSpell)) { //Make sure we are at the address we want within the page
+			pExceptionInfo->ContextRecord->Eip = (DWORD)&hkOnProcessSpell; //Modify EIP/RIP to where we want to jump to instead of the original function
+		}
+
+		pExceptionInfo->ContextRecord->EFlags |= 0x100; //Will trigger an STATUS_SINGLE_STEP exception right after the next instruction get executed to reapply page guard.
+		return EXCEPTION_CONTINUE_EXECUTION; //Continue to next instruction
+	}
+
+	if (pExceptionInfo->ExceptionRecord->ExceptionCode == STATUS_SINGLE_STEP) //We will also catch STATUS_SINGLE_STEP, meaning we just had a PAGE_GUARD violation
+	{
+		driver.Protect((baseAddress + oOnProcessSpell), 1, PAGE_EXECUTE_READ | PAGE_GUARD);
+
+		return EXCEPTION_CONTINUE_EXECUTION; //Continue the next instruction
+	}
+
+	return EXCEPTION_CONTINUE_SEARCH; //Keep going down the exception handling list to find the right handler IF it is not PAGE_GUARD nor SINGLE_STEP
+}
+
 HookManager::HookManager() {
 	MH_Initialize();
 }
 
-int __fastcall hk_OnProcessSpell(void* spellBook, void* edx, /*SpellCastInfo* */DWORD spellCastInfo)
+int __fastcall hkOnProcessSpell(void* spellBook, void* edx, /*SpellCastInfo* */DWORD spellCastInfo)
 {
-	gui.print("OnProcessSpell %lx %lx", spellBook, spellCastInfo);
-	GH.onProcessSpell(spellBook, spellCastInfo);
+	utils.MB("OnProcessSpell %lx %lx", spellBook, spellCastInfo);
+	return hookManager.NewOnProcessSpell(spellBook, spellCastInfo);
 }
 
 void HookManager::Init() {
 	OriginalD3DPresent = GetD3DPresent();
-	MH_CreateHook(OriginalD3DPresent, &HkD3DPresent, (LPVOID*)&NewD3DPresent);
-	MH_EnableHook(OriginalD3DPresent);
-
 	OriginalGetCursorPos = GetCursorPos;
+
+	MH_CreateHook(OriginalD3DPresent, &HkD3DPresent, (LPVOID*)&NewD3DPresent);
 	MH_CreateHook(OriginalGetCursorPos, &HkGetCursorPos, (LPVOID*)&NewGetCursorPos);
+
+	MH_EnableHook(OriginalD3DPresent);
 	MH_EnableHook(OriginalGetCursorPos);
 
-	std::shared_ptr<PLH::HWBreakPointHook> onPS;
-	onPS = std::make_shared<PLH::HWBreakPointHook>((char*)(baseAddress + oOnProcessSpell), (char*)&hk_OnProcessSpell, GetCurrentThread());
-	onPS->hook();
+	NewOnProcessSpell = (Prototype_OnProcessSpell)malloc(0x1000);
+	driver.Protect((DWORD)NewOnProcessSpell, 0x1000, PAGE_EXECUTE_READWRITE);
+	driver.Memcpy((DWORD)NewOnProcessSpell, (baseAddress + oOnProcessSpell), 0x100); //Occhio a non copiare troppo
+
+	utils.DebugLog("Copied OnProcessSpell to 0x%p", (DWORD)NewOnProcessSpell);
+
+	//Register the Custom Exception Handler
+	VehHandle = AddVectoredExceptionHandler(true, (PVECTORED_EXCEPTION_HANDLER)VehHandler);
+
+	utils.MB("Pre OnProcessSpell Hook");
+	if (VehHook(baseAddress + oOnProcessSpell, (DWORD)&hkOnProcessSpell, &onProcessSpellOldProtection)) {
+		utils.MB("Hooked OnProcessSpell");
+	}
+	else {
+		utils.MB("Error Hooking OnProcessSpell");
+	}
+	utils.MB("Post OnProcessSpell Hook");
+
+	//PLH::BreakPointHook onPS = PLH::BreakPointHook((char*)(baseAddress + oOnProcessSpell), (char*)&hk_OnProcessSpell);
+	//PLH::VEHHook onPS = PLH::VEHHook();
+	//onPS.SetupHook((BYTE*)(baseAddress + oOnProcessSpell), (BYTE*)&hk_OnProcessSpell, PLH::VEHHook::VEHMethod::GUARD_PAGE);
+	//utils.MB("Set hook %d", onPS.Hook());
+	//EnableHeavensGateHook();
+
+
+	//utils.MB("Pre OnProcessSpell Hook");
+	//NewOnProcessSpell = (Prototype_OnProcessSpell)driver.HookFunction((baseAddress + oOnProcessSpell), (UINT64)&hk_OnProcessSpell);
+	//utils.MB("Post OnProcessSpell Hook");
+	//MH_CreateHook((PVOID)(baseAddress + oOnProcessSpell), &hk_OnProcessSpell, (LPVOID*)&NewOnProcessSpell);
+	//MH_EnableHook((PVOID)(baseAddress + oOnProcessSpell));
+
 
 	HWND hwnd = FindWindowA(0, "League of Legends (TM) Client");
 	NewWndProc = WNDPROC(SetWindowLongA(hwnd, GWL_WNDPROC, (LONG)HkWndProc));
@@ -101,6 +153,12 @@ void HookManager::Init() {
 
 void HookManager::Dispose() {
 	MH_DisableHook(MH_ALL_HOOKS);
+
+	DisableHeavensGateHook();
+
+	VehUnHook(baseAddress + oOnProcessSpell, onProcessSpellOldProtection);
+
+	RemoveVectoredExceptionHandler(VehHandle);
 
 	WNDPROC(SetWindowLongA(FindWindowA(0, "League of Legends (TM) Client"), GWL_WNDPROC, (LONG)NewWndProc));
 }
@@ -114,6 +172,25 @@ HRESULT WINAPI HkD3DPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT* pSrcRect, CON
     }
 
     return hookManager.NewD3DPresent(pDevice, pSrcRect, pDstRect, hDestWindow, pDirtyRegion);
+}
+
+bool HookManager::VehHook(DWORD Fun, DWORD hkFun, DWORD* oldProtection)
+{
+	//We cannot hook two functions in the same page, because we will cause an infinite callback
+	if (Memory::AreInSamePage(Fun, hkFun))
+		return false;
+
+	//Toggle PAGE_GUARD flag on the page
+	*oldProtection = driver.Protect(Fun, 1, PAGE_EXECUTE_READ | PAGE_GUARD);
+
+	return true;
+}
+
+bool HookManager::VehUnHook(DWORD Fun, DWORD OldProtection) {
+	DWORD oldProtection;
+	VirtualProtect((LPVOID)Fun, 1, OldProtection, &oldProtection);
+
+	return true;
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);

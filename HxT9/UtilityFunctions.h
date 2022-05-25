@@ -32,5 +32,6 @@ public:
 	std::string	stringf(const char* fmt, ...);
 	void MB(const char* fmt, ...);
 	char* GetString(DWORD Ptr);
+	void DebugLog(const char* fmt, ...);
 };
 

@@ -118,7 +118,7 @@ void UtilityFunctions::drawLastHittableMinions() {
 	float effDamage;
 
 	float dmgIncoming, AATimeNeeded;
-	EntityBase *temp, *missile;
+	EntityBase *temp = NULL, *missile = NULL;
 	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
 		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
 		if (!isValidTarget(temp)
@@ -420,6 +420,17 @@ char* UtilityFunctions::GetString(DWORD Address) {
 	else {
 		return (char*)Address;
 	}
+}
+
+void UtilityFunctions::DebugLog(const char* fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+	std::string buf = vformat(fmt, ap);
+	va_end(ap);
+
+	buf = "[HxT9] " + buf + "\n";
+
+	OutputDebugStringA(buf.c_str());
 }
 
 void drawRectangle(Vector3 vStart, Vector3 vEnd, float radius) {

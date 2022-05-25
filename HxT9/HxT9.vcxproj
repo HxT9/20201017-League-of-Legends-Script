@@ -38,12 +38,14 @@
     <ClInclude Include="d3dx9tex.h" />
     <ClInclude Include="d3dx9xof.h" />
     <ClInclude Include="Drawer.h" />
+    <ClInclude Include="DriverRWInterface.h" />
     <ClInclude Include="EntitiesContainer.h" />
     <ClInclude Include="EntityBase.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="Equation.h" />
     <ClInclude Include="GameFunctions.h" />
     <ClInclude Include="globalVars.h" />
+    <ClInclude Include="HeavensGate.h" />
     <ClInclude Include="HookManager.h" />
     <ClInclude Include="HookService.h" />
     <ClInclude Include="HxT9.h" />
@@ -60,6 +62,8 @@
     <ClInclude Include="libs\detours.h" />
     <ClInclude Include="libs\MinHook.h" />
     <ClInclude Include="LocalPlayer.h" />
+    <ClInclude Include="makesyscall.h" />
+    <ClInclude Include="Memory.h" />
     <ClInclude Include="MinHook\buffer.h" />
     <ClInclude Include="MinHook\hde\hde32.h" />
     <ClInclude Include="MinHook\hde\hde64.h" />
@@ -71,6 +75,7 @@
     <ClInclude Include="Minimap.h" />
     <ClInclude Include="offsets.h" />
     <ClInclude Include="OrbWalker.h" />
+    <ClInclude Include="PLH1\PolyHook.hpp" />
     <ClInclude Include="ScriptManager.h" />
     <ClInclude Include="SkillShot.h" />
     <ClInclude Include="SkillShotDrawer.h" />
@@ -79,6 +84,7 @@
     <ClInclude Include="SpellInfo.h" />
     <ClInclude Include="SpellSlot.h" />
     <ClInclude Include="Structs.h" />
+    <ClInclude Include="Syscalls.h" />
     <ClInclude Include="TargetSelector.h" />
     <ClInclude Include="UtilityFunctions.h" />
     <ClInclude Include="Vector3.h" />
@@ -100,6 +106,7 @@
     <ClCompile Include="Equation.cpp" />
     <ClCompile Include="GameFunctions.cpp" />
     <ClCompile Include="globalVars.cpp" />
+    <ClCompile Include="HeavensGate.cpp" />
     <ClCompile Include="HookManager.cpp" />
     <ClCompile Include="HookService.cpp" />
     <ClCompile Include="HxT9.cpp" />
@@ -111,6 +118,7 @@
     <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="LocalPlayer.cpp" />
+    <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MinHook\buffer.c" />
     <ClCompile Include="MinHook\hde\hde32.c" />
     <ClCompile Include="MinHook\hde\hde64.c" />
@@ -146,7 +154,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -159,7 +167,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -243,8 +251,9 @@
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
       <AdditionalIncludeDirectories>E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\_install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -255,8 +264,8 @@
       <ForceFileOutput>
       </ForceFileOutput>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\zydis\dependencies\zycore\Release;E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\asmtk\Release;E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\zydis\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>asmjit.lib;asmtk.lib;Zydis.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\zydis\dependencies\zycore\Release;E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\zydis\Release;E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\asmtk\Release;E:\Downloads\Cheats\PolyHook 2\PolyHook_2_0\build32\Release;E:\alber\source\repos\20220509 VCPKG\vcpkg\packages\capstone_x86-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PolyHook_2.lib;asmjit.lib;asmtk.lib;Zydis.lib;Zycore.lib;capstone.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>

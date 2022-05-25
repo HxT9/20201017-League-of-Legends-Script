@@ -412,9 +412,9 @@ int main()
 			}
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xFF\x52\x30\x8B\x8E\x00\x00\x00\x00", "xxxxx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, "\xF3\x0F\x58\xC8\xF3\x0F\x00\x00\x00\xFF\x52\x00\x8B\x8E\x00\x00\x00\x00", "xxxxxx???xx?xx????", SearchType::Text);
 		if (tempAddr) {
-			oMinimapObjectHud = Read<DWORD>(tempAddr + 5);
+			oMinimapObjectHud = Read<DWORD>(tempAddr + 14);
 		}
 
 		tempAddr = FindPatternEx(hModule, "\x0F\x5B\xC9\xF3\x0F\x11\x56\x00", "xxxxxxx?", SearchType::Text);
@@ -512,9 +512,9 @@ int main()
 			oObjLevel = Read<DWORD>(tempAddr + 2);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x8A\x4E\x10", "x????xxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, "\x8B\x38\xE8\x00\x00\x00\x00\x8B\xF0", "xxx????xx", SearchType::Text);
 		if (tempAddr) {
-			tempAddr = getE8Address(tempAddr);
+			tempAddr = getE8Address(tempAddr + 2);
 			tempAddr = FindPatternEx(hModule, "\x8B\x84\x81\x00\x00\x00\x00", "xxx????", SearchType::Text, tempAddr);
 			if (tempAddr) {
 				oSpellBookSpellSlots = Read<DWORD>(tempAddr + 3);

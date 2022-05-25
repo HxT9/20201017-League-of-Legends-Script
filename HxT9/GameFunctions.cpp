@@ -27,8 +27,6 @@ typedef int(__thiscall* fnIssueOrderNew)(DWORD a1, int a2, int a3, bool a4, int 
 typedef void*(__thiscall* fnGetAIManager)(DWORD obj);
 typedef float(__thiscall* fnGetBoundingRadius)(DWORD obj);
 
-typedef int(__thiscall* event_OnProcessSpell)(void* spellBook, /* SpellCastInfo* */DWORD spellInfo);
-
 void GameFunctions::issueClick(Vector3 screenPos) {
 	fnIssueOrderNew fun = (fnIssueOrderNew)(baseAddress + oIssueClickNew);
 	fun(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x24), 0, 0, true, screenPos.x, screenPos.y, 0);
@@ -93,8 +91,4 @@ float	GameFunctions::getAttackCastDelay(CObject* obj) {
 }
 float	GameFunctions::getAttackDelay(CObject* obj) {
 	fnGetAttackDelay fun = (fnGetAttackDelay)(baseAddress + oGetAttackDelay); return fun(obj);
-}
-
-int GameFunctions::onProcessSpell(void* spellBook, /* SpellCastInfo* */DWORD spellInfo) {
-	event_OnProcessSpell fun = (event_OnProcessSpell)(baseAddress + oOnProcessSpell); return fun(spellBook, spellInfo);
 }

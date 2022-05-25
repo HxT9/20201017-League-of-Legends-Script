@@ -1,10 +1,6 @@
 #include "ScriptManager.h"
-#include "Drawer.h"
 #include "offsets.h"
 #include "globalVars.h"
-#include <string>
-#include "imgui.h"
-#include "libs/MinHook.h"
 
 //#define HXT9_USECHRONO
 
@@ -45,6 +41,7 @@ void ScriptManager::Tick(LPDIRECT3DDEVICE9 pDevice) {
 
 			gui.destroy();
 			hookManager.Dispose();
+			driver.Dispose();
 			CreateThread(NULL, 0, &Unload, NULL, 0, NULL);
 			return;
 		}
@@ -143,6 +140,11 @@ void ScriptManager::Init(LPDIRECT3DDEVICE9 pDevice) {
 		inputManager.resetInputs();
 		entitiesContainer.Init();
 		initHelpers = true;
+
+		int driverTester = 35;
+		if (driver.ReadVirtualMemory<int>((UINT64)&driverTester) != driverTester) {
+			gui.print("DRIVER NOT INITIALIZED!");
+		}
 	}
 
 	if (!initLP) {
