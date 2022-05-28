@@ -4,21 +4,18 @@
 #include <string>
 #include <vector>
 
-class IMGUIManager
+namespace IMGUIManager
 {
-public:
-	bool ShowLog = false;
-	bool ShowMain = false;
-	int MaxConsoleLines = 1000;
-	std::vector<std::string> ConsoleLines;
+	extern bool ShowLog;
+	extern bool ShowMain;
+	extern int MaxConsoleLines;
+	extern std::vector<std::string> ConsoleLines;
 
-	void init(LPDIRECT3DDEVICE9 Device);
-	void tick();
-	void destroy();
-	void print(const char* fmt, ...);
-	void print(std::string in);
-	void resetConsole();
-	void renderLogWindow();
-	void renderMainWindow();
+	void Init(LPDIRECT3DDEVICE9 Device);
+	void Tick();
+	void Dispose();
+	void Print(const char* fmt, ...);
+	void Print(std::string in);
+	void ResetConsole();
 };
 

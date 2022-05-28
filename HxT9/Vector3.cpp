@@ -1,6 +1,7 @@
 #include "Vector3.h"
 #include <cmath>
 #include "globalVars.h"
+#include "GameFunctions.h"
 
 Vector3::Vector3() {
 	x = y = z = 0.f;
@@ -86,6 +87,6 @@ Vector3 Vector3::setWorldY() {
 }
 Vector3 Vector3::ToScreen() {
 	Vector3 ret;
-	GH.worldToScreen(this, &ret);
+	GameFunctions::WorldToScreen(this, &ret);
 	return ret;
 }

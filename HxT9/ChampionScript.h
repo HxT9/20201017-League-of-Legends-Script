@@ -2,10 +2,9 @@
 #include "Enums.h"
 #include "EntityBase.h"
 
-class ChampionScript
+namespace ChampionScript
 {
-public:
-	void tick();
-	float getKalistaSpearDamage(EntityBase* target);
+	void Tick();
+	float GetKalistaSpearDamage(EntityBase* target);
 };
 

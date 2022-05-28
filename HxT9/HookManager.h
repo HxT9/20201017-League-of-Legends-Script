@@ -3,32 +3,29 @@
 #include <vector>
 #include "d3d9.h"
 
-typedef HRESULT(WINAPI* Prototype_Present)(LPDIRECT3DDEVICE9, CONST RECT*, CONST RECT*, HWND, CONST RGNDATA*);
-typedef BOOL(WINAPI* Prototype_GetCursorPos)(LPPOINT);
-typedef int(__thiscall* Prototype_OnProcessSpell)(void* spellBook, /* SpellCastInfo* */DWORD spellInfo);
-
-HRESULT	WINAPI HkD3DPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT* pSrcRect, CONST RECT* pDstRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion);
-LRESULT	WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
-BOOL	WINAPI HkGetCursorPos(LPPOINT lpPoint);
-int __fastcall hkOnProcessSpell(void* spellBook, void* edx, /*SpellCastInfo* */DWORD spellCastInfo);
-
-class HookManager
+namespace HookManager
 {
-public:
-	PVOID VehHandle;
+	typedef HRESULT(WINAPI* Prototype_Present)(LPDIRECT3DDEVICE9, CONST RECT*, CONST RECT*, HWND, CONST RGNDATA*);
+	typedef BOOL(WINAPI* Prototype_GetCursorPos)(LPPOINT);
+	typedef int(__thiscall* Prototype_OnProcessSpell)(void* spellBook, /* SpellCastInfo* */DWORD spellInfo);
 
-	PVOID OriginalD3DPresent;
-	PVOID OriginalGetCursorPos;
+	HRESULT	WINAPI HkD3DPresent(LPDIRECT3DDEVICE9 pDevice, CONST RECT* pSrcRect, CONST RECT* pDstRect, HWND hDestWindow, CONST RGNDATA* pDirtyRegion);
+	LRESULT	WINAPI HkWndProc(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
+	BOOL	WINAPI HkGetCursorPos(LPPOINT lpPoint);
+	int __fastcall HkOnProcessSpell(void* spellBook, void* edx, /*SpellCastInfo* */DWORD spellCastInfo);
 
-	DWORD onProcessSpellOldProtection;
+	extern PVOID VehHandle;
 
-	Prototype_Present NewD3DPresent;
-	Prototype_GetCursorPos NewGetCursorPos;
-	Prototype_OnProcessSpell NewOnProcessSpell;
-	WNDPROC NewWndProc;
+	extern PVOID OriginalD3DPresent;
+	extern PVOID OriginalGetCursorPos;
 
-public:
-	HookManager();
+	extern DWORD onProcessSpellOldProtection;
+
+	extern Prototype_Present NewD3DPresent;
+	extern Prototype_GetCursorPos NewGetCursorPos;
+	extern Prototype_OnProcessSpell NewOnProcessSpell;
+	extern WNDPROC NewWndProc;
+
 	void Init();
 	void Dispose();
 	bool VehHook(DWORD Fun, DWORD hkFun, DWORD* oldProtection);

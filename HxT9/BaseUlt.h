@@ -1,22 +1,18 @@
 #pragma once
 #include "Vector3.h"
 
-class BaseUlt
+namespace BaseUlt
 {
-public:
-	bool enabled = true;
+	extern bool Enabled;
+	extern float LastBaseUlt;
+	extern float Speed;
+	extern float Width;
+	extern float CastTime;
+	extern Vector3 SpawnPoint;
+	extern float CalculatedBaseUlt;
+	extern short TargetIndex;
 
-	float lastBaseUlt;
-	float speed;
-	float width;
-	float castTime;
-	Vector3 spawnPoint;
-
-	float calculatedBaseUlt = -100;
-	short targetIndex = 0;
-
-	void init();
-
-	void tick();
+	void Init();
+	void Tick();
 };
 

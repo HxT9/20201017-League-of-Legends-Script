@@ -3,36 +3,37 @@
 #include <queue>
 #include <Windows.h>
 
-typedef struct PERS_INPUT {
-	INPUT in = INPUT();
-	bool championOnly = false;
-	bool isClick = false;
-	bool isAA = false;
-	Vector3 screenPos = Vector3();
-	bool hookMouse = false;
-	bool hookMouseChange = false;
-}PERS_INPUT;
+namespace InputManager{
+	typedef struct PERS_INPUT {
+		INPUT in = INPUT();
+		bool championOnly = false;
+		bool isClick = false;
+		bool isAA = false;
+		Vector3 screenPos = Vector3();
+		bool hookMouse = false;
+		bool hookMouseChange = false;
+	}PERS_INPUT;
 
-class InputManager {
-public:
-	char C_championOnlyKey = 'M';
-	bool useScan = false;
-	float xOffset;
-	float yOffset;
-	float delay;
-	float lastExecution;
-	bool hookingMousePos;
-	Vector3 hookedMousePos;
-	std::deque<PERS_INPUT> Inputs;
-	INPUT ChampionOnlyDown;
-	INPUT ChampionOnlyUp;
-	InputManager();
-	INPUT getInput(char key, bool up);
-	void addKey(char key, bool up);
-	void addInput(PERS_INPUT in);
-	void addInput(INPUT in);
-	void addInput(INPUT in, bool championOnly);
-	void addHookedInput(char key, Vector3 hookedPos, bool onlyUp);
-	void resetInputs();
-	void tick();
+
+	extern char C_championOnlyKey;
+	extern bool UseScan;
+	extern float XOffset;
+	extern float YOffset;
+	extern float Delay;
+	extern float LastExecution;
+	extern bool HookingMousePos;
+	extern Vector3 HookedMousePos;
+	extern std::deque<PERS_INPUT> Inputs;
+	extern INPUT ChampionOnlyDown;
+	extern INPUT ChampionOnlyUp;
+
+	void Init();
+	INPUT GetInput(char key, bool up);
+	void AddKey(char key, bool up);
+	void AddInput(PERS_INPUT in);
+	void AddInput(INPUT in);
+	void AddInput(INPUT in, bool championOnly);
+	void AddHookedInput(char key, Vector3 hookedPos, bool onlyUp);
+	void ResetInputs();
+	void Tick();
 };

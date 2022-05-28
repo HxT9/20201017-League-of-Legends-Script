@@ -61,9 +61,6 @@
     <Filter Include="Header Files\Libs">
       <UniqueIdentifier>{25b6c644-a59f-4aa5-ba98-d9cb51d3e48d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PLH1">
-      <UniqueIdentifier>{5658ad65-c5e2-4b91-a242-daac40afd50e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dx9tex.h">
@@ -141,7 +138,7 @@
     <ClInclude Include="CObject.h">
       <Filter>Header Files\GameObjects</Filter>
     </ClInclude>
-    <ClInclude Include="Drawer.h">
+    <ClInclude Include="D3DDrawer.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="EntitiesContainer.h">
@@ -207,9 +204,6 @@
     <ClInclude Include="InputManager.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
-    <ClInclude Include="Minimap.h">
-      <Filter>Header Files\GameObjects</Filter>
-    </ClInclude>
     <ClInclude Include="MinHook\hde\hde32.h">
       <Filter>MinHook\hde</Filter>
     </ClInclude>
@@ -252,9 +246,6 @@
     <ClInclude Include="ControlWindow.h">
       <Filter>Header Files\Global</Filter>
     </ClInclude>
-    <ClInclude Include="HookService.h">
-      <Filter>Header Files\Global</Filter>
-    </ClInclude>
     <ClInclude Include="HeavensGate.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
@@ -266,9 +257,6 @@
     </ClInclude>
     <ClInclude Include="DriverRWInterface.h">
       <Filter>Header Files\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="PLH1\PolyHook.hpp">
-      <Filter>PLH1</Filter>
     </ClInclude>
     <ClInclude Include="Memory.h">
       <Filter>Header Files\Utilities</Filter>
@@ -316,7 +304,7 @@
     <ClCompile Include="CObject.cpp">
       <Filter>Source Files\GameObjects</Filter>
     </ClCompile>
-    <ClCompile Include="Drawer.cpp">
+    <ClCompile Include="D3DDrawer.cpp">
       <Filter>Source Files\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="EntitiesContainer.cpp">
@@ -373,9 +361,6 @@
     <ClCompile Include="InputManager.cpp">
       <Filter>Source Files\Global</Filter>
     </ClCompile>
-    <ClCompile Include="Minimap.cpp">
-      <Filter>Source Files\GameObjects</Filter>
-    </ClCompile>
     <ClCompile Include="MinHook\hde\hde32.c">
       <Filter>MinHook\hde</Filter>
     </ClCompile>
@@ -398,9 +383,6 @@
       <Filter>Source Files\Global</Filter>
     </ClCompile>
     <ClCompile Include="ControlWindow.cpp">
-      <Filter>Source Files\Global</Filter>
-    </ClCompile>
-    <ClCompile Include="HookService.cpp">
       <Filter>Source Files\Global</Filter>
     </ClCompile>
     <ClCompile Include="HeavensGate.cpp">

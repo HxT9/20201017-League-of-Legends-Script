@@ -1,14 +1,8 @@
 #pragma once
-class OrbWalker
+namespace OrbWalker
 {
-public:
-	bool focused = true;
-	float dmg;
+	extern bool Focused;
 
-	void tick();
-	void ComboLogic();
-	void PushLogic();
-	void LastHitLogic();
-	void FleeLogic();
+	void Tick();
 };
 

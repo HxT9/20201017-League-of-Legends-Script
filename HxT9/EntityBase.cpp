@@ -1,6 +1,8 @@
 #include "EntityBase.h"
 #include "globalVars.h"
 #include "CObject.h"
+#include "EntitiesContainer.h"
+#include "UtilityFunctions.h"
 
 float getNextUpdate(Interval UpdateInterval, int NInt, int Offset) {
 	return gameTime + ((float)((1 * NInt) + Offset) / (float)UpdateInterval);
@@ -92,7 +94,7 @@ void EntityBase::UpdateAttributes()
 
 			//Targetable
 			if (gameTime >= TargetableNextUpdate || DEBUGGING) {
-				Targetable = PCObject->isTargetable();
+				Targetable = PCObject->IsTargetable();
 				TargetableNextUpdate = getNextUpdate(TargetableUpdateInterval, TargetableUpdateNInt, Offset);
 			}
 
@@ -110,7 +112,7 @@ void EntityBase::UpdateAttributes()
 
 			//BuffManager
 			if (gameTime >= BuffManagerNextUpdate || DEBUGGING) {
-				BuffMgr = PCObject->getBuffManager();
+				BuffMgr = PCObject->GetBuffManager();
 				BuffManagerNextUpdate = getNextUpdate(BuffManagerUpdateInterval, BuffManagerUpdateNInt, Offset);
 			}
 
@@ -204,12 +206,12 @@ void EntityBase::UpdateAttributes()
 			//Missile
 			if (gameTime >= MissileNextUpdate || DEBUGGING) {
 				SourceIndex	= PCObject->GetMissileSourceIndex();
-				TargetIndex	= PCObject->GetMissileTargetIndex();
+				TargetIndex = NULL;//PCObject->GetMissileTargetIndex();
 				SpellInfo	= PCObject->GetMissileSpellInfo();
 				StartPos	= PCObject->GetMissileStartPos();
 				EndPos		= PCObject->GetMissileEndPos();
 				SpellName	= SpellInfo->GetSpellData()->GetName();
-				TeamNextUpdate = getNextUpdate(MissileUpdateInterval, MissileUpdateNInt, Offset);
+				MissileNextUpdate = getNextUpdate(MissileUpdateInterval, MissileUpdateNInt, Offset);
 			}
 		}
 	}
@@ -267,42 +269,42 @@ float EntityBase::IncomingDamage(float seconds) {
 	EntityBase* temp;
 
 	//Ciclo i missili che ce l'hanno come target
-	for (int i = 0; i < entitiesContainer.missilesIndex.size(); i++) {
-		temp = entitiesContainer.entities[entitiesContainer.missilesIndex[i]];
+	for (int i = 0; i < EntitiesContainer::MissilesIndex.size(); i++) {
+		temp = EntitiesContainer::Entities[EntitiesContainer::MissilesIndex[i]];
 
 		if (temp->TargetIndex == Index
-			&& entitiesContainer.entities[temp->SourceIndex]
+			&& EntitiesContainer::Entities[temp->SourceIndex]
 			&& temp->Pos.distTo(Pos) / temp->SpellInfo->GetSpellData()->GetSpellSpeed() + missileApplyDamageDelay < seconds
 			&& temp->SpellName.find("BasicAttack") != std::string::npos) {
 
-			totalDamage += utils.calcEffectiveDamage(entitiesContainer.entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
+			totalDamage += UtilityFunctions::CalcEffectiveDamage(EntitiesContainer::Entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
 		}
 	}
 
 	//Ciclo i minion che fanno il melee
-	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
-		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
+	for (int i = 0; i < EntitiesContainer::MinionsIndex.size(); i++) {
+		temp = EntitiesContainer::Entities[EntitiesContainer::MinionsIndex[i]];
 
 		if (temp->ObjectName.find("MinionMelee") != std::string::npos
 			&& temp->ActiveSpell
 			&& temp->ActiveSpell->GetTargetIndex() == Index) {
 
 			if (gameTime + seconds > temp->ActiveSpell->GetChannelEndTime()) {
-				totalDamage += utils.calcEffectiveDamage(entitiesContainer.entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
+				totalDamage += UtilityFunctions::CalcEffectiveDamage(EntitiesContainer::Entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
 			}
 		}
 	}
 
 	//Ciclo i player che fanno il melee
-	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
-		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
+	for (int i = 0; i < EntitiesContainer::MinionsIndex.size(); i++) {
+		temp = EntitiesContainer::Entities[EntitiesContainer::MinionsIndex[i]];
 		if (temp->ActiveSpell
 			&& temp->Pos.distTo(Pos) < 400
 			&& temp->ActiveSpell->GetTargetIndex() == Index
 			&& std::string(temp->ActiveSpell->GetSpellInfo()->GetSpellData()->GetName()).find("BasicAttack") != std::string::npos) {
 
 			if (gameTime + seconds > temp->ActiveSpell->GetChannelEndTime()) {
-				totalDamage += utils.calcEffectiveDamage(entitiesContainer.entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
+				totalDamage += UtilityFunctions::CalcEffectiveDamage(EntitiesContainer::Entities[temp->SourceIndex]->GetTotalAttackDamage(), Armor);
 			}
 		}
 	}

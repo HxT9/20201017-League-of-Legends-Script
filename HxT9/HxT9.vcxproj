@@ -37,7 +37,7 @@
     <ClInclude Include="d3dx9shape.h" />
     <ClInclude Include="d3dx9tex.h" />
     <ClInclude Include="d3dx9xof.h" />
-    <ClInclude Include="Drawer.h" />
+    <ClInclude Include="D3DDrawer.h" />
     <ClInclude Include="DriverRWInterface.h" />
     <ClInclude Include="EntitiesContainer.h" />
     <ClInclude Include="EntityBase.h" />
@@ -47,7 +47,6 @@
     <ClInclude Include="globalVars.h" />
     <ClInclude Include="HeavensGate.h" />
     <ClInclude Include="HookManager.h" />
-    <ClInclude Include="HookService.h" />
     <ClInclude Include="HxT9.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
@@ -72,10 +71,8 @@
     <ClInclude Include="MinHook\hde\table64.h" />
     <ClInclude Include="MinHook\MinHook.h" />
     <ClInclude Include="MinHook\trampoline.h" />
-    <ClInclude Include="Minimap.h" />
     <ClInclude Include="offsets.h" />
     <ClInclude Include="OrbWalker.h" />
-    <ClInclude Include="PLH1\PolyHook.hpp" />
     <ClInclude Include="ScriptManager.h" />
     <ClInclude Include="SkillShot.h" />
     <ClInclude Include="SkillShotDrawer.h" />
@@ -100,7 +97,7 @@
     <ClCompile Include="ChampionScript.cpp" />
     <ClCompile Include="CObject.cpp" />
     <ClCompile Include="ControlWindow.cpp" />
-    <ClCompile Include="Drawer.cpp" />
+    <ClCompile Include="D3DDrawer.cpp" />
     <ClCompile Include="EntitiesContainer.cpp" />
     <ClCompile Include="EntityBase.cpp" />
     <ClCompile Include="Equation.cpp" />
@@ -108,7 +105,6 @@
     <ClCompile Include="globalVars.cpp" />
     <ClCompile Include="HeavensGate.cpp" />
     <ClCompile Include="HookManager.cpp" />
-    <ClCompile Include="HookService.cpp" />
     <ClCompile Include="HxT9.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
@@ -124,7 +120,6 @@
     <ClCompile Include="MinHook\hde\hde64.c" />
     <ClCompile Include="MinHook\hook.c" />
     <ClCompile Include="MinHook\trampoline.c" />
-    <ClCompile Include="Minimap.cpp" />
     <ClCompile Include="OrbWalker.cpp" />
     <ClCompile Include="ScriptManager.cpp" />
     <ClCompile Include="SkillShot.cpp" />

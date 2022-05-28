@@ -13,6 +13,8 @@
 #define IO_PROTECT_REQUEST CTL_CODE(FILE_DEVICE_UNKNOWN, 0x914, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
 // Request Code To Copy Memory
 #define IO_MEMCPY_REQUEST CTL_CODE(FILE_DEVICE_UNKNOWN, 0x915, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
+// Request code to remove vad protection
+#define IO_REMOVEVADPROTECTION_REQUEST CTL_CODE(FILE_DEVICE_UNKNOWN, 0x916, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
 
 typedef struct _KERNEL_REQUEST
 {
@@ -180,5 +182,17 @@ public:
 		Request->Size = Size;
 
 		return DeviceIoControl(hDriver, IO_PROTECT_REQUEST, Request, sizeof(KERNEL_REQUEST), Request, sizeof(KERNEL_REQUEST), 0, 0);
+	}
+
+	bool RemoveVadProtection(UINT64 Address) {
+		if (hDriver == INVALID_HANDLE_VALUE)
+			return false;
+
+		Request->ProcessId = ProcessId;
+		Request->Address = Address;
+		Request->Data = 0;
+		Request->Size = 0;
+
+		return DeviceIoControl(hDriver, IO_REMOVEVADPROTECTION_REQUEST, Request, sizeof(KERNEL_REQUEST), Request, sizeof(KERNEL_REQUEST), 0, 0);
 	}
 };

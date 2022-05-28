@@ -1,6 +1,7 @@
 #include "HeavensGate.h"
 #include "globalVars.h"
 #include "makesyscall.h"
+#include "UtilityFunctions.h"
 
 bool IsHeavensGateInitialized = false;
 
@@ -32,7 +33,7 @@ void __declspec(naked) hk_NtProtectVirtualMemory()
 		pushad
 	}
 
-	utils.DebugLog("ProtectVirtualMemory Address: 0x%p Size: 0x%lx Protection: 0x%lx", Address, DwSize, NewProtect);
+	UtilityFunctions::DebugLog("ProtectVirtualMemory Address: 0x%p Size: 0x%lx Protection: 0x%lx", Address, DwSize, NewProtect);
 
 	__asm popad
 	__asm jmp lpJmpRealloc
@@ -78,8 +79,8 @@ void __declspec(naked) hk_NtQueryVirtualMemory()
 		pushad
 	}
 
-	utils.DebugLog("QueryVirtualMemory Address: %p", Address);
-	//utils.dbgStreamFile("HG.txt", utils.stringf("QueryVirtualMemory Address: %p", Address));
+	UtilityFunctions::DebugLog("QueryVirtualMemory Address: %p", Address);
+	//UtilityFunctions::DbgStreamFile("HG.txt", UtilityFunctions::Stringf("QueryVirtualMemory Address: %p", Address));
 
 	__asm popad
 	__asm jmp lpJmpRealloc
@@ -89,8 +90,8 @@ void __declspec(naked) hk_NtReadVirtualMemory()
 {
 	__asm pushad
 
-	utils.DebugLog("Calling NtReadVirtualMemory.\n");
-	//utils.dbgStreamFile("HG.txt", "ReadVirtualMemory");
+	UtilityFunctions::DebugLog("Calling NtReadVirtualMemory.\n");
+	//UtilityFunctions::DbgStreamFile("HG.txt", "ReadVirtualMemory");
 
 	__asm popad
 	__asm jmp lpJmpRealloc
@@ -138,7 +139,7 @@ void WriteJump(DWORD dwWow64Address, void* pBuffer, size_t ulSize)
 void EnableHeavensGateHook()
 {
 	if (IsHeavensGateInitialized) return;
-	utils.dbgStreamFile("HG.txt", "Gate init");
+	UtilityFunctions::DbgStreamFile("HG.txt", "Gate init");
 
 	DWORD Gate = 0;
 
@@ -147,10 +148,10 @@ void EnableHeavensGateHook()
 		mov Gate, eax;
 	}
 
-	utils.dbgStreamFile("HG.txt", utils.stringf("Gate %p", Gate));
+	UtilityFunctions::DbgStreamFile("HG.txt", UtilityFunctions::Stringf("Gate %p", Gate));
 
 	CreateNewJump(Gate);
-	utils.dbgStreamFile("HG.txt", utils.stringf("Created Jump %p", lpJmpRealloc));
+	UtilityFunctions::DbgStreamFile("HG.txt", UtilityFunctions::Stringf("Created Jump %p", lpJmpRealloc));
 
 	LPVOID Hook_Gate = &hk_Wow64Trampoline;
 
@@ -161,13 +162,13 @@ void EnableHeavensGateHook()
 		0xCC, 0xCC, 0xCC                    /*padding*/
 	};
 	memcpy(&trampolineBytes[1], &Hook_Gate, 4);
-	utils.dbgStreamFile("HG.txt", "Memcpy");
+	UtilityFunctions::DbgStreamFile("HG.txt", "Memcpy");
 
-	utils.dbgStreamFile("HG.txt", utils.stringf("Gate before: %lx", *(BYTE*)Gate));
+	UtilityFunctions::DbgStreamFile("HG.txt", UtilityFunctions::Stringf("Gate before: %lx", *(BYTE*)Gate));
 
 	WriteJump(Gate, trampolineBytes, sizeof(trampolineBytes));
 
-	utils.dbgStreamFile("HG.txt", utils.stringf("Gate after: %lx", *(BYTE*)Gate));
+	UtilityFunctions::DbgStreamFile("HG.txt", UtilityFunctions::Stringf("Gate after: %lx", *(BYTE*)Gate));
 
 	IsHeavensGateInitialized = true;
 }

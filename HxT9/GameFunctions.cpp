@@ -2,93 +2,83 @@
 #include "offsets.h"
 #include "globalVars.h"
 
-typedef CObject* (__thiscall* fnGetFirstCObject)(void*);
-typedef CObject* (__thiscall* fnGetNextCObject)(void*, CObject*);
+namespace GameFunctions {
+	fnIsType isType;
+	fnIsTroy isTroy;
+	fnIsAlive isAlive;
+	fnGetSpellState getSpellState;
+	fnW2S W2S;
+	fnGetAttackCastDelay getAttackCastDelay;
+	fnGetAttackDelay getAttackDelay;
+	fnIssueOrderNew issueOrderNew;
+	fnGetAIManager getAIManager;
+	fnGetBoundingRadius getBoundingRadius;
 
-typedef bool(__cdecl* fnIsHero)(CObject* pObj);
-typedef bool(__cdecl* fnIsMinion)(CObject* pObj);
-typedef bool(__cdecl* fnIsTurret)(CObject* pObj);
-typedef bool(__cdecl* fnIsTroy)(CObject* pObj);
-typedef bool(__cdecl* fnIsMissile)(CObject* pObj);
+	void Init() {
+		isType = (fnIsType)(baseAddress + oIsType);
+		isTroy = (fnIsTroy)(baseAddress + oIsTroy);
+		isAlive = (fnIsAlive)(baseAddress + oIsAlive);
+		getSpellState = (fnGetSpellState)(baseAddress + oGetSpellState);
+		W2S = (fnW2S)(baseAddress + oW2S);
+		getAttackCastDelay = (fnGetAttackCastDelay)(baseAddress + oGetAttackCastDelay);
+		getAttackDelay = (fnGetAttackDelay)(baseAddress + oGetAttackDelay);
+		issueOrderNew = (fnIssueOrderNew)(baseAddress + oIssueClickNew);
+		getAIManager = (fnGetAIManager)(baseAddress + oGetAIManager);
+		getBoundingRadius = (fnGetBoundingRadius)(baseAddress + oGetBoundingRadius);
+	}
 
-typedef bool(__thiscall* fnIsAlive)(CObject* pObj);
-typedef bool(__thiscall* fnIsTargetable)(CObject* pObj);
+	bool IsType(CObject* pObj, ObjectTypeFlags type) {
+		return pObj && isType(pObj, (DWORD)type);
+	}
 
-typedef SpellState(__thiscall* fnGetSpellState)(SpellBook* pObj, int slot, void* a3);
+	bool IsTroy(CObject* pObj) {
+		return pObj && isTroy(pObj);
+	}
 
-typedef void(__thiscall* fnPrintChat)(DWORD* ChatClientPtr, const char* cMessage, int iColor);
-typedef bool(__cdecl* fnW2S)(Vector3* world, Vector3* screen);
+	bool IsAlive(CObject* obj) {
+		 return obj && isAlive(obj);
+	}
 
-typedef float(__cdecl* fnGetAttackCastDelay)(CObject* pObj);
-typedef float(__cdecl* fnGetAttackDelay)(CObject* pObj);
+	SpellState GetSpellState(SpellBook* obj, int slot, void* zero) {
+		return getSpellState(obj, slot, zero);
+	}
 
-typedef int(__thiscall* fnIssueOrderNew)(DWORD a1, int a2, int a3, bool a4, int a5, int a6, char a7);
+	void WorldToScreen(Vector3* in, Vector3* out) {
+		W2S(in, out);
+	}
 
-typedef void*(__thiscall* fnGetAIManager)(DWORD obj);
-typedef float(__thiscall* fnGetBoundingRadius)(DWORD obj);
+	float GetAttackCastDelay(CObject* obj) {
+		return getAttackCastDelay(obj);
+	}
+	float GetAttackDelay(CObject* obj) {
+		return getAttackDelay(obj);
+	}
 
-void GameFunctions::issueClick(Vector3 screenPos) {
-	fnIssueOrderNew fun = (fnIssueOrderNew)(baseAddress + oIssueClickNew);
-	fun(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x24), 0, 0, true, screenPos.x, screenPos.y, 0);
-	fun(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x24), 1, 0, true, screenPos.x, screenPos.y, 0);
-}
+	void IssueClick(Vector3 screenPos) {
+		issueOrderNew(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x24), 0, 0, true, screenPos.x, screenPos.y, 0);
+		issueOrderNew(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x24), 1, 0, true, screenPos.x, screenPos.y, 0);
+	}
 
-/*void GameFunctions::issueKey(Vector3 screenPos) {
-	fnIssueOrderNew fun = (fnIssueOrderNew)(baseAddress + oIssueClickNew);
-	fun(*(DWORD*)(*(DWORD*)(baseAddress + oHudInstance) + 0x34), 0, 0, 0, 0, 0);
-}*/
+	void* GetAIManager(CObject* obj) {
+		return getAIManager((DWORD)obj);
+	}
 
-void* GameFunctions::getAIManager(CObject* obj) {
-	fnGetAIManager fun = (fnGetAIManager)(baseAddress + oGetAIManager);
-	return fun((DWORD)obj);
-}
+	float GetBoundingRadius(CObject* obj) {
+		return getBoundingRadius((DWORD)obj);
+	}
 
-float GameFunctions::getBoundingRadius(CObject* obj) {
-	fnGetBoundingRadius fun = (fnGetBoundingRadius)(baseAddress + oGetBoundingRadius);
-	return fun((DWORD)obj);
-}
+	Vector3	GetMouseWorldPosition() {
+		unsigned long MousePtr = baseAddress + oHudInstance;
 
-bool	GameFunctions::isHero(CObject* obj) {
-	fnIsHero fun = (fnIsHero)(baseAddress + oIsHero); return obj && fun(obj);
-}
-bool	GameFunctions::isMinion(CObject* obj) {
-	fnIsMinion fun = (fnIsMinion)(baseAddress + oIsMinion); return obj && fun(obj);
-}
-bool	GameFunctions::isTurret(CObject* obj) {
-	fnIsTurret fun = (fnIsTurret)(baseAddress + oIsTurret); return obj && fun(obj);
-}
-bool	GameFunctions::isTroy(CObject* obj) {
-	fnIsTroy fun = (fnIsTroy)(baseAddress + oIsTroy); return obj && fun(obj);
-}
-bool	GameFunctions::isMissile(CObject* obj) {
-	fnIsMissile fun = (fnIsMissile)(baseAddress + oIsMissile); return obj && fun(obj);
-}
-bool	GameFunctions::isAlive(CObject* obj) {
-	fnIsAlive fun = (fnIsAlive)(baseAddress + oIsAlive); return obj && fun(obj);
-}
-SpellState		GameFunctions::getSpellState(SpellBook* obj, int slot, void* zero) {
-	fnGetSpellState fun = (fnGetSpellState)(baseAddress + oGetSpellState); return fun(obj, slot, zero);
-}
-void	GameFunctions::worldToScreen(Vector3* in, Vector3* out) {
-	fnW2S fun = (fnW2S)(baseAddress + oW2S); fun(in, out);
-}
-Vector3	GameFunctions::getMouseWorldPosition() {
-	unsigned long MousePtr = baseAddress + oHudInstance;
+		auto aux1 = *(unsigned long*)MousePtr;
+		aux1 += 0x14;
+		auto aux2 = *(unsigned long*)aux1;
+		aux2 += 0x1C;
 
-	auto aux1 = *(unsigned long*)MousePtr;
-	aux1 += 0x14;
-	auto aux2 = *(unsigned long*)aux1;
-	aux2 += 0x1C;
+		float X = *(float*)(aux2 + 0x0);
+		float Y = *(float*)(aux2 + 0x4);
+		float Z = *(float*)(aux2 + 0x8);
 
-	float X = *(float*)(aux2 + 0x0);
-	float Y = *(float*)(aux2 + 0x4);
-	float Z = *(float*)(aux2 + 0x8);
-
-	return Vector3{ X, Y, Z };
-}
-float	GameFunctions::getAttackCastDelay(CObject* obj) {
-	fnGetAttackCastDelay fun = (fnGetAttackCastDelay)(baseAddress + oGetAttackCastDelay); return fun(obj);
-}
-float	GameFunctions::getAttackDelay(CObject* obj) {
-	fnGetAttackDelay fun = (fnGetAttackDelay)(baseAddress + oGetAttackDelay); return fun(obj);
+		return Vector3{ X, Y, Z };
+	}
 }

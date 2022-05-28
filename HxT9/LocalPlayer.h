@@ -7,8 +7,8 @@
 class LocalPlayer : public EntityBase
 {
 public:
-	bool	useAAInCombo = true;
-	bool	useSpell = true;
+	bool	UseAAInCombo = true;
+	bool	UseSpell = true;
 	float	ActionDelay = 0.1;
 	int		HumanizerMin = 40;
 	int		HumanizerMax = 60;
@@ -20,12 +20,12 @@ public:
 	float	NextAATime = 0;
 	float	LastAAEndTime = 0;
 	float	LastAABeginTime = 0;
-	float	nextActionTime = 0;
-	float	nextSpellTime = 0;
-	Behaviour behaviour = Behaviour::Nothing;
-	bool	afterAA;
-	int		selectedTargetIndex = -1;
-	float	lastRandomCheckTime = 0;
+	float	NextActionTime = 0;
+	float	NextSpellTime = 0;
+	Behaviour Behaviour = Behaviour::Nothing;
+	bool	AfterAA;
+	int		SelectedTargetIndex = -1;
+	float	LastRandomCheckTime = 0;
 	bool	ApheliosCrescendumMis = false;
 
 	LocalPlayer();
@@ -34,7 +34,7 @@ public:
 	void CastedAA(float startTime);
 	void CastedAA();
 	void Tick();
-	bool isChargingSpell();
+	bool IsChargingSpell();
 	void AutoAttack(EntityBase* target);
 	void MoveTo(Vector3 position);
 	bool CastSpellMaster(SpellBook* thisPtr, SpellSlot* slot, Spells slotID, Vector3* pos1, Vector3* pos2, DWORD networkID);

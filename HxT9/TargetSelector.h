@@ -1,13 +1,12 @@
 #pragma once
 #include "EntityBase.h"
 
-class TargetSelector
+namespace TargetSelector
 {
-public:
-	EntityBase* getBestMinion(bool onlyLastHit, float dmg, float range, float speed, float castTime, bool isSpell, bool isAP);
-	EntityBase* getBestChampion(float range, std::string buff = "");
-	EntityBase* getBestChampion(float range, bool aa, std::string buff = "");
-	EntityBase* getTurret();
-	EntityBase* getClickedChampion(Vector3 pos, float maxRange);
+	EntityBase* GetBestMinion(bool onlyLastHit, float dmg, float range, float speed, float castTime, bool isSpell, bool isAP);
+	EntityBase* GetBestChampion(float range, std::string buff = "");
+	EntityBase* GetBestChampion(float range, bool aa, std::string buff = "");
+	EntityBase* GetTurret();
+	EntityBase* GetClickedChampion(Vector3 pos, float maxRange);
 };
 

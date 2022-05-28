@@ -39,7 +39,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
             Sleep(10);
         } while (!GetModuleHandle(L"d3d9.dll"));
 
-        hookManager.Init();
+        HookManager::Init();
 
         break;
 

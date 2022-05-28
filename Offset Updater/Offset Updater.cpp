@@ -1,8 +1,9 @@
 #include <windows.h>
 #include <TlHelp32.h>
-#include <iostream>
+#include <string>
 #include <vector>
 #include <fstream>
+#include <iostream>
 
 HANDLE hProcess;
 DWORD PageSize;
@@ -55,15 +56,57 @@ MODULEENTRY32W GetRemoteModuleHandle(unsigned int PID, const TCHAR* szModule)
 	return ret;
 }
 
-DWORD FindPattern(BYTE* base, DWORD size, const char* pattern, const char* mask, DWORD startOffset = 0) {
-	size_t patternLength = strlen(mask);
+std::string convertPattern(std::string pattern) {
+	size_t pos = 0;
+	std::vector<std::string> tokens;
+	while(pos = pattern.find(' '), pos != std::string::npos)
+	{
+		tokens.push_back(pattern.substr(0, pos));
+		pattern.erase(0, pos + 1);
+	}
+	tokens.push_back(pattern);
+
+	std::string ret = "";
+	for (int i = 0; i < tokens.size(); i++) {
+		if (tokens[i] == "?")
+			ret += "0";
+		else
+			ret += std::stoi(tokens[i], 0, 16);
+	}
+
+	return ret;
+}
+
+std::string createMask(std::string pattern) {
+	size_t pos = 0;
+	std::vector<std::string> tokens;
+	while (pos = pattern.find(' '), pos != std::string::npos)
+	{
+		tokens.push_back(pattern.substr(0, pos));
+		pattern.erase(0, pos + 1);
+	}
+	tokens.push_back(pattern);
+
+	std::string ret = "";
+	for (int i = 0; i < tokens.size(); i++) {
+		if (tokens[i] == "?")
+			ret += "?";
+		else
+			ret += "x";
+	}
+
+	return ret;
+}
+
+DWORD FindPattern(BYTE* base, DWORD size, std::string pattern, std::string mask, DWORD startOffset = 0) {
+	size_t patternLength = mask.length();
 
 	for (DWORD i = startOffset; i < size - patternLength; i++)
 	{
 		bool found = true;
 		for (DWORD j = 0; j < patternLength; j++)
 		{
-			if (mask[j] != '?' && pattern[j] != *(char*)(base + i + j))
+			if (mask.at(j) != '?' && pattern.at(j) != *(char*)(base + i + j))
 			{
 				found = false;
 				break;
@@ -78,7 +121,7 @@ DWORD FindPattern(BYTE* base, DWORD size, const char* pattern, const char* mask,
 	return 0;
 }
 
-DWORD FindPatternEx(MODULEENTRY32W hModule, const char* pattern, const char* mask, SearchType searchType = SearchType::All, DWORD startAddr = 0, DWORD endAddr = 0) {
+DWORD FindPatternEx(MODULEENTRY32W hModule, std::string pattern, std::string mask, SearchType searchType = SearchType::All, DWORD startAddr = 0, DWORD endAddr = 0) {
 	DWORD moduleStart = 0, moduleEnd = 0, curPos, ret;
 	IMAGE_NT_HEADERS NTHeaders;
 	MEMORY_BASIC_INFORMATION mbi;
@@ -131,7 +174,7 @@ DWORD FindPatternEx(MODULEENTRY32W hModule, const char* pattern, const char* mas
 		delete[] buffer;
 
 		if (ret) {
-			ret = ret + (DWORD)mbi.BaseAddress;// -(DWORD)hModule.modBaseAddr;
+			ret = ret + (DWORD)mbi.BaseAddress;
 			break;
 		}
 
@@ -205,6 +248,7 @@ int main()
 	//Functions
 	DWORD oGetAIManager = 0;
 	DWORD oGetBoundingRadius = 0;
+	DWORD oIsType = 0;
 	DWORD oIsHero = 0;
 	DWORD oIsMinion = 0;
 	DWORD oIsTurret = 0;
@@ -224,13 +268,13 @@ int main()
 	DWORD oMinimapPosition = 0;
 	DWORD oMinimapSize = 0;
 
-	DWORD oObjIndex = 0x20;
-	DWORD oObjTeam = 0x4c;
-	DWORD oObjName = 0x6c;
-	DWORD oObjNetworkID = 0xcc;
-	DWORD oObjPos = 0x1f4;
-	DWORD oObjVisibility = 0x28c;
-	DWORD oObjMana = 0x2b4;
+	DWORD oObjIndex = 0x8;
+	DWORD oObjTeam = 0x34;
+	DWORD oObjName = 0x54;
+	DWORD oObjNetworkID = 0xb4;
+	DWORD oObjPos = 0x1dc;
+	DWORD oObjVisibility = 0x274;
+	DWORD oObjMana = 0x29c;
 	DWORD oObjMaxManaoObjMana = oObjMana + 0x10;
 	DWORD oObjSar = 0;
 	DWORD oObjMaxSar = 0;
@@ -284,9 +328,9 @@ int main()
 	DWORD oAIMGR_CurrentPos = 0;
 	DWORD oAIMGR_Velocity = 0;
 
-	DWORD oMissileSpellInfo = 0x278;
-	DWORD oMissileSourceIndex = 0x2dc;
-	DWORD oMissileStartPos = 0x2f4;
+	DWORD oMissileSpellInfo = 0x260;
+	DWORD oMissileSourceIndex = 0x2c4;
+	DWORD oMissileStartPos = 0x2dc;
 	DWORD oMissileEndPos = oMissileStartPos + 0xc;
 	DWORD oMissileTargetIndex = 0x330;
 	DWORD oMissileHasTarget = oMissileTargetIndex + 0x4;
@@ -300,189 +344,251 @@ int main()
 	DWORD oBuffIntCount = 0;
 	DWORD oBuffFloatCount = 0x130;
 
+	//Globals
+	std::string patternObjectsManager = "8B 0D ? ? ? ? 56 E8 ? ? ? ? 85 C0 74";
+	std::string patternLocalPlayer = "8B 3D ? ? ? ? 3B F7 75 09";
+	std::string patternChatClientBox = "8B 0D ? ? ? ? 85 C9 74 0D 8B 41";
+	std::string patternChatHud = "A3 ? ? ? ? E8 ? ? ? ? E8 ? ? ? ? 8B C8";
+	std::string patternGameTime = "F3 0F 5C 0D ? ? ? ? 0F 2F C1 F3";
+	std::string patternMinimapObj = "8B 0D ? ? ? ? 66 0F 6E C6";
+	std::string patternHudInstance = "8B 0D ? ? ? ? FF 70 FC 8B 49 0C E8 ? ? ? ? C6";
+
+	//Functions
+	std::string patternGetAIManager = "E8 ? ? ? ? 6A ? 6A 01 FF 74 24 14";
+	std::string patternGetBoundingRadius = "E8 ? ? ? ? D8 44 24 04 8B 44 24 10";
+	std::string patternIsType = "E8 ? ? ? ? 84 C0 8B CB";
+	std::string patternIsHero = "E8 ? ? ? ? 83 C4 04 84 C0 74 61 85";
+	std::string patternIsMinion = "E8 ? ? ? ? 83 C4 04 B9 ? ? ? ? 84 C0 0F 44 CB";
+	std::string patternIsTurret = "E8 ? ? ? ? 83 C4 04 84 C0 74 09 5F";
+	std::string patternIsMissile = "57 E8 ? ? ? ? 83 C4 04 84 C0 74 0A";
+	std::string patternIsTroy = "E8 ? ? ? ? 8B E8 83 C4 04 85 ED 0F 84 ? ? ? ? 6A 08";
+	std::string patternIsAlive = "56 8B F1 8B 06 8B 80 ? ? ? ? FF D0 84 C0 74 19";
+	std::string patternGetSpellState = "83 EC 14 8B 44 24 1C 55";
+	std::string patternGetAttackCastDelay = "83 EC 0C 53 8B 5C 24 14 8B CB 56 57 8B 03 FF 90";
+	std::string patternGetAttackDelay = "8B 44 24 04 51 F3";
+	std::string patternW2S = "83 EC 10 56 E8 ? ? ? ? 8B 08";
+	std::string patternIssueClickNew = "8B 44 24 04 6A 01 FF 70 40"; // +  E8 ? ? ? ? C2 04
+	std::string patternOnProcessSpell = "E8 ? ? ? ? 85 C0 0F 94 44 24 ? 85 C0";
+
+	//Offsets
+	std::string patternChatHudChatOpened = "E8 ? ? ? ? A1 ? ? ? ? 80 B8 ? ? ? ? ? 0F 85 ? ? ? ?"; //+ 8A 46 ? 3A D8
+	std::string patternMinimapObjectHud = "F3 0F 58 C8 F3 0F ? ? ? FF 52 ? 8B 8E ? ? ? ?";
+	std::string patternMinimapPosition = "0F 5B C9 F3 0F 11 56 ?";
+	std::string patternMinimapSize = "F3 0F 2C C0 F3 0F 11 4E ?";
+
+	std::string patternObjIndex = "";
+	std::string patternObjTeam = "";
+	std::string patternObjName = "";
+	std::string patternObjNetworkID = "";
+	std::string patternObjPos = "";
+	std::string patternObjVisibility = "";
+	std::string patternObjMana = "";
+	std::string patternObjMaxManaoObjMana = "";
+	std::string patternObjSar = "8D BB ? ? ? ? 89 B3 ? ? ? ?";
+	std::string patternObjTargetable = "89 44 24 14 8D B0 ? ? ? ?";
+	std::string patternObjHP = "68 ? ? ? ? 8D B0 ? ? ? ? 89 44 24 14";
+	std::string patternObjStats = "81 C1 ? ? ? ? 89 47 04";
+	std::string patternObjBonusAtk = "0F 28 DC F3 0F 59 99 ? ? ? ?";
+	std::string patternObjAP = "D8 81 ? ? ? ? D9 81 ? ? ? ?";
+	std::string patternObjBaseAtk = "F3 0F 10 91 ? ? ? ? 0F 28 DC";
+	std::string patternObjArmor = "51 56 57 8B F9 8B 4F 04 8B 01 FF 90 ? ? ? ? 8B 4F 04 8B F0 E8 ? ? ? ? 50 6A 03"; //+ 8B 81 ? ? ? ?
+	std::string patternObjMoveSpeed = "8B 81 ? ? ? ? 89 47 0C 8B 01";
+	std::string patternObjAtkRange = "E8 ? ? ? ? 80 7B 54 ?"; //+ C3 D9 83 ? ? ? ?
+	std::string patternObjBuffMgr = "8D 8B ? ? ? ? FF 30 FF 73 ? E8";
+	std::string patternObjSpellBook = "FF 74 24 1C 8D 8F ? ? ? ?";
+	std::string patternObjObjectName = "C6 83 ? ? ? ? ? E8 ? ? ? ? 8D 8B ? ? ? ?";
+	std::string patternObjLevel = "8D BB ? ? ? ? 83 C4 14";
+
+	std::string patternSpellBookActiveSpell = "";
+	std::string patternActiveSpellSpellInfoPtr = "";
+	std::string patternActiveSpellEndCastTime = "";
+	std::string patternActiveSpellStartPos = "";
+	std::string patternActiveSpellEndPos = "";
+	std::string patternActiveSpellTargetArray = "";
+	std::string patternActiveSpellTargetArraySize = "";
+	std::string patternActiveSpellCastTime = "";
+	std::string patternActiveSpellChannelStartTime = "";
+	std::string patternActiveSpellChannelEndTime = "";
+
+	std::string patternSpellBookSpellSlots = "8B 38 E8 ? ? ? ? 8B F0"; //+ 8B 84 81 ? ? ? ?
+	std::string patternSpellSlotSpellLvl = "E8 ? ? ? ? 3B 47 08";
+	std::string patternSpellSlotSpellReady = "F3 0F 10 4E ? D9 5C 24 0C";
+	std::string patternSpellSlotSpellInfo = "E8 ? ? ? ? 8B 50 ? 8B 8A";
+
+	std::string patternSpellInfoSpellData = "F3 0F 10 54 24 ? 8B 48 ?";
+	std::string patternSpellDataName = "8B 44 24 08 56 57 8B F9 8D 77 04"; //+ FF 70 ?
+	std::string patternSpellDataSpellSpeed = "";
+
+	std::string patternAIMGR_TargetPos = "89 ? ? 8B 88 ? ? ? ? 89 ? ? 8D ? ? ? ? ? 8B";
+	std::string patternAIMGR_IsMoving = "8A 98 ? ? ? ? 8B 06 FF 90 ? ? ? ? 8B CE";
+	std::string patternAIMGR_PassedWaypoints = "8D 9E ? ? ? ? C6 86 ? ? ? ? ?";
+	std::string patternAIMGR_NavBegin = "2B 88 ? ? ? ? B8 ? ? ? ? F7 E9 D1 FA";
+	std::string patternAIMGR_IsDashing = "88 ? ? ? ? ? 8B 44 ? ? 89 ? ? ? ? ? F3 0F";
+	std::string patternAIMGR_CurrentPos = "8B CB 89 86 ? ? ? ?";
+	std::string patternAIMGR_Velocity = "F3 0F 59 C1 F3 0F 11 96 ? ? ? ?";
+
+	std::string patternMissileSpellInfo = "";
+	std::string patternMissileSourceIndex = "";
+	std::string patternMissileStartPos = "";
+	std::string patternMissileEndPos = "";
+	std::string patternMissileTargetIndex = "";
+	std::string patternMissileHasTarget = "";
+
+	std::string patternBuffType = "";
+	std::string patternBuffName = "";
+	std::string patternBuffNameOffset = "";
+	std::string patternBuffStartTime = "";
+	std::string patternBuffEndTime = "";
+	std::string patternBuffCountAlt = "E8 ? ? ? ? 84 C0 74 2D 8B 0E";
+	std::string patternBuffIntCount = "7D 03 8B 41 74 ?";
+	std::string patternBuffFloatCount = "";
+
 	Pid = GetProcessIdByName(processName);
 
 	if (Pid) {
 		hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, Pid);
 		hModule = GetRemoteModuleHandle(Pid, processName);
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x0D\x00\x00\x00\x00\x56\xE8\x00\x00\x00\x00\x85\xC0\x74", "xx????xx????xxx", SearchType::Text);
+		typedef LONG(NTAPI* NtSuspendProcess)(IN HANDLE ProcessHandle);
+		NtSuspendProcess pNtSuspendProcess = (NtSuspendProcess)GetProcAddress(
+			GetModuleHandleA("ntdll"), "NtSuspendProcess");
+		typedef LONG(NTAPI* NtResumeProcess)(IN HANDLE ProcessHandle);
+		NtResumeProcess pNtResumeProcess = (NtResumeProcess)GetProcAddress(
+			GetModuleHandleA("ntdll"), "NtResumeProcess");
+
+		//pNtSuspendProcess(hProcess);
+		std::cout << "Process Suspended" << std::endl;
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjectsManager), createMask(patternObjectsManager), SearchType::Text);
 		if(tempAddr)
 			oObjectsManager = Read<DWORD>(tempAddr + 2) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x3D\x00\x00\x00\x00\x3B\xF7\x75\x09", "xx????xxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternLocalPlayer), createMask(patternLocalPlayer), SearchType::Text);
 		if (tempAddr)
 			oLocalPlayer = Read<DWORD>(tempAddr + 2) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x0D\x00\x00\x00\x00\x85\xC9\x74\x0D\x8B\x41", "xx????xxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternChatClientBox), createMask(patternChatClientBox), SearchType::Text);
 		if (tempAddr)
 			oChatClientBox = Read<DWORD>(tempAddr + 2) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\xA3\x00\x00\x00\x00\xE8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x8B\xC8", "x????x????x????xx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternChatHud), createMask(patternChatHud), SearchType::Text);
 		if (tempAddr)
 			oChatHud = Read<DWORD>(tempAddr + 1) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\xF3\x0F\x5C\x0D\x00\x00\x00\x00\x0F\x2F\xC1\xF3", "xxxx????xxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternGameTime), createMask(patternGameTime), SearchType::Text);
 		if (tempAddr)
 			oGameTime = Read<DWORD>(tempAddr + 4) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x0D\x00\x00\x00\x00\x66\x0F\x6E\xC6", "xx????xxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternMinimapObj), createMask(patternMinimapObj), SearchType::Text);
 		if (tempAddr)
 			oMinimapObj = Read<DWORD>(tempAddr + 2) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x0D\x00\x00\x00\x00\xFF\x70\xFC\x8B\x49\x0C\xE8\x00\x00\x00\x00\xC6", "xx????xxxxxxx????x", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternHudInstance), createMask(patternHudInstance), SearchType::Text);
 		if (tempAddr)
 			oHudInstance = Read<DWORD>(tempAddr + 2) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x6A\x00\x6A\x01\xFF\x74\x24\x14", "x????xxxxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternGetAIManager), createMask(patternGetAIManager), SearchType::Text);
 		if (tempAddr)
 			oGetAIManager = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\xD8\x44\x24\x04\x8B\x44\x24\x10", "x????xxxxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternGetBoundingRadius), createMask(patternGetBoundingRadius), SearchType::Text);
 		if (tempAddr)
 			oGetBoundingRadius = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x83\xC4\x04\x84\xC0\x74\x61\x85", "x????xxxxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternIsType), createMask(patternIsType), SearchType::Text);
+		if (tempAddr)
+			oIsType = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternIsHero), createMask(patternIsHero), SearchType::Text);
 		if (tempAddr)
 			oIsHero = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x83\xC4\x04\xB9\x00\x00\x00\x00\x84\xC0\x0F\x44\xCB", "x????xxxx????xxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternIsMinion), createMask(patternIsMinion), SearchType::Text);
 		if (tempAddr)
 			oIsMinion = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x83\xC4\x04\x84\xC0\x74\x09\x5F", "x????xxxxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternIsTurret), createMask(patternIsTurret), SearchType::Text);
 		if (tempAddr)
 			oIsTurret = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x83\xC4\x04\x84\xC0\x74\x3F", "x????xxxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternIsMissile), createMask(patternIsMissile), SearchType::Text);
 		if (tempAddr)
-			oIsMissile = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
+			oIsMissile = getE8Address(tempAddr + 1) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x8B\xE8\x83\xC4\x04\x85\xED\x0F\x84\x00\x00\x00\x00\x6A\x08", "x????xxxxxxxxx????xx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternIsTroy), createMask(patternIsTroy), SearchType::Text);
 		if (tempAddr)
 			oIsTroy = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x56\x8B\xF1\x8B\x06\x8B\x80\x00\x00\x00\x00\xFF\xD0\x84\xC0\x74\x19", "xxxxxxx????xxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternIsAlive), createMask(patternIsAlive), SearchType::Text);
 		if (tempAddr)
 			oIsAlive = tempAddr - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x83\xEC\x14\x8B\x44\x24\x1C\x55", "xxxxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternGetSpellState), createMask(patternGetSpellState), SearchType::Text);
 		if (tempAddr)
 			oGetSpellState = tempAddr - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x83\xEC\x0C\x53\x8B\x5C\x24\x14\x8B\xCB\x56\x57\x8B\x03\xFF\x90", "xxxxxxxxxxxxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternGetAttackCastDelay), createMask(patternGetAttackCastDelay), SearchType::Text);
 		if (tempAddr)
 			oGetAttackCastDelay = tempAddr - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x44\x24\x04\x51\xF3", "xxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternGetAttackDelay), createMask(patternGetAttackDelay), SearchType::Text);
 		if (tempAddr)
 			oGetAttackDelay = tempAddr - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x83\xEC\x10\x56\xE8\x00\x00\x00\x00\x8B\x08", "xxxxx????xx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternW2S), createMask(patternW2S), SearchType::Text);
 		if (tempAddr)
 			oW2S = tempAddr - (DWORD)hModule.modBaseAddr;
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x44\x24\x04\x6A\x01\xFF\x70\x40", "xxxxxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternIssueClickNew), createMask(patternIssueClickNew), SearchType::Text);
 		if (tempAddr) {
-			tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\xC2\x04", "x????xx", SearchType::Text, tempAddr, tempAddr + 0x20);
+			tempAddr = FindPatternEx(hModule, convertPattern("E8 ? ? ? ? C2 04"), "x????xx", SearchType::Text, tempAddr, tempAddr + 0x20);
 			if (tempAddr) {
 				oIssueClickNew = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
 			}
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x44\x24\x04\x6A\x01\xFF\x70\x40", "xxxxxxxxx", SearchType::Text);
-		if (tempAddr) {
-			tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\xC2\x04", "x????xx", SearchType::Text, tempAddr, tempAddr + 0x20);
-			if (tempAddr) {
-				oIssueClickNew = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
-			}
-		}
-
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x85\xC0\x0F\x94\x44\x24\x00\x85\xC0", "x????xxxxxx?xx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternOnProcessSpell), createMask(patternOnProcessSpell), SearchType::Text);
 		if (tempAddr) {
 			oOnProcessSpell = getE8Address(tempAddr) - (DWORD)hModule.modBaseAddr;
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\xA1\x00\x00\x00\x00\x80\xB8\x00\x00\x00\x00\x00\x0F\x85\x00\x00\x00\x00", "x????x????xx?????xx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternChatHudChatOpened), createMask(patternChatHudChatOpened), SearchType::Text);
 		if (tempAddr) {
 			tempAddr = getE8Address(tempAddr);
-			tempAddr = FindPatternEx(hModule, "\x8A\x46\x00\x3A\xD8", "xx?xx", SearchType::Text, tempAddr, tempAddr + 0x100);
+			tempAddr = FindPatternEx(hModule, convertPattern("8A 46 ? 3A D8"), "xx?xx", SearchType::Text, tempAddr, tempAddr + 0x100);
 			if (tempAddr) {
 				oChatHudChatOpened = Read<BYTE>(tempAddr + 2);
 			}
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xF3\x0F\x58\xC8\xF3\x0F\x00\x00\x00\xFF\x52\x00\x8B\x8E\x00\x00\x00\x00", "xxxxxx???xx?xx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternMinimapObjectHud), createMask(patternMinimapObjectHud), SearchType::Text);
 		if (tempAddr) {
 			oMinimapObjectHud = Read<DWORD>(tempAddr + 14);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x0F\x5B\xC9\xF3\x0F\x11\x56\x00", "xxxxxxx?", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternMinimapPosition), createMask(patternMinimapPosition), SearchType::Text);
 		if (tempAddr) {
 			oMinimapPosition = Read<BYTE>(tempAddr + 7);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xF3\x0F\x2C\xC0\xF3\x0F\x11\x4E\x00", "xxxxxxxx?", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternMinimapSize), createMask(patternMinimapSize), SearchType::Text);
 		if (tempAddr) {
 			oMinimapSize = Read<BYTE>(tempAddr + 8);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x8D\xBB\x00\x00\x00\x00\x89\xB3\x00\x00\x00\x00", "xx????xx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjSar), createMask(patternObjSar), SearchType::Text);
 		if (tempAddr) {
 			oObjSar = Read<DWORD>(tempAddr + 2);
 			oObjMaxSar = oObjSar + 0x10;
 			oObjSarEnabled = oObjMaxSar + 0x10;
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x89\x44\x24\x14\x8D\xB0\x00\x00\x00\x00", "xxxxxx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjTargetable), createMask(patternObjTargetable), SearchType::Text);
 		if (tempAddr) {
 			oObjTargetable = Read<DWORD>(tempAddr + 6);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x81\xC1\x00\x00\x00\x00\x89\x47\x04", "xx????xxx", SearchType::Text);
-		if (tempAddr) {
-			oObjStats = Read<DWORD>(tempAddr + 2);
-		}
-
-		tempAddr = FindPatternEx(hModule, "\x0F\x28\xDC\xF3\x0F\x59\x99\x00\x00\x00\x00", "xxxxxxx????", SearchType::Text);
-		if (tempAddr) {
-			oObjBonusAtk = Read<DWORD>(tempAddr + 7) + oObjStats;
-		}
-
-		tempAddr = FindPatternEx(hModule, "\xD8\x81\x00\x00\x00\x00\xD9\x81\x00\x00\x00\x00", "xx????xx????", SearchType::Text);
-		if (tempAddr) {
-			oObjAP = Read<DWORD>(tempAddr + 2) + oObjStats;
-		}
-
-		tempAddr = FindPatternEx(hModule, "\xF3\x0F\x10\x91\x00\x00\x00\x00\x0F\x28\xDC", "xxxx????xxx", SearchType::Text);
-		if (tempAddr) {
-			oObjBaseAtk = Read<DWORD>(tempAddr + 4) + oObjStats;
-		}
-
-		tempAddr = FindPatternEx(hModule, "\x51\x56\x57\x8B\xF9\x8B\x4F\x04\x8B\x01\xFF\x90\x00\x00\x00\x00\x8B\x4F\x04\x8B\xF0\xE8\x00\x00\x00\x00\x50\x6A\x03", "xxxxxxxxxxxx????xxxxxx????xxx", SearchType::Text);
-		if (tempAddr) {
-			tempAddr = FindPatternEx(hModule, "\x8B\x81\x00\x00\x00\x00", "xx????", SearchType::Text, tempAddr, tempAddr + 0x50);
-			if (tempAddr) {
-				oObjArmor = Read<DWORD>(tempAddr + 2);
-				oObjMagicResist = oObjArmor + 0x8;
-			}
-		}
-
-		tempAddr = FindPatternEx(hModule, "\x8B\x81\x00\x00\x00\x00\x89\x47\x0C\x8B\x01", "xx????xxxxx", SearchType::Text);
-		if (tempAddr) {
-			oObjMoveSpeed = Read<DWORD>(tempAddr + 2);
-		}
-
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x80\x7B\x54\x00", "x????xxxx", SearchType::Text);
-		if (tempAddr) {
-			tempAddr = getE8Address(tempAddr);
-			tempAddr = FindPatternEx(hModule, "\xC3\xD9\x83\x00\x00\x00\x00", "xxx????", SearchType::Text);
-			if (tempAddr) {
-				oObjAtkRange = Read<DWORD>(tempAddr + 3);
-			}
-		}
-
-		tempAddr = FindPatternEx(hModule, "\x68\x00\x00\x00\x00\x8D\xB0\x00\x00\x00\x00\x89\x44\x24\x14", "x????xx????xxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjHP), createMask(patternObjHP), SearchType::Text);
 		if (tempAddr) {
 			oObjHP = Read<DWORD>(tempAddr + 7);
 			oObjMaxHP = oObjHP + 0x10;
@@ -492,36 +598,79 @@ int main()
 			oObjMagicalShield = oObjHP + 0x60;
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xFF\x74\x24\x1C\x8D\x8F\x00\x00\x00\x00", "xxxxxx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjStats), createMask(patternObjStats), SearchType::Text);
 		if (tempAddr) {
-			oObjSpellBook = Read<DWORD>(tempAddr + 6);
+			oObjStats = Read<DWORD>(tempAddr + 2);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x8D\x8B\x00\x00\x00\x00\xFF\x30\xFF\x73\x20", "xx????xxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjBonusAtk), createMask(patternObjBonusAtk), SearchType::Text);
+		if (tempAddr) {
+			oObjBonusAtk = Read<DWORD>(tempAddr + 7) + oObjStats;
+		}
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjAP), createMask(patternObjAP), SearchType::Text);
+		if (tempAddr) {
+			oObjAP = Read<DWORD>(tempAddr + 2) + oObjStats;
+		}
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjBaseAtk), createMask(patternObjBaseAtk), SearchType::Text);
+		if (tempAddr) {
+			oObjBaseAtk = Read<DWORD>(tempAddr + 4) + oObjStats;
+		}
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjArmor), createMask(patternObjArmor), SearchType::Text);
+		if (tempAddr) {
+			tempAddr = FindPatternEx(hModule, convertPattern("8B 81 ? ? ? ?"), "xx????", SearchType::Text, tempAddr, tempAddr + 0x50);
+			if (tempAddr) {
+				oObjArmor = Read<DWORD>(tempAddr + 2);
+				oObjMagicResist = oObjArmor + 0x8;
+			}
+		}
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjMoveSpeed), createMask(patternObjMoveSpeed), SearchType::Text);
+		if (tempAddr) {
+			oObjMoveSpeed = Read<DWORD>(tempAddr + 2);
+		}
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjAtkRange), createMask(patternObjAtkRange), SearchType::Text);
+		if (tempAddr) {
+			tempAddr = getE8Address(tempAddr);
+			tempAddr = FindPatternEx(hModule, convertPattern("C3 D9 83 ? ? ? ?"), "xxx????", SearchType::Text);
+			if (tempAddr) {
+				oObjAtkRange = Read<DWORD>(tempAddr + 3);
+			}
+		}
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjBuffMgr), createMask(patternObjBuffMgr), SearchType::Text);
 		if (tempAddr) {
 			oObjBuffMgr = Read<DWORD>(tempAddr + 2);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xC6\x83\x00\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x8D\x8B\x00\x00\x00\x00", "xx?????x????xx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjSpellBook), createMask(patternObjSpellBook), SearchType::Text);
+		if (tempAddr) {
+			oObjSpellBook = Read<DWORD>(tempAddr + 6);
+		}
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjObjectName), createMask(patternObjObjectName), SearchType::Text);
 		if (tempAddr) {
 			oObjObjectName = Read<DWORD>(tempAddr + 2);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x8D\xBB\x00\x00\x00\x00\x83\xC4\x14", "xx????xxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternObjLevel), createMask(patternObjLevel), SearchType::Text);
 		if (tempAddr) {
 			oObjLevel = Read<DWORD>(tempAddr + 2);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x38\xE8\x00\x00\x00\x00\x8B\xF0", "xxx????xx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternSpellBookSpellSlots), createMask(patternSpellBookSpellSlots), SearchType::Text);
 		if (tempAddr) {
 			tempAddr = getE8Address(tempAddr + 2);
-			tempAddr = FindPatternEx(hModule, "\x8B\x84\x81\x00\x00\x00\x00", "xxx????", SearchType::Text, tempAddr);
+			tempAddr = FindPatternEx(hModule, convertPattern("8B 84 81 ? ? ? ?"), "xxx????", SearchType::Text, tempAddr);
 			if (tempAddr) {
 				oSpellBookSpellSlots = Read<DWORD>(tempAddr + 3);
 			}
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x3B\x47\x08", "x????xxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternSpellSlotSpellLvl), createMask(patternSpellSlotSpellLvl), SearchType::Text);
 		if (tempAddr) {
 			tempAddr = getE8Address(tempAddr);
 			if (tempAddr) {
@@ -529,12 +678,12 @@ int main()
 			}
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xF3\x0F\x10\x4E\x00\xD9\x5C\x24\x0C", "xxxx?xxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternSpellSlotSpellReady), createMask(patternSpellSlotSpellReady), SearchType::Text);
 		if (tempAddr) {
 			oSpellSlotSpellReady = Read<BYTE>(tempAddr + 4);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x8B\x50\x44", "x????xxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternSpellSlotSpellInfo), createMask(patternSpellSlotSpellInfo), SearchType::Text);
 		if (tempAddr) {
 			tempAddr = getE8Address(tempAddr);
 			if (tempAddr) {
@@ -542,56 +691,57 @@ int main()
 			}
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xF3\x0F\x10\x54\x24\x00\x8B\x48\x00", "xxxxx?xx?", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternSpellInfoSpellData), createMask(patternSpellInfoSpellData), SearchType::Text);
 		if (tempAddr) {
 			oSpellInfoSpellData = Read<BYTE>(tempAddr + 8);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x8B\x44\x24\x08\x56\x57\x8B\xF9\x8D\x77\x04", "xxxxxxxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternSpellDataName), createMask(patternSpellDataName), SearchType::Text);
 		if (tempAddr) {
-			tempAddr = FindPatternEx(hModule, "\xFF\x70\x00", "xx?", SearchType::Text, tempAddr);
+			tempAddr = FindPatternEx(hModule, convertPattern("FF 70 ?"), "xx?", SearchType::Text, tempAddr);
 			if (tempAddr) {
 				oSpellDataName = Read<BYTE>(tempAddr + 2);
 			}
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x89\x4F\x00\x8B\x88\x00\x00\x00\x00", "xx?xx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternAIMGR_TargetPos), createMask(patternAIMGR_TargetPos), SearchType::Text);
 		if (tempAddr) {
 			oAIMGR_TargetPos = Read<BYTE>(tempAddr + 2);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x8A\x98\x00\x00\x00\x00\x8B\x06\xFF\x90\x00\x00\x00\x00\x8B\xCE", "xx????xxxx????xx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternAIMGR_IsMoving), createMask(patternAIMGR_IsMoving), SearchType::Text);
 		if (tempAddr) {
 			oAIMGR_IsMoving = Read<DWORD>(tempAddr + 2);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x8D\x9E\x00\x00\x00\x00\xC6\x86\x00\x00\x00\x00\x00", "xx????xx?????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternAIMGR_PassedWaypoints), createMask(patternAIMGR_PassedWaypoints), SearchType::Text);
 		if (tempAddr) {
 			oAIMGR_PassedWaypoints = Read<DWORD>(tempAddr + 2);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x2B\x88\x00\x00\x00\x00\xB8\x00\x00\x00\x00\xF7\xE9\xD1\xFA", "xx????x????xxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternAIMGR_NavBegin), createMask(patternAIMGR_NavBegin), SearchType::Text);
 		if (tempAddr) {
 			oAIMGR_NavBegin = Read<DWORD>(tempAddr + 2);
 			oAIMGR_NavEnd = oAIMGR_NavBegin + 0x4;
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x88\x87\x00\x00\x00\x00\x8B\x44\x24\x50", "xx????xxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternAIMGR_IsDashing), createMask(patternAIMGR_IsDashing), SearchType::Text);
+		std::cout << std::hex << tempAddr << std::endl;
 		if (tempAddr) {
 			oAIMGR_IsDashing = Read<DWORD>(tempAddr + 2);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x8B\xCB\x89\x86\x00\x00\x00\x00", "xxxx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternAIMGR_CurrentPos), createMask(patternAIMGR_CurrentPos), SearchType::Text);
 		if (tempAddr) {
 			oAIMGR_CurrentPos = Read<DWORD>(tempAddr + 4);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xF3\x0F\x59\xC1\xF3\x0F\x11\x96\x00\x00\x00\x00", "xxxxxxxx????", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternAIMGR_Velocity), createMask(patternAIMGR_Velocity), SearchType::Text);
 		if (tempAddr) {
 			oAIMGR_Velocity = Read<DWORD>(tempAddr + 8);
 		}
 
-		tempAddr = FindPatternEx(hModule, "\xE8\x00\x00\x00\x00\x84\xC0\x74\x2D\x8B\x0E", "x????xxxxxx", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternBuffCountAlt), createMask(patternBuffCountAlt), SearchType::Text);
 		if (tempAddr) {
 			tempAddr = getE8Address(tempAddr);
 			if (tempAddr) {
@@ -599,7 +749,7 @@ int main()
 			}
 		}
 
-		tempAddr = FindPatternEx(hModule, "\x7D\x03\x8B\x41\x74\x00", "xxxxx?", SearchType::Text);
+		tempAddr = FindPatternEx(hModule, convertPattern(patternBuffIntCount), createMask(patternBuffIntCount), SearchType::Text);
 		if (tempAddr) {
 			oBuffIntCount = Read<BYTE>(tempAddr + 4);
 		}
@@ -617,6 +767,7 @@ int main()
 			"\n"
 			"#define oGetAIManager 0x%lx\n"
 			"#define oGetBoundingRadius 0x%lx\n"
+			"#define oIsType 0x%lx\n"
 			"#define oIsHero 0x%lx\n"
 			"#define oIsMinion 0x%lx\n"
 			"#define oIsTurret 0x%lx\n"
@@ -721,6 +872,7 @@ int main()
 
 			oGetAIManager,
 			oGetBoundingRadius,
+			oIsType,
 			oIsHero,
 			oIsMinion,
 			oIsTurret,
@@ -816,5 +968,7 @@ int main()
 			oBuffFloatCount
 			);
 		offsetStream.close();
+
+		std::cout << "Process resumed" << std::endl;
 	}
 }

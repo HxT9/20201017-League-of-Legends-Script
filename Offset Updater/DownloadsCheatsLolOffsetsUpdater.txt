@@ -1,4 +1,4 @@
-﻿#define oObjectsManager 0x24b9b48
+#define oObjectsManager 0x24b9b48
 #define oLocalPlayer 0x31085ec
 #define oChatClientBox 0x3108ec8
 #define oChatHud 0x31085d0
@@ -12,7 +12,7 @@
 #define oIsHero 0x170960
 #define oIsMinion 0x1709a0
 #define oIsTurret 0x170a90
-#define oIsMissile 0x1709c0
+#define oIsMissile 0x0
 #define oIsTroy 0x170be0
 #define oIsAlive 0x1636f0
 #define oGetSpellState 0x4ea930
@@ -87,10 +87,10 @@
 #define oAIMGR_CurrentPos 0x2ec
 #define oAIMGR_Velocity 0x2f8
 
-#define oMissileSpellInfo 0x260
-#define oMissileSourceIndex 0x2c4
-#define oMissileStartPos 0x2dc
-#define oMissileEndPos oMissileStartPos + 0xc
+#define oMissileSpellInfo 0x278
+#define oMissileSourceIndex 0x2dc
+#define oMissileStartPos 0x2f4
+#define oMissileEndPos 0x300
 #define oMissileTargetIndex 0x330
 #define oMissileHasTarget 0x334
 

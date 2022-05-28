@@ -3,28 +3,26 @@
 #include <vector>
 #include "EntityBase.h"
 
-class EntitiesContainer
+namespace EntitiesContainer
 {
-public:
-	DWORD ObjManager = NULL;
-	DWORD EntityListStartAddress = NULL;
-	DWORD EntityListEndAddress = NULL;
-	DWORD MaxIndex = 0;
+	extern DWORD ObjManager;
+	extern DWORD EntityListStartAddress;
+	extern DWORD EntityListEndAddress;
+	extern DWORD MaxIndex;
 
-	std::vector<EntityBase*> entities;
+	extern std::vector<EntityBase*> Entities;
 
-	std::vector<int> heroesIndex;
-	std::vector<int> minionsIndex;
-	std::vector<int> turretsIndex;
-	std::vector<int> missilesIndex;
-	std::vector<int> troysIndex;
+	extern std::vector<int> HeroesIndex;
+	extern std::vector<int> MinionsIndex;
+	extern std::vector<int> TurretsIndex;
+	extern std::vector<int> MissilesIndex;
+	extern std::vector<int> TroysIndex;
 
-	EntitiesContainer();
 	void Init();
-	void resetEntities();
+	void ResetEntities();
 	EntityBase* GetEntityFromIndex(int index);
-	void tick();
-	void updateEL();
-	bool isValidObject(DWORD obj);
+	void Tick();
+	void UpdateEL();
+	bool IsValidObject(DWORD obj);
 };
 

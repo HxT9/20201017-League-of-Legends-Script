@@ -2,13 +2,11 @@
 #include "d3d9.h"
 #include "d3dx9.h"
 
-class ScriptManager
+namespace ScriptManager
 {
-public:
-	bool initLP = false;
-	bool initHelpers = false;
+	extern bool InitLP;
+	extern bool InitHelpers;
 
-public:
 	void Tick(LPDIRECT3DDEVICE9 pDevice);
 	void Init(LPDIRECT3DDEVICE9 pDevice);
 };

@@ -2,121 +2,120 @@
 #include "globalVars.h"
 #include "offsets.h"
 #include "Enums.h"
+#include "GameFunctions.h"
+#include "IMGUIManager.h"
 
-EntitiesContainer::EntitiesContainer() {
-	EntityListStartAddress = NULL;
-	EntityListEndAddress = NULL;
-	MaxIndex = 0;	
-}
+namespace EntitiesContainer {
+	DWORD ObjManager = NULL;
+	DWORD EntityListStartAddress = NULL;
+	DWORD EntityListEndAddress = NULL;
+	DWORD MaxIndex = NULL;
 
-void EntitiesContainer::Init() {
-	ObjManager = *(DWORD*)(baseAddress + oObjectsManager);
+	std::vector<EntityBase*> Entities;
 
-	entities.clear();
-	for (int i = 0; i < 0x10000; i++) {
-		entities.push_back(new EntityBase());
-	}
-}
+	std::vector<int> HeroesIndex;
+	std::vector<int> MinionsIndex;
+	std::vector<int> TurretsIndex;
+	std::vector<int> MissilesIndex;
+	std::vector<int> TroysIndex;
 
-void EntitiesContainer::resetEntities() {
-	heroesIndex.clear();
-	minionsIndex.clear();
-	turretsIndex.clear();
-	missilesIndex.clear();
-	troysIndex.clear();
-}
+	void Init() {
+		EntityListStartAddress = NULL;
+		EntityListEndAddress = NULL;
+		MaxIndex = 0;
 
-EntityBase* EntitiesContainer::GetEntityFromIndex(int index) {
-	if (entities[index]->PCObject)
-		return entities[index];
+		ObjManager = *(DWORD*)(baseAddress + oObjectsManager);
 
-	return &EntityBase();
-}
-
-void EntitiesContainer::tick() {
-	if (ObjManager == NULL)
-		return;
-
-	updateEL();
-	
-	resetEntities();
-
-	int index;
-	CObject *CurrentObj;
-
-	for(DWORD i = EntityListStartAddress; i < EntityListEndAddress; i += 4){
-		index = (i - EntityListStartAddress) / 4;
-
-		if (isValidObject(i)) {
-			CurrentObj = *(CObject**)i;
-
-			/*if (GH.isTroy(CurrentObj)) {
-				if (entities[index]->PCObject != CurrentObj)
-					entities[index] = &EntityBase(CurrentObj, EntityType::Troy);
-				troysIndex.push_back(index);
-				entities[index]->UpdateAttributes();
-				continue;
-			}*/
-			if (GH.isMinion(CurrentObj)) {
-				if (entities[index]->PCObject != CurrentObj)
-					entities[index]->Init(CurrentObj, EntityType::Minion);
-				minionsIndex.push_back(index);
-				entities[index]->UpdateAttributes();
-				continue;
-			}
-			if (GH.isMissile(CurrentObj)) {
-				if (entities[index]->PCObject != CurrentObj)
-					entities[index]->Init(CurrentObj, EntityType::Missile);
-				missilesIndex.push_back(index);
-				entities[index]->UpdateAttributes();
-				continue;
-			}
-			if (GH.isTurret(CurrentObj)) {
-				if (entities[index]->PCObject != CurrentObj)
-					entities[index]->Init(CurrentObj, EntityType::Turret);
-				turretsIndex.push_back(index);
-				entities[index]->UpdateAttributes();
-				continue;
-			}
-			if (GH.isHero(CurrentObj)) {
-				if (entities[index]->PCObject != CurrentObj)
-					entities[index]->Init(CurrentObj, EntityType::Hero);
-				heroesIndex.push_back(index);
-				entities[index]->UpdateAttributes();
-				continue;
-			}
-			entities[index]->Delete();
-		}
-		else {
-			entities[index]->Delete();
+		Entities.clear();
+		for (int i = 0; i < 0x10000; i++) {
+			Entities.push_back(new EntityBase());
 		}
 	}
-}
 
-void EntitiesContainer::updateEL() {
-	EntityListStartAddress = ((DWORD*)ObjManager)[5];
-	EntityListEndAddress = ((DWORD*)ObjManager)[6];
-	MaxIndex = (EntityListEndAddress - EntityListStartAddress) / 4;
-}
+	void ResetEntities() {
+		HeroesIndex.clear();
+		MinionsIndex.clear();
+		TurretsIndex.clear();
+		MissilesIndex.clear();
+		TroysIndex.clear();
+	}
 
-bool EntitiesContainer::isValidObject(DWORD obj) {
-	return *(DWORD*)obj && !(*(BYTE*)obj & 1);
-}
+	EntityBase* GetEntityFromIndex(int index) {
+		if (Entities[index]->PCObject)
+			return Entities[index];
 
-/*CObject* EntitiesContainer::getNextObject(CObject* curObj) {
-	int nextIndex = curObj->Index + 1;
-	DWORD nextAddr;
+		return &EntityBase();
+	}
 
-	if (nextIndex < MaxIndex) { //maxIndex escluso
-		nextAddr = EntityListStartAddress + nextIndex * 4;
-		
-		while (!isValidObject(nextAddr)) {
-			nextIndex++;
-			nextAddr += 4;
+	void Tick() {
+		if (ObjManager == NULL)
+			return;
 
-			if (nextIndex >= MaxIndex)
-				break;
+		UpdateEL();
+
+		ResetEntities();
+
+		int index;
+		CObject* CurrentObj;
+
+		for (DWORD i = EntityListStartAddress; i < EntityListEndAddress; i += 4) {
+			index = (i - EntityListStartAddress) / 4;
+
+			if (IsValidObject(i)) {
+				CurrentObj = *(CObject**)i;
+
+				/*if (GameFunctions::IsTroy(CurrentObj)) {
+					if (entities[index]->PCObject != CurrentObj)
+						entities[index] = &EntityBase(CurrentObj, EntityType::Troy);
+					troysIndex.push_back(index);
+					entities[index]->UpdateAttributes();
+					continue;
+				}*/
+				if (GameFunctions::IsType(CurrentObj, ObjectTypeFlags::Minion)) {
+					if (Entities[index]->PCObject != CurrentObj)
+						Entities[index]->Init(CurrentObj, EntityType::Minion);
+					MinionsIndex.push_back(index);
+					Entities[index]->UpdateAttributes();
+					continue;
+				}
+				if (GameFunctions::IsType(CurrentObj, ObjectTypeFlags::Missile)) {
+					if (Entities[index]->PCObject != CurrentObj)
+						Entities[index]->Init(CurrentObj, EntityType::Missile);
+					MissilesIndex.push_back(index);
+					Entities[index]->UpdateAttributes();
+					continue;
+				}
+				if (GameFunctions::IsType(CurrentObj, ObjectTypeFlags::Turret)) {
+					if (Entities[index]->PCObject != CurrentObj)
+						Entities[index]->Init(CurrentObj, EntityType::Turret);
+					TurretsIndex.push_back(index);
+					Entities[index]->UpdateAttributes();
+					continue;
+				}
+				if (GameFunctions::IsType(CurrentObj, ObjectTypeFlags::Hero)) {
+					if (Entities[index]->PCObject != CurrentObj)
+						Entities[index]->Init(CurrentObj, EntityType::Hero);
+					HeroesIndex.push_back(index);
+					Entities[index]->UpdateAttributes();
+					continue;
+				}
+
+				Entities[index]->Delete();
+			}
+			else {
+				Entities[index]->Delete();
+				continue;
+			}
 		}
 	}
-	return NULL;
-}*/
+
+	void UpdateEL() {
+		EntityListStartAddress = ((DWORD*)ObjManager)[5];
+		EntityListEndAddress = ((DWORD*)ObjManager)[6];
+		MaxIndex = (EntityListEndAddress - EntityListStartAddress) / 4;
+	}
+
+	bool IsValidObject(DWORD obj) {
+		return *(DWORD*)obj && !(*(BYTE*)obj & 1);
+	}
+}

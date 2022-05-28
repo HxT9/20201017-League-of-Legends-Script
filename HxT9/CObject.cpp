@@ -1,6 +1,8 @@
 #include "CObject.h"
 #include "offsets.h"
 #include "globalVars.h"
+#include "GameFunctions.h"
+#include "UtilityFunctions.h"
 
 
 template< typename Function > Function CallVirtual(PVOID Base, DWORD Index)
@@ -24,7 +26,7 @@ Vector3 CObject::GetPos() {
 	return *(Vector3*)((DWORD)this + oObjPos);
 }
 
-bool CObject::isTargetable() {
+bool CObject::IsTargetable() {
 	return *(bool*)((DWORD)this + oObjTargetable);
 }
 
@@ -69,17 +71,16 @@ bool CObject::IsVisible() {
 }
 
 float CObject::GetBoundingRadius() {
-	return GH.getBoundingRadius(this);
+	return GameFunctions::GetBoundingRadius(this);
 }
 
 void* CObject::GetAIManager() {
-	return GH.getAIManager(this);
+	return GameFunctions::GetAIManager(this);
 }
 
-void* CObject::GetAIManager2()
-{
-	typedef void*(__thiscall* OriginalFn)(PVOID);
-	return CallVirtual<OriginalFn>(this, 148)(this);
+bool CObject::IsWindingUp() {
+	typedef void* (__thiscall* OriginalFn)(PVOID);
+	return CallVirtual<OriginalFn>(this, 231)(this);
 }
 
 float CObject::GetAP() {
@@ -97,11 +98,11 @@ bool CObject::IsEnemyTo(CObject* Obj) {
 }
 
 char* CObject::GetName() {
-	return utils.GetString((DWORD)this + oObjName);
+	return UtilityFunctions::GetString((DWORD)this + oObjName);
 }
 
 char* CObject::GetObjectName() {
-	return utils.GetString((DWORD)this + oObjObjectName);
+	return UtilityFunctions::GetString((DWORD)this + oObjObjectName);
 }
 
 int CObject::GetTeam() {
@@ -167,15 +168,15 @@ Vector3 CObject::GetDestinationPos() {
 	return *(Vector3*)((DWORD)GetAIManager() + oAIMGR_TargetPos);
 }
 
-bool CObject::isMoving() {
+bool CObject::IsMoving() {
 	return *(bool*)((DWORD)GetAIManager() + oAIMGR_IsMoving);
 }
 
-bool CObject::isDashing() {
-	return *(bool*)((DWORD)GetAIManager() + oAIMGR_IsDashing) && isMoving();
+bool CObject::IsDashing() {
+	return *(bool*)((DWORD)GetAIManager() + oAIMGR_IsDashing) && IsMoving();
 }
 
-int CObject::getAIMgrPassedWaypoints() {
+int CObject::GetAIMgrPassedWaypoints() {
 	return *(int*)((DWORD)GetAIManager() + oAIMGR_PassedWaypoints);
 }
 
@@ -206,70 +207,18 @@ float CObject::GetMovementSpeed() {
 	return *(float*)((DWORD)this + oObjMoveSpeed);
 }
 
-int CObject::getCloseEnemyMinions(float range) {
+int CObject::GetCloseEnemyMinions(float range) {
 	int ret = 0;
 	EntityBase* temp;
-	for (int i = 0; i < entitiesContainer.minionsIndex.size(); i++) {
-		temp = entitiesContainer.entities[entitiesContainer.minionsIndex[i]];
-		if (utils.isValidTarget(temp) && temp->Team != GetTeam() && temp->Pos.distTo(GetPos()) < range) {
+	for (int i = 0; i < EntitiesContainer::MinionsIndex.size(); i++) {
+		temp = EntitiesContainer::Entities[EntitiesContainer::MinionsIndex[i]];
+		if (UtilityFunctions::IsValidTarget(temp) && temp->Team != GetTeam() && temp->Pos.distTo(GetPos()) < range) {
 			ret++;
 		}
 	}
 	return ret;
 }
 
-BuffManager* CObject::getBuffManager() {
+BuffManager* CObject::GetBuffManager() {
 	return (BuffManager*)((DWORD)this + oObjBuffMgr);
-}
-
-bool CObject::isWindingUp() {
-	typedef void* (__thiscall* OriginalFn)(PVOID);
-	return CallVirtual<OriginalFn>(this, 231)(this);
-}
-
-bool CObject::isObjType(int type)
-{
-	unsigned __int8* v2; // edi
-	unsigned int v3; // edx
-	unsigned int v4; // esi
-	int* v5; // ecx
-	int v6; // eax
-	unsigned __int8 v7; // al
-	unsigned int v8; // eax
-	unsigned __int8* v9; // edx
-	char v10; // cl
-	int objectId; // [esp+8h] [ebp-4h]
-
-	v2 = (unsigned __int8*)this;
-	v3 = 0;
-	v4 = *(BYTE*)(v2 + 81);
-
-	objectId = *(DWORD*)&v2[4 * v2[88] + 92];
-	if (v4)
-	{
-		v5 = (int*)(this + 84);
-		do
-		{
-			v6 = *v5;
-			++v5;
-			*(&objectId + v3) ^= ~v6;
-			++v3;
-		} while (v3 < v4);
-	}
-	v7 = v2[82];
-	if (v7)
-	{
-		v8 = 4 - v7;
-		if (v8 < 4)
-		{
-			v9 = &v2[v8 + 84];
-			do
-			{
-				v10 = *v9++;
-				*((BYTE*)&objectId + v8++) ^= ~v10;
-			} while (v8 < 4);
-		}
-	}
-
-	return (objectId & type) != 0;
 }
