@@ -1,10 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "sk/1M/qUHmIoEW58j4WRKrjQVOI4yafgsdiW9j1C41pMTrWfyxGid+dHbeptZUSAQR6KXFtNg96sBauz2H8UuQ==",
+  "dgSpecHash": "5tfjROGegMTtqt3qGhNDNmymiUTnb8MsOMLMUdBv3unEubNDYB2Gknz6DHAIUpQfQOpjpYpcRZsP6/UFNDciPg==",
   "success": true,
   "projectFilePath": "E:\\alber\\source\\repos\\20201017-League-of-Legends-Script\\SigConverter\\SigConverter.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\alber\\.nuget\\packages\\microsoft.netcore.app.host.win-x86\\5.0.16\\microsoft.netcore.app.host.win-x86.5.0.16.nupkg.sha512"
+    "C:\\Users\\HxT9\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\5.0.0\\microsoft.windowsdesktop.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\HxT9\\.nuget\\packages\\microsoft.netcore.app.ref\\5.0.0\\microsoft.netcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\HxT9\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\5.0.0\\microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512",
+    "C:\\Users\\HxT9\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.17\\microsoft.netcore.app.host.win-x64.5.0.17.nupkg.sha512"
   ],
   "logs": []
 }

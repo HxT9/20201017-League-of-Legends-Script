@@ -10,7 +10,13 @@ Inject in a process that interacts with lol (like blitz)
 
 Thread hijack injection
 */
+HMODULE thisDll;
 
+DWORD WINAPI Unload(LPVOID lpParam) {
+	Sleep(1000);
+	FreeLibraryAndExitThread(thisDll, 0);
+	Sleep(1000);
+}
 
 void do_things(HMODULE hModule) {
 	bool injected = false;
@@ -25,6 +31,8 @@ void do_things(HMODULE hModule) {
 	HANDLE hProcess;
 	LPVOID pDllPath;
 	HANDLE hLoadThread;
+
+	thisDll = hModule;
 
 	entry.dwSize = sizeof(PROCESSENTRY32);
 	while (!injected) {
@@ -73,7 +81,11 @@ void do_things(HMODULE hModule) {
 		}
 		CloseHandle(snapshot);
 	}
+
+	CreateThread(NULL, 0, Unload, NULL, 0, NULL);
 }
+
+
 
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,

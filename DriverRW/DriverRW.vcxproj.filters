@@ -17,6 +17,9 @@
       <UniqueIdentifier>{8E41214B-6785-4CFE-B992-037D68949A14}</UniqueIdentifier>
       <Extensions>inf;inv;inx;mof;mc;</Extensions>
     </Filter>
+    <Filter Include="Source Files\InfinityHook">
+      <UniqueIdentifier>{b99eca12-0b97-4542-875a-3a7a289d88ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="DriverRW.inf">
@@ -24,13 +27,61 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Driver.c">
+    <ClCompile Include="Driver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libinfinityhook\hde\hde64.cpp">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClCompile>
+    <ClCompile Include="libinfinityhook\img.cpp">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClCompile>
+    <ClCompile Include="libinfinityhook\infinityhook.cpp">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClCompile>
+    <ClCompile Include="libinfinityhook\mm.cpp">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClCompile>
+    <ClCompile Include="libinfinityhook\stdafx.cpp">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ntos.h">
+    <ClInclude Include="Driver.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="libinfinityhook\hde\hde64.h">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClInclude>
+    <ClInclude Include="libinfinityhook\hde\pstdint.h">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClInclude>
+    <ClInclude Include="libinfinityhook\hde\table64.h">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClInclude>
+    <ClInclude Include="libinfinityhook\img.h">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClInclude>
+    <ClInclude Include="libinfinityhook\infinityhook.h">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClInclude>
+    <ClInclude Include="libinfinityhook\mm.h">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClInclude>
+    <ClInclude Include="libinfinityhook\ntint.h">
+      <Filter>Source Files\InfinityHook</Filter>
+    </ClInclude>
+    <ClInclude Include="libinfinityhook\stdafx.h">
+      <Filter>Source Files\InfinityHook</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

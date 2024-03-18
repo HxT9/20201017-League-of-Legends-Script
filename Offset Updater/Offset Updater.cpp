@@ -244,6 +244,7 @@ int main()
 	DWORD oGameTime = 0;
 	DWORD oMinimapObj = 0;
 	DWORD oHudInstance = 0;
+	DWORD oHeroList = 0;
 
 	//Functions
 	DWORD oGetAIManager = 0;
@@ -352,6 +353,7 @@ int main()
 	std::string patternGameTime = "F3 0F 5C 0D ? ? ? ? 0F 2F C1 F3";
 	std::string patternMinimapObj = "8B 0D ? ? ? ? 66 0F 6E C6";
 	std::string patternHudInstance = "8B 0D ? ? ? ? FF 70 FC 8B 49 0C E8 ? ? ? ? C6";
+	std::string patternHeroList = "8B 15 ? ? ? ? 0F 44 C1";
 
 	//Functions
 	std::string patternGetAIManager = "E8 ? ? ? ? 6A ? 6A 01 FF 74 24 14";
@@ -411,7 +413,7 @@ int main()
 	std::string patternActiveSpellChannelEndTime = "";
 
 	std::string patternSpellBookSpellSlots = "8B 38 E8 ? ? ? ? 8B F0"; //+ 8B 84 81 ? ? ? ?
-	std::string patternSpellSlotSpellLvl = "E8 ? ? ? ? 3B 47 08";
+	std::string patternSpellSlotSpellLvl = "8B CD E8 ? ? ? ? 40 50";
 	std::string patternSpellSlotSpellReady = "F3 0F 10 4E ? D9 5C 24 0C";
 	std::string patternSpellSlotSpellInfo = "E8 ? ? ? ? 8B 50 ? 8B 8A";
 
@@ -486,6 +488,10 @@ int main()
 		tempAddr = FindPatternEx(hModule, convertPattern(patternHudInstance), createMask(patternHudInstance), SearchType::Text);
 		if (tempAddr)
 			oHudInstance = Read<DWORD>(tempAddr + 2) - (DWORD)hModule.modBaseAddr;
+
+		tempAddr = FindPatternEx(hModule, convertPattern(patternHeroList), createMask(patternHeroList), SearchType::Text);
+		if (tempAddr)
+			oHeroList = Read<DWORD>(tempAddr + 2) - (DWORD)hModule.modBaseAddr;
 
 		tempAddr = FindPatternEx(hModule, convertPattern(patternGetAIManager), createMask(patternGetAIManager), SearchType::Text);
 		if (tempAddr)
@@ -764,6 +770,7 @@ int main()
 			"#define oGameTime 0x%lx\n"
 			"#define oMinimapObj 0x%lx\n"
 			"#define oHudInstance 0x%lx\n"
+			"#define oHeroList 0x%lx\n"
 			"\n"
 			"#define oGetAIManager 0x%lx\n"
 			"#define oGetBoundingRadius 0x%lx\n"
@@ -869,6 +876,7 @@ int main()
 			oGameTime,
 			oMinimapObj,
 			oHudInstance,
+			oHeroList,
 
 			oGetAIManager,
 			oGetBoundingRadius,

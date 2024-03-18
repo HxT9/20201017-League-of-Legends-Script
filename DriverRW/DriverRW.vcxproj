@@ -75,6 +75,7 @@
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>KMDF</DriverType>
     <DriverTargetPlatform>Universal</DriverTargetPlatform>
+    <Driver_SpectreMitigation>Spectre</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -147,6 +148,7 @@
     <ClCompile>
       <TreatWarningAsError>false</TreatWarningAsError>
       <AdditionalIncludeDirectories>E:\Downloads\Cheats\HookLib-master\HookLib\HookLib;E:\Downloads\Cheats\MinHook_133_lib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CallingConvention>StdCall</CallingConvention>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -161,10 +163,26 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Driver.c" />
+    <ClCompile Include="Driver.cpp" />
+    <ClCompile Include="Helpers.cpp" />
+    <ClCompile Include="libinfinityhook\hde\hde64.cpp" />
+    <ClCompile Include="libinfinityhook\img.cpp" />
+    <ClCompile Include="libinfinityhook\infinityhook.cpp" />
+    <ClCompile Include="libinfinityhook\mm.cpp" />
+    <ClCompile Include="libinfinityhook\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ntos.h" />
+    <ClInclude Include="Driver.h" />
+    <ClInclude Include="libinfinityhook\hde\hde64.h" />
+    <ClInclude Include="libinfinityhook\hde\pstdint.h" />
+    <ClInclude Include="libinfinityhook\hde\table64.h" />
+    <ClInclude Include="libinfinityhook\img.h" />
+    <ClInclude Include="libinfinityhook\infinityhook.h" />
+    <ClInclude Include="libinfinityhook\mm.h" />
+    <ClInclude Include="libinfinityhook\ntint.h" />
+    <ClInclude Include="libinfinityhook\stdafx.h" />
+    <ClInclude Include="ntint.h" />
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
